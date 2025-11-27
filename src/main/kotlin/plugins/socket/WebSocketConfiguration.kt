@@ -1,7 +1,11 @@
 package at.eventful.messless.plugins.socket
 
+import at.eventful.messless.plugins.socket.model.IncomingMessage
 import at.eventful.messless.plugins.socket.model.WebSocketConnection
+import at.eventful.messless.plugins.socket.model.WebSocketErrorResponse
+import at.eventful.messless.plugins.socket.model.WebSocketResponse
 import at.eventful.messless.router
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
@@ -35,15 +39,32 @@ fun Application.configureWebSocket() {
             runCatching {
                 incoming.consumeEach { frame ->
                     if (frame is Frame.Text) {
+                        var incoming: IncomingMessage? = null
                         runCatching {
-                            val incoming = messageConverter.deserialize(frame.readText())
+                            incoming = messageConverter.deserialize(frame.readText())
                             WS_LOGGER.trace("Received message: {}", incoming)
                             send(router.route(incoming, connection).toFrame(incoming.id))
                         }.onFailure {
-                            WS_LOGGER.warn(
-                                "An error occurred handling the last message: {}",
-                                it.localizedMessage
-                            )
+                            if (incoming == null) {
+                                WS_LOGGER.warn("An unhandled error occurred handling the last message, but incoming message is null - responding with id = -1! ${it.localizedMessage}")
+                            }
+
+                            when (it) {
+                                is WebSocketErrorResponse -> {
+                                    WS_LOGGER.trace("A handled error occurred handling the last message: ${it.localizedMessage}")
+                                    send(it.toWebSocketResponse().toFrame(incoming?.id ?: -1))
+                                }
+
+                                else -> {
+                                    WS_LOGGER.warn("An unhandled error occurred handling the last message: ${it.localizedMessage}")
+                                    send(
+                                        WebSocketResponse(
+                                            HttpStatusCode.InternalServerError,
+                                            HttpStatusCode.InternalServerError.description
+                                        ).toFrame(incoming?.id ?: -1)
+                                    )
+                                }
+                            }
                         }
                     }
                 }

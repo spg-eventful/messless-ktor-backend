@@ -1,8 +1,11 @@
 package at.eventful.messless.plugins.socket
 
+import at.eventful.messless.errors.ServiceAlreadyRegistered
 import at.eventful.messless.plugins.socket.model.IncomingMessage
 import at.eventful.messless.plugins.socket.model.WebSocketConnection
+import at.eventful.messless.plugins.socket.model.WebSocketErrorResponse
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
+import io.ktor.http.*
 import io.ktor.util.logging.*
 
 internal val LOGGER = KtorSimpleLogger("WebSocketRouter")
@@ -20,7 +23,10 @@ class WebSocketRouter {
     /** Let the router know the [service] exists. This has to be done for a service to be routable */
     fun register(service: WebSocketService) {
         LOGGER.info("Registering service ${service.name}")
-        if (routes.containsKey(service.name.lowercase())) TODO("Handle service already registered")
+        if (routes.containsKey(service.name.lowercase())) {
+            throw ServiceAlreadyRegistered(service)
+        }
+
         routes[service.name.lowercase()] = service
     }
 
@@ -33,7 +39,9 @@ class WebSocketRouter {
         connection: WebSocketConnection
     ): WebSocketResponse {
         LOGGER.trace("Routing ${incoming.method.name} ${incoming.service}")
-        val service = routes[incoming.service] ?: TODO("THROW NOTFOUND")
+        val service = routes[incoming.service] ?: throw WebSocketErrorResponse(
+            HttpStatusCode.NotFound, "${incoming.service} service not found!"
+        )
         return service.route(incoming, connection)
     }
 }

@@ -1,9 +1,6 @@
 package at.eventful.messless.plugins.socket
 
-import at.eventful.messless.plugins.socket.model.IncomingMessage
-import at.eventful.messless.plugins.socket.model.Method
-import at.eventful.messless.plugins.socket.model.WebSocketConnection
-import at.eventful.messless.plugins.socket.model.WebSocketResponse
+import at.eventful.messless.plugins.socket.model.*
 import io.ktor.http.*
 
 /**
@@ -20,8 +17,8 @@ data class ServiceMethod(val incoming: IncomingMessage, val connection: WebSocke
  * (Example: `users`, `auth/register` or `auth/session`)
  */
 open class WebSocketService(val name: String) {
-    private fun methodNotAllowed(): WebSocketResponse {
-        return WebSocketResponse(
+    private fun methodNotAllowed(): WebSocketErrorResponse {
+        return WebSocketErrorResponse(
             HttpStatusCode.MethodNotAllowed,
             "Method not implemented/allowed!"
         )
@@ -51,26 +48,26 @@ open class WebSocketService(val name: String) {
 
     /** Create/Insert a new entity */
     open fun ServiceMethod.create(): WebSocketResponse {
-        return methodNotAllowed()
+        throw methodNotAllowed()
     }
 
     /** Get all entities */
     open fun ServiceMethod.find(): WebSocketResponse {
-        return methodNotAllowed()
+        throw methodNotAllowed()
     }
 
     /** Get a single entity, with id */
     open fun ServiceMethod.get(id: Int): WebSocketResponse {
-        return methodNotAllowed()
+        throw methodNotAllowed()
     }
 
     /** Update an existing entity partially */
     open fun ServiceMethod.update(): WebSocketResponse {
-        return methodNotAllowed()
+        throw methodNotAllowed()
     }
 
     /** Delete an entity */
     open fun ServiceMethod.delete(): WebSocketResponse {
-        return methodNotAllowed()
+        throw methodNotAllowed()
     }
 }
