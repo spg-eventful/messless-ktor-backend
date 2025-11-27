@@ -45,7 +45,7 @@ class MessageConverter() {
 
         // The service is not validated here, it is validated later, when we try to route the req.
         val service = components[2].trim().lowercase()
-        if (service.isEmpty()) throw MessageConversionError(message, "No service specified");
+        if (service.isEmpty()) throw MessageConversionError(message, "No service specified")
 
         val body = if (components.size == 4) components[3].trim() else null
 
