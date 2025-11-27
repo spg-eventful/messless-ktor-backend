@@ -1,5 +1,6 @@
 package at.eventful.messless.plugins.socket
 
+import at.eventful.messless.router
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
@@ -30,8 +31,9 @@ fun Application.configureWebSocket() {
                 incoming.consumeEach { frame ->
                     if (frame is Frame.Text) {
                         runCatching {
-                            val message = messageConverter.deserialize(frame.readText())
-                            log.info("[WS] Received message: {}", message)
+                            val incoming = messageConverter.deserialize(frame.readText())
+                            log.info("[WS] Received message: {}", incoming)
+                            send(router.route(incoming, connection).toFrame())
                         }.onFailure {
                             log.warn(
                                 "[WS] An error occurred handling the last message: {}",

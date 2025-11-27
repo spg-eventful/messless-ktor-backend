@@ -2,7 +2,9 @@ package at.eventful.messless.plugins.socket
 
 import io.ktor.http.*
 
-open class WebSocketService {
+data class ServiceMethod(val incoming: IncomingMessage, val connection: WebSocketConnection)
+
+open class WebSocketService(val name: String) {
     private fun methodNotAllowed(messageId: Int): WebSocketResponse {
         return WebSocketResponse(
             messageId,
@@ -11,36 +13,41 @@ open class WebSocketService {
         )
     }
 
-    open fun route(
-        method: Method,
-        decoded: IncomingMessage,
+    fun route(
+        incoming: IncomingMessage,
         connection: WebSocketConnection
     ): WebSocketResponse {
-        return when (method) {
-            Method.CREATE -> create(decoded, connection)
-            Method.READ -> read(decoded, connection)
-            Method.UPDATE -> update(decoded, connection)
-            Method.DELETE -> delete(decoded, connection)
+        val serviceMethod = ServiceMethod(incoming, connection)
+
+        return when (incoming.method) {
+            Method.CREATE -> serviceMethod.create()
+            Method.READ -> {
+                val id = incoming.body?.toIntOrNull() ?: return serviceMethod.find()
+                serviceMethod.get(id)
+            }
+
+            Method.UPDATE -> serviceMethod.update()
+            Method.DELETE -> serviceMethod.delete()
         }
     }
 
-    // open fun read(incoming: IncomingMessage, connection: WebSocketConnection): WebSocketResponse {
-    //     return methodNotAllowed(incoming.id)
-    // }
-
-    open fun read(incoming: IncomingMessage, connection: WebSocketConnection): WebSocketResponse {
+    open fun ServiceMethod.create(): WebSocketResponse {
         return methodNotAllowed(incoming.id)
     }
 
-    open fun create(incoming: IncomingMessage, connection: WebSocketConnection): WebSocketResponse {
+    open fun ServiceMethod.find(): WebSocketResponse {
         return methodNotAllowed(incoming.id)
     }
 
-    open fun update(incoming: IncomingMessage, connection: WebSocketConnection): WebSocketResponse {
+    open fun ServiceMethod.get(id: Int): WebSocketResponse {
         return methodNotAllowed(incoming.id)
     }
 
-    open fun delete(incoming: IncomingMessage, connection: WebSocketConnection): WebSocketResponse {
+    open fun ServiceMethod.update(): WebSocketResponse {
+        return methodNotAllowed(incoming.id)
+    }
+
+    open fun ServiceMethod.delete(): WebSocketResponse {
         return methodNotAllowed(incoming.id)
     }
 }
