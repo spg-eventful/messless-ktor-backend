@@ -5,10 +5,13 @@ import at.eventful.messless.router
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
+import io.ktor.util.logging.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.consumeEach
 import java.util.*
 import kotlin.time.Duration.Companion.seconds
+
+internal val WS_LOGGER = KtorSimpleLogger("WebSocket")
 
 fun Application.configureWebSocket() {
     install(WebSockets) {
@@ -17,13 +20,14 @@ fun Application.configureWebSocket() {
         maxFrameSize = Long.MAX_VALUE
         masking = false
     }
+    WS_LOGGER.info("Installed WebSocket plugin")
 
     routing {
         val messageConverter = MessageConverter()
         val connections = Collections.synchronizedMap<Int, WebSocketConnection>(LinkedHashMap())
 
         webSocket("/ws") {
-            log.info("[WS] Connected new consumer. Registering ...")
+            WS_LOGGER.info("Connected new consumer. Registering ...")
 
             val connection = WebSocketConnection(this)
             connections[connection.id] = connection
@@ -33,20 +37,20 @@ fun Application.configureWebSocket() {
                     if (frame is Frame.Text) {
                         runCatching {
                             val incoming = messageConverter.deserialize(frame.readText())
-                            log.info("[WS] Received message: {}", incoming)
+                            WS_LOGGER.trace("Received message: {}", incoming)
                             send(router.route(incoming, connection).toFrame(incoming.id))
                         }.onFailure {
-                            log.warn(
-                                "[WS] An error occurred handling the last message: {}",
+                            WS_LOGGER.warn(
+                                "An error occurred handling the last message: {}",
                                 it.localizedMessage
                             )
                         }
                     }
                 }
             }.onFailure { exception ->
-                log.warn("[WS]: ${exception.localizedMessage}")
+                WS_LOGGER.warn("[WS]: ${exception.localizedMessage}")
             }.also {
-                log.info("[WS] Removing a consumer ...")
+                WS_LOGGER.info("[WS] Removing a consumer ...")
                 connections.remove(connection.id)
             }
         }
