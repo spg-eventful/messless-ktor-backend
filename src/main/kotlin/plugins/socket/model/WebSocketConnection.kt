@@ -1,4 +1,4 @@
-package at.eventful.messless.plugins.socket
+package at.eventful.messless.plugins.socket.model
 
 import io.ktor.server.websocket.*
 import java.util.concurrent.atomic.AtomicInteger

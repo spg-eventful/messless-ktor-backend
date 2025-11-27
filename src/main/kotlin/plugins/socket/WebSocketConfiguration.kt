@@ -1,5 +1,6 @@
 package at.eventful.messless.plugins.socket
 
+import at.eventful.messless.plugins.socket.model.WebSocketConnection
 import at.eventful.messless.router
 import io.ktor.server.application.*
 import io.ktor.server.routing.*

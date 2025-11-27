@@ -1,11 +1,14 @@
 package at.eventful.messless.plugins.socket
 
+import at.eventful.messless.plugins.socket.model.IncomingMessage
+import at.eventful.messless.plugins.socket.model.Method
+
 class MessageConverter() {
     data class MessageConversionError(val messageToConvert: String, val error: String) :
         Error("Failed to convert message \"$messageToConvert\". $error")
 
     /**
-     * Takes in a [message] argument and converts it to an [IncomingMessage].
+     * Takes in a [message] argument and converts it to an [at.eventful.messless.plugins.socket.model.IncomingMessage].
      *
      * A message is formatted like this: `ID;METHOD;SERVICE;BODY?`, where the `?` signifies optionality.
      *
@@ -16,7 +19,7 @@ class MessageConverter() {
      * 2;READ;USERS;        <-  this is a find      request
      * ```
      *
-     * @throws IncomingMessage When conversion fails due to a malformed message
+     * @throws at.eventful.messless.plugins.socket.model.IncomingMessage When conversion fails due to a malformed message
      */
     @Throws(MessageConversionError::class)
     fun deserialize(message: String): IncomingMessage {

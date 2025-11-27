@@ -1,5 +1,8 @@
 package at.eventful.messless.plugins.socket
 
+import at.eventful.messless.plugins.socket.model.IncomingMessage
+import at.eventful.messless.plugins.socket.model.WebSocketConnection
+import at.eventful.messless.plugins.socket.model.WebSocketResponse
 import io.ktor.util.logging.*
 
 internal val LOGGER = KtorSimpleLogger("WebSocketRouter")

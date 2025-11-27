@@ -1,4 +1,4 @@
-package at.eventful.messless.plugins.socket
+package at.eventful.messless.plugins.socket.model
 
 import io.ktor.http.*
 import io.ktor.websocket.*

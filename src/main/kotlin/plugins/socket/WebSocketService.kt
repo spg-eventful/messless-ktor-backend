@@ -1,5 +1,9 @@
 package at.eventful.messless.plugins.socket
 
+import at.eventful.messless.plugins.socket.model.IncomingMessage
+import at.eventful.messless.plugins.socket.model.Method
+import at.eventful.messless.plugins.socket.model.WebSocketConnection
+import at.eventful.messless.plugins.socket.model.WebSocketResponse
 import io.ktor.http.*
 
 data class ServiceMethod(val incoming: IncomingMessage, val connection: WebSocketConnection)
