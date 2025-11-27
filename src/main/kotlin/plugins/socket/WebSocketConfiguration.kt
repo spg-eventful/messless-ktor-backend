@@ -34,7 +34,7 @@ fun Application.configureWebSocket() {
                         runCatching {
                             val incoming = messageConverter.deserialize(frame.readText())
                             log.info("[WS] Received message: {}", incoming)
-                            send(router.route(incoming, connection).toFrame())
+                            send(router.route(incoming, connection).toFrame(incoming.id))
                         }.onFailure {
                             log.warn(
                                 "[WS] An error occurred handling the last message: {}",

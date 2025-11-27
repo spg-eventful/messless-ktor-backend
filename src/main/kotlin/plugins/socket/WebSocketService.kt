@@ -9,9 +9,8 @@ import io.ktor.http.*
 data class ServiceMethod(val incoming: IncomingMessage, val connection: WebSocketConnection)
 
 open class WebSocketService(val name: String) {
-    private fun methodNotAllowed(messageId: Int): WebSocketResponse {
+    private fun methodNotAllowed(): WebSocketResponse {
         return WebSocketResponse(
-            messageId,
             HttpStatusCode.MethodNotAllowed,
             "Method not implemented/allowed!"
         )
@@ -36,22 +35,22 @@ open class WebSocketService(val name: String) {
     }
 
     open fun ServiceMethod.create(): WebSocketResponse {
-        return methodNotAllowed(incoming.id)
+        return methodNotAllowed()
     }
 
     open fun ServiceMethod.find(): WebSocketResponse {
-        return methodNotAllowed(incoming.id)
+        return methodNotAllowed()
     }
 
     open fun ServiceMethod.get(id: Int): WebSocketResponse {
-        return methodNotAllowed(incoming.id)
+        return methodNotAllowed()
     }
 
     open fun ServiceMethod.update(): WebSocketResponse {
-        return methodNotAllowed(incoming.id)
+        return methodNotAllowed()
     }
 
     open fun ServiceMethod.delete(): WebSocketResponse {
-        return methodNotAllowed(incoming.id)
+        return methodNotAllowed()
     }
 }

@@ -8,7 +8,6 @@ import io.ktor.http.*
 class EchoService : WebSocketService("echo") {
     override fun ServiceMethod.find(): WebSocketResponse {
         return WebSocketResponse(
-            incoming.id,
             HttpStatusCode.OK,
             incoming.body,
         )
