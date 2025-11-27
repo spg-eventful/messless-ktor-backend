@@ -1,4 +1,4 @@
-package com.example
+package at.eventful.messless
 
 import io.ktor.server.application.*
 
