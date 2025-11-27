@@ -45,14 +45,23 @@ fun Application.configureWebSocket() {
                             WS_LOGGER.trace("Received message: {}", incoming)
                             send(router.route(incoming, connection).toFrame(incoming.id))
                         }.onFailure {
-                            if (incoming == null) {
-                                WS_LOGGER.warn("An unhandled error occurred handling the last message, but incoming message is null - responding with id = -1! ${it.localizedMessage}")
+                            var incomingId = incoming?.id
+                            if (incomingId == null) {
+                                incomingId = frame
+                                    .readText()
+                                    .split(";")
+                                    .getOrNull(0)
+                                    ?.toIntOrNull() ?: -1
+                            }
+
+                            if (incomingId == -1) {
+                                WS_LOGGER.warn("An unhandled error occurred handling the last message, but incoming message is null - responding with id = -1!")
                             }
 
                             when (it) {
                                 is WebSocketErrorResponse -> {
                                     WS_LOGGER.trace("A handled error occurred handling the last message: ${it.localizedMessage}")
-                                    send(it.toWebSocketResponse().toFrame(incoming?.id ?: -1))
+                                    send(it.toWebSocketResponse().toFrame(incomingId))
                                 }
 
                                 else -> {
@@ -61,7 +70,7 @@ fun Application.configureWebSocket() {
                                         WebSocketResponse(
                                             HttpStatusCode.InternalServerError,
                                             HttpStatusCode.InternalServerError.description
-                                        ).toFrame(incoming?.id ?: -1)
+                                        ).toFrame(incomingId)
                                     )
                                 }
                             }
