@@ -4,13 +4,6 @@ class MessageConverter() {
     data class MessageConversionError(val messageToConvert: String, val error: String) :
         Error("Failed to convert message \"$messageToConvert\". $error")
 
-    enum class CrudMethods {
-        CREATE,
-        READ,
-        UPDATE,
-        DELETE,
-    }
-
     /**
      * Takes in a [message] argument and converts it to an [IncomingMessage].
      *
@@ -39,11 +32,11 @@ class MessageConverter() {
         )
 
         val method = try {
-            CrudMethods.valueOf(components[1].uppercase())
+            Method.valueOf(components[1].uppercase())
         } catch (_: IllegalArgumentException) {
             throw MessageConversionError(
                 message,
-                "Invalid method! Allowed methods are: ${CrudMethods.entries}!"
+                "Invalid method! Allowed methods are: ${Method.entries}!"
             )
         }
 
