@@ -1,9 +1,9 @@
 package at.eventful.messless.plugins.socket
 
 import at.eventful.messless.errors.ServiceAlreadyRegistered
+import at.eventful.messless.errors.WebSocketErrorResponse
 import at.eventful.messless.plugins.socket.model.IncomingMessage
 import at.eventful.messless.plugins.socket.model.WebSocketConnection
-import at.eventful.messless.plugins.socket.model.WebSocketErrorResponse
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
 import io.ktor.http.*
 import io.ktor.util.logging.*

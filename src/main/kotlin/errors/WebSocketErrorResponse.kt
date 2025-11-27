@@ -1,8 +1,9 @@
-package at.eventful.messless.plugins.socket.model
+package at.eventful.messless.errors
 
+import at.eventful.messless.plugins.socket.model.WebSocketResponse
 import io.ktor.http.*
 
-data class WebSocketErrorResponse(
+open class WebSocketErrorResponse(
     val code: Int,
     override val message: String,
 ) : Error() {

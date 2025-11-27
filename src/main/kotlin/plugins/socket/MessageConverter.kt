@@ -1,14 +1,19 @@
 package at.eventful.messless.plugins.socket
 
+import at.eventful.messless.errors.WebSocketErrorResponse
 import at.eventful.messless.plugins.socket.model.IncomingMessage
 import at.eventful.messless.plugins.socket.model.Method
+import io.ktor.http.*
 
 /**
  * Converts message in a string format to an [IncomingMessage]
  */
 class MessageConverter() {
     data class MessageConversionError(val messageToConvert: String, val error: String) :
-        Error("Failed to convert message \"$messageToConvert\". $error")
+        WebSocketErrorResponse(
+            HttpStatusCode.BadRequest,
+            "Failed to convert message \"$messageToConvert\". $error"
+        )
 
     /**
      * Takes in a [message] argument and converts it to an [at.eventful.messless.plugins.socket.model.IncomingMessage].
