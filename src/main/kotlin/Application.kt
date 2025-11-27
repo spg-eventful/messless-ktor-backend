@@ -16,4 +16,7 @@ fun Application.module() {
 
     // Register HTTP routes
     registerIndexRoute()
+
+    // Register WS routes
+    router.register(EchoService())
 }
