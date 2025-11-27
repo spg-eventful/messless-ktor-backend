@@ -1,5 +1,6 @@
 val kotlinVersion: String by project
 val logbackVersion: String by project
+val ktorVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.2.20"
@@ -19,6 +20,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("io.ktor:ktor-server-core")
     implementation("io.ktor:ktor-server-config-yaml")
+    implementation("io.ktor:ktor-server-websockets:$ktorVersion")
 
     // Testing
     testImplementation("io.ktor:ktor-server-test-host")
