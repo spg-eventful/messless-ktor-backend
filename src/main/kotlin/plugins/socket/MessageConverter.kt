@@ -3,6 +3,9 @@ package at.eventful.messless.plugins.socket
 import at.eventful.messless.plugins.socket.model.IncomingMessage
 import at.eventful.messless.plugins.socket.model.Method
 
+/**
+ * Converts message in a string format to an [IncomingMessage]
+ */
 class MessageConverter() {
     data class MessageConversionError(val messageToConvert: String, val error: String) :
         Error("Failed to convert message \"$messageToConvert\". $error")
