@@ -55,40 +55,40 @@ class WebSocketMessageSchemaTest {
             run {
                 send(Frame.Text(""))
                 val res = WebSocketResponse.fromString(receiveText())
-                assertEquals(res.id, -1)
-                assertEquals(res.statusCode, HttpStatusCode.BadRequest.value)
+                assertEquals(-1, res.id)
+                assertEquals(HttpStatusCode.BadRequest.value, res.statusCode)
             }
 
             // No id passed
             run {
                 send(Frame.Text(";;;"))
                 val res = WebSocketResponse.fromString(receiveText())
-                assertEquals(res.id, -1)
-                assertEquals(res.statusCode, HttpStatusCode.BadRequest.value)
+                assertEquals(-1, res.id)
+                assertEquals(HttpStatusCode.BadRequest.value, res.statusCode)
             }
 
             // Method not known
             run {
                 send(Frame.Text("0;;;"))
                 val res = WebSocketResponse.fromString(receiveText())
-                assertEquals(res.id, 0)
-                assertEquals(res.statusCode, HttpStatusCode.BadRequest.value)
+                assertEquals(0, res.id)
+                assertEquals(HttpStatusCode.BadRequest.value, res.statusCode)
             }
 
             // Service not found test
             run {
                 send(Frame.Text("0;read;"))
                 val res = WebSocketResponse.fromString(receiveText())
-                assertEquals(res.id, 0)
-                assertEquals(res.statusCode, HttpStatusCode.BadRequest.value)
+                assertEquals(0, res.id)
+                assertEquals(HttpStatusCode.BadRequest.value, res.statusCode)
             }
 
             // Service not found test
             run {
                 send(Frame.Text("0;read;service_does_not_exist"))
                 val res = WebSocketResponse.fromString(receiveText())
-                assertEquals(res.id, 0)
-                assertEquals(res.statusCode, HttpStatusCode.NotFound.value)
+                assertEquals(0, res.id)
+                assertEquals(HttpStatusCode.NotFound.value, res.statusCode)
             }
         }
     }
