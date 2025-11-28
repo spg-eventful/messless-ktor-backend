@@ -86,9 +86,9 @@ fun Application.configureWebSocket() {
                     }
                 }
             }.onFailure { exception ->
-                WS_LOGGER.warn("[WS]: ${exception.localizedMessage}")
+                WS_LOGGER.warn("A critical unhandeled error occurred: ${exception.localizedMessage}")
             }.also {
-                WS_LOGGER.info("[WS] Removing a consumer ...")
+                WS_LOGGER.info("Removing a consumer ...")
                 connections.remove(connection.id)
             }
         }

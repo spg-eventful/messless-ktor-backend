@@ -7,7 +7,6 @@ import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
 
 
-
 open class WebSocketErrorResponse(
     val code: Int,
     override val message: String,

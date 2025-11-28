@@ -26,7 +26,7 @@ data class WebSocketResponse(
     )
 
     data class InvalidWebSocketResponse(val s: String) :
-        Error("$s is not a valid WebSocketResponse and cannot be parsed as one.");
+        Error("$s is not a valid WebSocketResponse and cannot be parsed as one.")
 
     /**
      * Convert a [WebSocketResponse] to a [Frame].
