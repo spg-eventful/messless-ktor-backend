@@ -34,9 +34,8 @@ data class WebSocketResponse(
      * @param id nullable, when present (not-null) overrides `this.id`. is used as the INCOMING_ID
      */
     fun toFrame(id: Int? = this.id): Frame {
-        if (id == null && this.id == null) throw IllegalStateException("Unable to convert to frame without an id! Set the id first or pass it!")
-        if (id != null) this.id = id
-        return Frame.Text("${this.id};$statusCode;$body")
+        if (id == null) throw IllegalStateException("Unable to convert to frame without an id! Set the id first or pass it!")
+        return Frame.Text("${id};$statusCode;$body")
     }
 
     companion object {

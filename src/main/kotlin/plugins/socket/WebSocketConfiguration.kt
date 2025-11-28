@@ -75,6 +75,14 @@ fun Application.configureWebSocket() {
                                 }
                             }
                         }
+                    } else {
+                        WS_LOGGER.debug("Received incoming message with wrong format. Actual: Binary, Expected: Text")
+                        send(
+                            WebSocketResponse(
+                                HttpStatusCode.MethodNotAllowed,
+                                "frame has to be in text format, not binary!"
+                            ).toFrame(-1)
+                        )
                     }
                 }
             }.onFailure { exception ->

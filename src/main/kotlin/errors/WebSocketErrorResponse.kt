@@ -20,7 +20,7 @@ open class WebSocketErrorResponse(
     ) : this(code.value, message, errorClass)
 
     @Serializable
-    private data class ErrorResponse(val message: String, val errorClass: String)
+    internal data class ErrorResponse(val message: String, val errorClass: String)
 
     fun toWebSocketResponse(): WebSocketResponse = WebSocketResponse(
         code,

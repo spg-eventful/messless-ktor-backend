@@ -1,3 +1,5 @@
+package plugins.socket
+
 import at.eventful.messless.module
 import at.eventful.messless.plugins.socket.model.IncomingMessage
 import at.eventful.messless.plugins.socket.model.Method
@@ -6,6 +8,7 @@ import io.ktor.client.plugins.websocket.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.ktor.websocket.*
+import testutils.receiveText
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -13,9 +16,6 @@ import kotlin.test.assertEquals
  * This test checks the behaviour of the WebSocket message handling implementation.
  */
 class WebSocketMessageSchemaTest {
-    suspend fun DefaultClientWebSocketSession.receiveText() =
-        (incoming.receive() as? Frame.Text)?.readText() ?: ""
-
     // Message schema
     // ID;METHOD;SERVICE;BODY
     // Response schema
@@ -28,7 +28,7 @@ class WebSocketMessageSchemaTest {
             module()
         }
         val client = createClient {
-            install(WebSockets)
+            install(WebSockets.Plugin)
         }
 
         client.webSocket("/ws") {
@@ -47,7 +47,7 @@ class WebSocketMessageSchemaTest {
             module()
         }
         val client = createClient {
-            install(WebSockets)
+            install(WebSockets.Plugin)
         }
 
         client.webSocket("/ws") {
@@ -70,6 +70,14 @@ class WebSocketMessageSchemaTest {
             // Method not known
             run {
                 send(Frame.Text("0;;;"))
+                val res = WebSocketResponse.fromString(receiveText())
+                assertEquals(res.id, 0)
+                assertEquals(res.statusCode, HttpStatusCode.BadRequest.value)
+            }
+
+            // Service not found test
+            run {
+                send(Frame.Text("0;read;"))
                 val res = WebSocketResponse.fromString(receiveText())
                 assertEquals(res.id, 0)
                 assertEquals(res.statusCode, HttpStatusCode.BadRequest.value)
