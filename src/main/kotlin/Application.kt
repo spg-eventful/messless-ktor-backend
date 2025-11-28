@@ -18,5 +18,6 @@ fun Application.module() {
     registerIndexRoute()
 
     // Register WS routes
+    router.removeAllRoutes()
     router.register(EchoService())
 }

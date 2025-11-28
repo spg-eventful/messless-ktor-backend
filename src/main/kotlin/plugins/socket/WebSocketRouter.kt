@@ -17,6 +17,9 @@ internal val LOGGER = KtorSimpleLogger("WebSocketRouter")
 class WebSocketRouter {
     private val routes = LinkedHashMap<String, WebSocketService>()
 
+    /** Remove all routes from this router */
+    fun removeAllRoutes() = routes.clear()
+
     /** Let the router know the [services] exist. This has to be done for a service to be routable */
     fun register(vararg services: WebSocketService) = services.forEach { register(it) }
 
