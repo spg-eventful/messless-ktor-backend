@@ -25,6 +25,9 @@ data class WebSocketResponse(
         statusCode.value, body, id = id
     )
 
+    data class InvalidWebSocketResponse(val s: String) :
+        Error("$s is not a valid WebSocketResponse and cannot be parsed as one.");
+
     /**
      * Convert a [WebSocketResponse] to a [Frame].
      *
@@ -34,5 +37,21 @@ data class WebSocketResponse(
         if (id == null && this.id == null) throw IllegalStateException("Unable to convert to frame without an id! Set the id first or pass it!")
         if (id != null) this.id = id
         return Frame.Text("${this.id};$statusCode;$body")
+    }
+
+    companion object {
+        fun fromString(s: String): WebSocketResponse {
+            return try {
+                val components = s.split(";")
+
+                val id = components[0].toInt()
+                val statusCode = components[1].toInt()
+                val body = components[2]
+
+                WebSocketResponse(statusCode, body, id)
+            } catch (_: Error) {
+                throw InvalidWebSocketResponse(s)
+            }
+        }
     }
 }

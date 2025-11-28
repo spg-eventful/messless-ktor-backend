@@ -12,7 +12,8 @@ class MessageConverter() {
     data class MessageConversionError(val messageToConvert: String, val error: String) :
         WebSocketErrorResponse(
             HttpStatusCode.BadRequest,
-            "Failed to convert message \"$messageToConvert\". $error"
+            "Failed to convert message \"$messageToConvert\". $error",
+            MessageConversionError::class
         )
 
     /**

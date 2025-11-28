@@ -7,5 +7,9 @@ data class IncomingMessage(
     val id: Int,
     val service: String,
     val method: Method,
-    val body: String?
-)
+    val body: String? = null
+) {
+    override fun toString(): String {
+        return "$id;$method;$service;$body"
+    }
+}
