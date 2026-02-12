@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 
 class ApplicationTest {
     @Test
-    fun testRoot() = testApplication {
+    fun testApplicationIndex() = testApplication {
         application {
             module()
         }
