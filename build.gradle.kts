@@ -23,6 +23,12 @@ dependencies {
     implementation("io.ktor:ktor-server-config-yaml")
     implementation("io.ktor:ktor-server-websockets:$ktorVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:1.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
+
+    implementation("org.jetbrains.exposed:exposed-core:1.0.0")
+    implementation("org.jetbrains.exposed:exposed-jdbc:1.0.0")
+    implementation("org.jetbrains.exposed:exposed-dao:1.0.0")
 
     // Testing
     testImplementation("io.ktor:ktor-server-test-host")
