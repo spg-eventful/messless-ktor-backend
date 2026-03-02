@@ -10,12 +10,12 @@ import kotlin.time.Instant
 @OptIn(ExperimentalTime::class)
 abstract class BaseEntity(id: EntityID<Int>) : IntEntity(id) {
 
-    abstract var createdAt : Instant
-    abstract var updatedAt : Instant?
-    abstract var deletedAt : Instant?
+    abstract var createdAt: Instant
+    abstract var updatedAt: Instant?
+    abstract var deletedAt: Instant?
 
     override fun flush(batch: EntityBatchUpdate?): Boolean {
-        if(deletedAt == null) {
+        if (deletedAt == null) {
             this.updatedAt = Clock.System.now()
         }
         return super.flush(batch)
