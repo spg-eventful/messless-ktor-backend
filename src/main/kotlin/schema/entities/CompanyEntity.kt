@@ -9,7 +9,8 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 class CompanyEntity(id: EntityID<Int>) : BaseEntity(id) {
 
-    companion object: IntEntityClass<CompanyEntity>(CompanyTable)
+    companion object : IntEntityClass<CompanyEntity>(CompanyTable)
+
     override var createdAt by CompanyTable.createdAt
     override var updatedAt by CompanyTable.updatedAt
     override var deletedAt by CompanyTable.deletedAt
