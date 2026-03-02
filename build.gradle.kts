@@ -48,6 +48,11 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-migration-core:1.1.1")
     implementation("org.jetbrains.exposed:exposed-migration-jdbc:1.1.1")
 
+    implementation("io.github.nikitok:exposed-postgis:0.4")
+    implementation("net.postgis:postgis-jdbc:2023.1.0")
+
+    implementation("org.locationtech.jts:jts-core:1.19.0")
+
     // Testing
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test:${kotlinVersion}")
