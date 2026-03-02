@@ -7,8 +7,9 @@ import org.jetbrains.exposed.v1.dao.IntEntityClass
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
-class EventEntity(id: EntityID<Int>): LoggableEntity(id) {
+class EventEntity(id: EntityID<Int>) : LoggableEntity(id) {
     companion object : IntEntityClass<EventEntity>(EventTable)
+
     override var createdAt by EventTable.createdAt
     override var updatedAt by EventTable.updatedAt
     override var deletedAt by EventTable.deletedAt

@@ -30,6 +30,11 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:1.0.0")
     implementation("org.jetbrains.exposed:exposed-dao:1.0.0")
 
+    implementation("io.github.nikitok:exposed-postgis:0.4")
+    implementation("net.postgis:postgis-jdbc:2023.1.0")
+
+    implementation("org.locationtech.jts:jts-core:1.19.0")
+
     implementation("io.ktor:ktor-server-content-negotiation:3.3.2")
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.2")
     implementation("io.ktor:ktor-server-content-negotiation:3.3.2")
