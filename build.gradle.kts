@@ -35,6 +35,9 @@ dependencies {
 
     implementation("com.h2database:h2:2.4.240")
 
+    implementation("org.jetbrains.exposed:exposed-migration-core:1.1.1")
+    implementation("org.jetbrains.exposed:exposed-migration-jdbc:1.1.1")
+
     // Testing
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test:${kotlinVersion}")
