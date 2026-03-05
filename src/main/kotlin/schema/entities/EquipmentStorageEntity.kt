@@ -7,8 +7,9 @@ import org.jetbrains.exposed.v1.dao.IntEntityClass
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
-class EquipmentStorageEntity(id: EntityID<Int>): LoggableEntity(id) {
+class EquipmentStorageEntity(id: EntityID<Int>) : LoggableEntity(id) {
     companion object : IntEntityClass<EquipmentStorageEntity>(EquipmentStorageTable)
+
     override var createdAt by EquipmentStorageTable.createdAt
     override var updatedAt by EquipmentStorageTable.updatedAt
     override var deletedAt by EquipmentStorageTable.deletedAt
