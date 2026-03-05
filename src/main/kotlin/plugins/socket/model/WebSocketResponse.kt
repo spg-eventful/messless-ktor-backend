@@ -25,6 +25,9 @@ data class WebSocketResponse(
         statusCode.value, body, id = id
     )
 
+    /**
+     * The response is not a valid [WebSocketResponse] and can not be converted into one.
+     */
     data class InvalidWebSocketResponse(val s: String) :
         Error("$s is not a valid WebSocketResponse and cannot be parsed as one.")
 
@@ -39,6 +42,10 @@ data class WebSocketResponse(
     }
 
     companion object {
+        /**
+         * Convert a serialized [WebSocketResponse] (stringified) into a [WebSocketResponse] instance.
+         * @throws InvalidWebSocketResponse if the response is not valid
+         */
         fun fromString(s: String): WebSocketResponse {
             return try {
                 val components = s.split(";")

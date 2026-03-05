@@ -18,6 +18,10 @@ data class IncomingMessage(
         return "$id;$method;$service${if (body == null) "" else ";$body"}"
     }
 
+    /**
+     * Decode the [body] into [T]. Correctly handles errors.
+     * @throws BadRequest - when the [body] is null or not deserializable to [T]
+     */
     inline fun <reified T> receiveBody(): T {
         if (body == null) throw BadRequest("body is null")
         try {
