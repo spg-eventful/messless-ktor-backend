@@ -53,6 +53,8 @@ dependencies {
 
     implementation("org.locationtech.jts:jts-core:1.19.0")
 
+    implementation("org.flywaydb:flyway-core:12.0.3")
+
     // Testing
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test:${kotlinVersion}")
