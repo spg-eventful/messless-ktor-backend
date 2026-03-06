@@ -28,9 +28,3 @@ data class Warehouse(
     )
 }
 
-@Serializable
-data class CreateWarehouseCommand(
-    val label: String,
-    val locationX: Double,
-    val locationY: Double,
-)
