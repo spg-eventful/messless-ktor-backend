@@ -5,10 +5,7 @@ import at.eventful.messless.plugins.socket.configureWebSocket
 import at.eventful.messless.schema.tables.*
 import at.eventful.messless.services.echo.EchoService
 import at.eventful.messless.services.index.registerIndexRoute
-import at.eventful.messless.util.PASSWORD
-import at.eventful.messless.util.URL
-import at.eventful.messless.util.USER
-import at.eventful.messless.util.createMigrationScript
+import at.eventful.messless.util.*
 import io.ktor.server.application.*
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -30,10 +27,14 @@ fun Application.module() {
     // Register WS routes
     router.removeAllRoutes()
     router.register(EchoService())
+
+    //create database migration script
     transaction(database) {
         createMigrationScript(
             CompanyTable, EquipmentStorageTable, EquipmentTable, EventTable, TechnicalLogEntryTable,
             UserTable, WarehouseTable, name = "V0.0.0__First_Migration"
         )
+        //migrate database via flyway
+        flywayMigrate(baselineOnMigrate = true)
     }
 }
