@@ -8,7 +8,7 @@ import io.ktor.http.*
 /**
  * Converts message in a string format to an [IncomingMessage]
  */
-class MessageConverter() {
+class MessageConverter {
     data class MessageConversionError(val messageToConvert: String, val error: String) :
         WebSocketErrorResponse(
             HttpStatusCode.BadRequest,

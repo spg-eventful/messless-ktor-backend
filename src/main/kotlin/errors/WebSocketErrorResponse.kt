@@ -7,6 +7,9 @@ import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
 
 
+/**
+ * This open should be inherited to create error types like BadRequest, ...
+ */
 open class WebSocketErrorResponse(
     val code: Int,
     override val message: String,
