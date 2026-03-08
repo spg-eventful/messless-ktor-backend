@@ -1,5 +1,5 @@
 ktor:
-  environment: $?KTOR_ENV:dev
+  environment: ${KTOR_ENV:dev}
   application:
     modules:
       - at.eventful.messless.ApplicationKt.module

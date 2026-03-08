@@ -1,13 +1,12 @@
 package plugins.socket
 
-import at.eventful.messless.module
 import at.eventful.messless.plugins.socket.model.IncomingMessage
 import at.eventful.messless.plugins.socket.model.Method
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
 import io.ktor.client.plugins.websocket.*
 import io.ktor.http.*
-import io.ktor.server.testing.*
 import io.ktor.websocket.*
+import testutils.configuredTestApplication
 import testutils.receiveText
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,14 +22,7 @@ class WebSocketMessageSchemaTest {
 
 
     @Test
-    fun testValidRequest() = testApplication {
-        application {
-            module()
-        }
-        val client = createClient {
-            install(WebSockets.Plugin)
-        }
-
+    fun testValidRequest() = configuredTestApplication {
         client.webSocket("/ws") {
             // 200 OK
             run {
@@ -42,14 +34,7 @@ class WebSocketMessageSchemaTest {
     }
 
     @Test
-    fun testInvalidRequest() = testApplication {
-        application {
-            module()
-        }
-        val client = createClient {
-            install(WebSockets.Plugin)
-        }
-
+    fun testInvalidRequest() = configuredTestApplication {
         client.webSocket("/ws") {
             // Nothing passed
             run {

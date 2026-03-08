@@ -1,14 +1,13 @@
 package plugins.socket
 
-import at.eventful.messless.module
 import at.eventful.messless.plugins.socket.model.IncomingMessage
 import at.eventful.messless.plugins.socket.model.Method
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
 import at.eventful.messless.services.echo.CreateEchoCmd
 import io.ktor.client.plugins.websocket.*
-import io.ktor.server.testing.*
 import io.ktor.websocket.*
 import kotlinx.serialization.json.Json
+import testutils.configuredTestApplication
 import testutils.receiveText
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -17,14 +16,7 @@ class IncomingMessageBodyDecoderTest {
     private val service = "echo"
 
     @Test
-    fun testNullBody() = testApplication {
-        application {
-            module()
-        }
-        val client = createClient {
-            install(WebSockets.Plugin)
-        }
-
+    fun testNullBody() = configuredTestApplication {
         client.webSocket("/ws") {
             run {
                 send(
@@ -41,14 +33,7 @@ class IncomingMessageBodyDecoderTest {
     }
 
     @Test
-    fun testWrongBody() = testApplication {
-        application {
-            module()
-        }
-        val client = createClient {
-            install(WebSockets.Plugin)
-        }
-
+    fun testWrongBody() = configuredTestApplication {
         client.webSocket("/ws") {
             run {
                 send(
@@ -66,14 +51,7 @@ class IncomingMessageBodyDecoderTest {
 
 
     @Test
-    fun testCorrectBody() = testApplication {
-        application {
-            module()
-        }
-        val client = createClient {
-            install(WebSockets.Plugin)
-        }
-
+    fun testCorrectBody() = configuredTestApplication {
         client.webSocket("/ws") {
             run {
                 send(
