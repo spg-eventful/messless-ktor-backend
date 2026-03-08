@@ -23,11 +23,11 @@ data class DatabaseConfiguration(val url: String, val user: String, val password
 
 fun Application.configureDatabases() {
     val conf = DatabaseConfiguration.fromApplicationConfig(environment.config)
-    val db = Database.connect(
+    Database.connect(
         url = conf.url, user = conf.user, password = conf.password
     )
 
-    transaction(db) {
+    transaction {
         createCurrentMigrationScript(
             environment.config,
             CompanyTable,
