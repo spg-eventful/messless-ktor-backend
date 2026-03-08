@@ -9,13 +9,13 @@ import kotlin.test.Test
 class WebSocketResponseTest {
     @Test
     fun toFrameWithId() {
-        val wsRes = WebSocketResponse(
+        val wsRes = WebSocketResponse<Any>(
             HttpStatusCode.OK,
             HttpStatusCode.OK.description,
             0
         )
 
-        val wsResNoId = WebSocketResponse(
+        val wsResNoId = WebSocketResponse<Any>(
             HttpStatusCode.OK,
             HttpStatusCode.OK.description,
         )
@@ -27,7 +27,7 @@ class WebSocketResponseTest {
 
     @Test
     fun toFrameWithoutId() {
-        val wsRes = WebSocketResponse(
+        val wsRes = WebSocketResponse<Any>(
             HttpStatusCode.OK,
             HttpStatusCode.OK.description,
         )
