@@ -1,5 +1,6 @@
 package at.eventful.messless
 
+import at.eventful.messless.plugins.db.configureDatabases
 import at.eventful.messless.di.configureKoinDI
 import at.eventful.messless.plugins.socket.WebSocketRouter
 import at.eventful.messless.plugins.socket.configureWebSocket
@@ -16,6 +17,7 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 fun Application.module() {
     // Install plugins
     configureKoinDI()
+    configureDatabases()
     configureWebSocket()
 
     // Register HTTP routes

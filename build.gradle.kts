@@ -39,6 +39,27 @@ dependencies {
     implementation("io.insert-koin:koin-test:4.1.2-Beta1")
     testImplementation("io.mockk:mockk:${mockkVersion}")
 
+    implementation("io.ktor:ktor-server-content-negotiation:3.3.2")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.2")
+    implementation("io.ktor:ktor-server-content-negotiation:3.3.2")
+    implementation("org.jetbrains.exposed:exposed-core:0.61.0")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.61.0")
+    implementation("com.h2database:h2:2.3.232")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.2")
+    implementation("io.ktor:ktor-server-content-negotiation:3.3.2")
+
+    implementation("com.h2database:h2:2.4.240")
+
+    implementation("org.jetbrains.exposed:exposed-migration-core:1.1.1")
+    implementation("org.jetbrains.exposed:exposed-migration-jdbc:1.1.1")
+
+    implementation("io.github.nikitok:exposed-postgis:0.4")
+    implementation("net.postgis:postgis-jdbc:2023.1.0")
+
+    implementation("org.locationtech.jts:jts-core:1.19.0")
+
+    implementation("org.flywaydb:flyway-core:9.22.3")
+
     // Testing
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test:${kotlinVersion}")
