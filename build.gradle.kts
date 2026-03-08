@@ -1,6 +1,7 @@
 val kotlinVersion: String by project
 val logbackVersion: String by project
 val ktorVersion: String by project
+val mockkVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.2.20"
@@ -33,6 +34,10 @@ dependencies {
     implementation("net.postgis:postgis-jdbc:2023.1.0")
 
     implementation("org.locationtech.jts:jts-core:1.19.0")
+    implementation("io.insert-koin:koin-ktor:4.1.2-Beta1")
+    implementation("io.insert-koin:koin-logger-slf4j:4.1.2-Beta1")
+    implementation("io.insert-koin:koin-test:4.1.2-Beta1")
+    testImplementation("io.mockk:mockk:${mockkVersion}")
 
     // Testing
     testImplementation("io.ktor:ktor-server-test-host")
