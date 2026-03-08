@@ -22,6 +22,8 @@ class UsersRepository : IUsersRepository {
             password = user.plainPassword // TODO: Hash
             firstName = user.firstName
             lastName = user.lastName
+            phone = user.phone
+            role = user.role
         }
     }
 
@@ -31,6 +33,7 @@ class UsersRepository : IUsersRepository {
             it.firstName = user.firstName
             it.lastName = user.lastName
             it.phone = user.phone
+            it.role = user.role
         }
     }
 
