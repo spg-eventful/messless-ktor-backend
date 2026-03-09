@@ -20,5 +20,5 @@ class UserEntity(id: EntityID<Int>) : BaseEntity(id) {
     var phone by UserTable.phone
     var firstName by UserTable.firstName
     var lastName by UserTable.lastName
-    var company by CompanyEntity referencedOn UserTable.companyId
+    var company by CompanyEntity optionalReferencedOn UserTable.companyId
 }

@@ -5,41 +5,40 @@ import at.eventful.messless.plugins.socket.ServiceMethod
 import at.eventful.messless.plugins.socket.WebSocketService
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
 import at.eventful.messless.repositories.users.commands.UpdateUserCmd
-import at.eventful.messless.schema.entities.UserEntity
 import io.ktor.http.*
 import repositories.users.UsersRepository
 import repositories.users.commands.CreateUserCmd
 
 class UsersService(private val usersRepo: UsersRepository) : WebSocketService("users") {
-    override fun ServiceMethod.create(): WebSocketResponse<UserEntity> {
+    override fun ServiceMethod.create(): WebSocketResponse<UserDto> {
         val cmd = incoming.receiveBody<CreateUserCmd>()
         return WebSocketResponse.from(
             HttpStatusCode.Created,
-            usersRepo.addUser(cmd),
+            UserDto.from(usersRepo.addUser(cmd)),
         )
     }
 
-    override fun ServiceMethod.find(): WebSocketResponse<List<UserEntity>> {
+    override fun ServiceMethod.find(): WebSocketResponse<List<UserDto>> {
         return WebSocketResponse.from(
             HttpStatusCode.OK,
-            usersRepo.allUsers(),
+            usersRepo.allUsers().map(UserDto::from),
         )
     }
 
-    override fun ServiceMethod.get(id: Int): WebSocketResponse<UserEntity> {
+    override fun ServiceMethod.get(id: Int): WebSocketResponse<UserDto> {
         val user = usersRepo.userById(id) ?: throw NotFound("User with id $id not found")
         return WebSocketResponse.from(
             HttpStatusCode.OK,
-            user,
+            UserDto.from(user),
         )
     }
 
-    override fun ServiceMethod.update(id: Int): WebSocketResponse<UserEntity> {
+    override fun ServiceMethod.update(id: Int): WebSocketResponse<UserDto> {
         val updated = usersRepo.updateUser(id, incoming.receiveBody<UpdateUserCmd>())
             ?: throw NotFound("User with id $id not found")
         return WebSocketResponse.from(
             HttpStatusCode.OK,
-            updated,
+            UserDto.from(updated),
         )
     }
 
