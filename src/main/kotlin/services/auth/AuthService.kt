@@ -40,10 +40,10 @@ class AuthService(app: Application) : WebSocketService("auth") {
             ?: incoming.receiveBody<CreateAuthBasicCmd>()
 
         if (cmd is CreateAuthJWTCmd) {
-            val jwt = JWT.decode(cmd.jwt)
+            val jwt = runCatching { JWT.decode(cmd.jwt) }.getOrNull() ?: throw BadRequest("unable to decode jwt")
             if (jwt.expiresAt.before(Date())) throw Unauthorized("jwt expired")
 
-            val subject = jwt.subject.toIntOrNull() ?: throw Unauthorized("subject must be a parsable integer")
+            val subject = jwt.getClaim("id").asInt() ?: throw Unauthorized("subject must be a parsable integer")
             val user = usersRepo.userById(subject) ?: throw Unauthorized("subject not found")
 
             connection.auth.grant(AuthenticatedConnection(jwt.expiresAtAsInstant, user))

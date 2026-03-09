@@ -12,7 +12,7 @@ class EchoService : WebSocketService("echo") {
         if (cmd.checkAuthentication) {
             exposedLogger.info("EchoService consumer called with checkAuthentication! ${connection.auth}")
             if (connection.auth.isAuthenticated) return WebSocketResponse(HttpStatusCode.OK)
-            return WebSocketResponse(HttpStatusCode.Forbidden)
+            return WebSocketResponse(HttpStatusCode.Unauthorized)
         }
 
         return WebSocketResponse(HttpStatusCode.Created, cmd.message)
