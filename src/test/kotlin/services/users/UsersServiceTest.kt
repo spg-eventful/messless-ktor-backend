@@ -19,6 +19,11 @@ import kotlin.test.assertEquals
 
 @ExtendWith(MockKExtension::class)
 class UsersServiceTest : KoinTest {
+    fun userFakeCreateCmd(): CreateUserCmd = CreateUserCmd(
+        "test@abc.com", "banane",
+        UserRole.CompanyAdmin, "+4300000000", "firstname", "lastname"
+    )
+
     @Test
     fun testUserCreation() = configuredTestApplication {
         client.webSocket("/ws") {
@@ -27,16 +32,74 @@ class UsersServiceTest : KoinTest {
                     Frame.Text(
                         IncomingMessage(
                             0, "users", Method.CREATE, Json.encodeToString(
-                                CreateUserCmd(
-                                    "test@abc.com", "banane",
-                                    UserRole.CompanyAdmin, "+4300000000", "firstname", "lastname"
-                                )
+                                userFakeCreateCmd()
                             )
                         ).toString()
                     )
                 )
                 val res = WebSocketResponse.fromString(receiveText())
                 assertEquals(201, res.statusCode)
+            }
+        }
+    }
+
+    @Test
+    fun testUserReadNotFound() = configuredTestApplication {
+        client.webSocket("/ws") {
+            run {
+                send(
+                    Frame.Text(
+                        IncomingMessage(
+                            0, "users", Method.READ, "1"
+                        ).toString()
+                    )
+                )
+                val res = WebSocketResponse.fromString(receiveText())
+                assertEquals(404, res.statusCode)
+            }
+        }
+    }
+
+    @Test
+    fun testUserRead() = configuredTestApplication {
+        client.webSocket("/ws") {
+            run {
+                send(
+                    Frame.Text(
+                        IncomingMessage(
+                            0, "users", Method.CREATE, Json.encodeToString(userFakeCreateCmd())
+                        ).toString()
+                    )
+                )
+                val cr = WebSocketResponse.fromString(receiveText())
+                assertEquals(201, cr.statusCode)
+
+                send(
+                    Frame.Text(
+                        IncomingMessage(
+                            0, "users", Method.READ, "1"
+                        ).toString()
+                    )
+                )
+                val res = WebSocketResponse.fromString(receiveText())
+                assertEquals(200, res.statusCode)
+            }
+        }
+    }
+
+    @Test
+    fun testUserReadAll() = configuredTestApplication {
+        client.webSocket("/ws") {
+            run {
+                send(
+                    Frame.Text(
+                        IncomingMessage(
+                            0, "users", Method.READ
+                        ).toString()
+                    )
+                )
+                val res = WebSocketResponse.fromString(receiveText())
+                assertEquals(200, res.statusCode)
             }
         }
     }

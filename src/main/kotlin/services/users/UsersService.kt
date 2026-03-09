@@ -1,5 +1,6 @@
 package at.eventful.messless.services.users
 
+import at.eventful.messless.errors.responses.BadRequest
 import at.eventful.messless.errors.responses.NotFound
 import at.eventful.messless.plugins.socket.ServiceMethod
 import at.eventful.messless.plugins.socket.WebSocketService
@@ -12,10 +13,18 @@ import repositories.users.commands.CreateUserCmd
 class UsersService(private val usersRepo: UsersRepository) : WebSocketService("users") {
     override fun ServiceMethod.create(): WebSocketResponse<UserDto> {
         val cmd = incoming.receiveBody<CreateUserCmd>()
-        return WebSocketResponse.from(
-            HttpStatusCode.Created,
-            UserDto.from(usersRepo.addUser(cmd)),
-        )
+
+        try {
+            return WebSocketResponse.from(
+                HttpStatusCode.Created,
+                UserDto.from(usersRepo.addUser(cmd)),
+            )
+        } catch (e: Exception) {
+            if (e.message?.contains("PUBLIC.USERS_EMAIL_UNIQUE") ?: false) {
+                throw BadRequest("A user with this email already exists.")
+            }
+            throw e
+        }
     }
 
     override fun ServiceMethod.find(): WebSocketResponse<List<UserDto>> {
