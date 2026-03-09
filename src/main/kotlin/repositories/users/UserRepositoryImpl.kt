@@ -4,6 +4,8 @@ import at.eventful.messless.repositories.users.commands.UpdateUserCmd
 import at.eventful.messless.schema.dao.UserDao
 import at.eventful.messless.schema.entities.UserEntity
 import at.eventful.messless.schema.tables.UserTable
+import at.eventful.messless.services.auth.hashWithDefaultConfig
+import de.mkammerer.argon2.Argon2
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.neq
@@ -12,7 +14,8 @@ import repositories.users.commands.CreateUserCmd
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-class UserRepositoryImpl : UserRepository {
+
+class UserRepositoryImpl(val argon2: Argon2) : UserRepository {
     @OptIn(ExperimentalTime::class)
     override fun allUsers(): List<UserDao> = transaction {
         UserEntity.find { (UserTable.deletedAt neq null) }.toList().map(UserDao::from) as List<UserDao>
@@ -33,7 +36,7 @@ class UserRepositoryImpl : UserRepository {
     override fun addUser(user: CreateUserCmd): UserDao = transaction {
         UserDao.from(UserEntity.new {
             email = user.email
-            password = user.plainPassword // TODO: Hash
+            password = argon2.hashWithDefaultConfig(user.plainPassword)
             firstName = user.firstName
             lastName = user.lastName
             phone = user.phone

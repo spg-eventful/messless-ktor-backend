@@ -8,6 +8,7 @@ import at.eventful.messless.services.auth.commands.CreateAuthBasicCmd
 import at.eventful.messless.services.auth.commands.CreateAuthJWTCmd
 import at.eventful.messless.services.echo.CreateEchoCmd
 import com.auth0.jwt.JWT
+import de.mkammerer.argon2.Argon2
 import io.ktor.client.plugins.websocket.*
 import io.ktor.websocket.*
 import io.mockk.every
@@ -26,17 +27,17 @@ import kotlin.test.assertNotNull
 @ExtendWith(MockKExtension::class)
 class AuthServiceTest {
     val usersRepository = mockk<UserRepository>()
+    val argon2 = mockk<Argon2>()
 
     @Nested
     inner class BasicAuthTests {
         @Test
         fun testCreateAuthBasicWithCorrectCredentials() = configuredTestApplication {
             val fakeUser = UserDao.fake(99)
-
-            dependencies.provide<UserRepository> {
-                usersRepository
-            }
+            dependencies.provide<Argon2> { argon2 }
+            dependencies.provide<UserRepository> { usersRepository }
             every { usersRepository.userByEmail(any()) } returns fakeUser
+            every { argon2.verify(any<String>(), any<CharArray>()) } returns true
 
             client.webSocket("/ws") {
                 run {
@@ -122,12 +123,11 @@ class AuthServiceTest {
         @Test
         fun testAuthenticateUsingValidJWT() = configuredTestApplication {
             val fakeUser = UserDao.fake(99)
-
-            dependencies.provide<UserRepository> {
-                usersRepository
-            }
+            dependencies.provide<Argon2> { argon2 }
+            dependencies.provide<UserRepository> { usersRepository }
             every { usersRepository.userById(fakeUser.id) } returns fakeUser
             every { usersRepository.userByEmail(fakeUser.email) } returns fakeUser
+            every { argon2.verify(any<String>(), any<CharArray>()) } returns true
 
             var jwt: String? = null
             client.webSocket("/ws") {

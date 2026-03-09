@@ -11,6 +11,7 @@ import at.eventful.messless.services.auth.commands.CreateAuthBasicCmd
 import at.eventful.messless.services.auth.commands.CreateAuthJWTCmd
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import de.mkammerer.argon2.Argon2
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.di.*
@@ -28,7 +29,7 @@ data class JWTConfig(val secret: String, val issuer: String, val audience: Strin
     }
 }
 
-class AuthService(app: Application) : WebSocketService("auth") {
+class AuthService(app: Application, val argon2: Argon2) : WebSocketService("auth") {
     val usersRepo: UserRepository by app.dependencies
     val jwtConfig = JWTConfig.fromConfig(app)
 
@@ -52,8 +53,7 @@ class AuthService(app: Application) : WebSocketService("auth") {
 
         if (cmd !is CreateAuthBasicCmd) throw BadRequest("request body must either be an object {jwt: \"token\"} or basic auth(email, password) [json]")
         val user = usersRepo.userByEmail(cmd.email) ?: throw Unauthorized()
-        // TODO: Argon2
-        if (user.password != cmd.password) throw Unauthorized()
+        if (!argon2.verify(user.password, cmd.password.toCharArray())) throw Unauthorized()
 
         val expiry = Date(System.currentTimeMillis() + 60000)
         // authenticates the current session
