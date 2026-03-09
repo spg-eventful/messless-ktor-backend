@@ -3,8 +3,8 @@ package services.users
 import at.eventful.messless.plugins.socket.model.IncomingMessage
 import at.eventful.messless.plugins.socket.model.Method
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
-import at.eventful.messless.repositories.users.DBUser
 import at.eventful.messless.repositories.users.commands.UpdateUserCmd
+import at.eventful.messless.schema.dao.UserDao
 import at.eventful.messless.schema.utils.UserRole
 import io.ktor.client.plugins.websocket.*
 import io.ktor.websocket.*
@@ -13,7 +13,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.extension.ExtendWith
-import repositories.users.UsersRepository
+import repositories.users.UserRepository
 import repositories.users.commands.CreateUserCmd
 import testutils.configuredTestApplication
 import testutils.receiveText
@@ -23,7 +23,7 @@ import kotlin.test.assertEquals
 
 @ExtendWith(MockKExtension::class)
 class UsersServiceTest {
-    val usersRepository = mockk<UsersRepository>()
+    val usersRepository = mockk<UserRepository>()
 
     fun userFakeCreateCmd(): CreateUserCmd = CreateUserCmd(
         "test@abc.com", "banane", UserRole.CompanyAdmin, "+4300000000", "firstname", "lastname"
@@ -31,10 +31,10 @@ class UsersServiceTest {
 
     @Test
     fun testUserCreation() = configuredTestApplication {
-        dependencies.provide<UsersRepository> {
+        dependencies.provide<UserRepository> {
             usersRepository
         }
-        every { usersRepository.addUser(any()) } returns DBUser.fake(1)
+        every { usersRepository.addUser(any()) } returns UserDao.fake(1)
 
         client.webSocket("/ws") {
             run {
@@ -72,10 +72,10 @@ class UsersServiceTest {
 
     @Test
     fun testUserRead() = configuredTestApplication {
-        dependencies.provide<UsersRepository> {
+        dependencies.provide<UserRepository> {
             usersRepository
         }
-        every { usersRepository.userById(1) } returns DBUser.fake(1)
+        every { usersRepository.userById(1) } returns UserDao.fake(1)
 
         client.webSocket("/ws") {
             run {
@@ -111,7 +111,7 @@ class UsersServiceTest {
 
     @Test
     fun testUserUpdate() = configuredTestApplication {
-        val fakeUser = DBUser.fake(1)
+        val fakeUser = UserDao.fake(1)
         val cmd = UpdateUserCmd(
             fakeUser.id,
             fakeUser.email,
@@ -121,7 +121,7 @@ class UsersServiceTest {
             fakeUser.role,
         )
 
-        dependencies.provide<UsersRepository> {
+        dependencies.provide<UserRepository> {
             usersRepository
         }
         every { usersRepository.updateUser(1, any()) } returns fakeUser
@@ -143,7 +143,7 @@ class UsersServiceTest {
 
     @Test
     fun testUserUpdateNotFound() = configuredTestApplication {
-        val fakeUser = DBUser.fake(1)
+        val fakeUser = UserDao.fake(1)
         val cmd = UpdateUserCmd(
             2,
             fakeUser.email,
@@ -153,7 +153,7 @@ class UsersServiceTest {
             fakeUser.role,
         )
 
-        dependencies.provide<UsersRepository> {
+        dependencies.provide<UserRepository> {
             usersRepository
         }
         every { usersRepository.updateUser(2, any()) } returns null
@@ -175,8 +175,8 @@ class UsersServiceTest {
 
     @Test
     fun testUserDelete() = configuredTestApplication {
-        val fakeUser = DBUser.fake(1)
-        dependencies.provide<UsersRepository> {
+        val fakeUser = UserDao.fake(1)
+        dependencies.provide<UserRepository> {
             usersRepository
         }
         every { usersRepository.removeUser(1) } returns fakeUser

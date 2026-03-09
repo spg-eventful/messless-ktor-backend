@@ -1,6 +1,6 @@
-package at.eventful.messless.services.users
+package at.eventful.messless.schema.dto
 
-import at.eventful.messless.repositories.users.DBUser
+import at.eventful.messless.schema.dao.UserDao
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -13,7 +13,7 @@ data class UserDto(
     val phone: String,
 ) {
     companion object {
-        fun from(user: DBUser): UserDto = UserDto(
+        fun from(user: UserDao): UserDto = UserDto(
             id = user.id,
             firstName = user.firstName,
             lastName = user.lastName,
