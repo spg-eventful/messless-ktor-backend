@@ -34,7 +34,6 @@ dependencies {
     implementation("net.postgis:postgis-jdbc:2023.1.0")
 
     implementation("org.locationtech.jts:jts-core:1.19.0")
-    testImplementation("io.mockk:mockk:${mockkVersion}")
     implementation("io.ktor:ktor-server-di:${ktorVersion}")
 
     implementation("io.ktor:ktor-server-content-negotiation:3.3.2")
@@ -82,4 +81,5 @@ dependencies {
     // Testing
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test:${kotlinVersion}")
+    testImplementation("io.mockk:mockk:${mockkVersion}")
 }
