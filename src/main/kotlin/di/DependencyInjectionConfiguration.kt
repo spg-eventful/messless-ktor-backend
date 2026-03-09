@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.plugins.di.*
 import repositories.users.UserRepository
 import repositories.users.UserRepositoryImpl
+import services.auth.AuthService
 
 fun Application.configureDI() {
     dependencies {
@@ -12,5 +13,6 @@ fun Application.configureDI() {
 
         // Services
         provide<UsersService> { UsersService(this@configureDI) }
+        provide<AuthService> { AuthService(this@configureDI) }
     }
 }

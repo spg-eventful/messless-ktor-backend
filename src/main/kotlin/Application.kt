@@ -9,6 +9,7 @@ import at.eventful.messless.services.index.registerIndexRoute
 import at.eventful.messless.services.users.UsersService
 import io.ktor.server.application.*
 import io.ktor.server.plugins.di.*
+import services.auth.AuthService
 
 val router = WebSocketRouter()
 
@@ -25,5 +26,5 @@ suspend fun Application.module() {
 
     // Register WS routes
     router.removeAllRoutes()
-    router.register(EchoService(), UsersService(this))
+    router.register(EchoService(), dependencies.resolve<UsersService>(), dependencies.resolve<AuthService>())
 }
