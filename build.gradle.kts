@@ -82,6 +82,10 @@ dependencies {
 
     // Testing
     testImplementation("io.ktor:ktor-server-test-host")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:${kotlinVersion}")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:${kotlinVersion}")
     testImplementation("io.mockk:mockk:${mockkVersion}")
+}
+
+tasks.test {
+    useJUnitPlatform() // Required to bridge kotlin-test to JUnit 5
 }
