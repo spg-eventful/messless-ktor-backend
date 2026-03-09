@@ -65,6 +65,8 @@ dependencies {
     implementation("com.h2database:h2:2.3.232")
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.2")
     implementation("io.ktor:ktor-server-content-negotiation:3.3.2")
+    implementation("io.ktor:ktor-server-auth:${ktorVersion}")
+    implementation("io.ktor:ktor-server-auth-jwt:${ktorVersion}")
 
     implementation("com.h2database:h2:2.4.240")
 
