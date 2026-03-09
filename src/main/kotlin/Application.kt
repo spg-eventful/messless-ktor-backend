@@ -8,12 +8,13 @@ import at.eventful.messless.services.echo.EchoService
 import at.eventful.messless.services.index.registerIndexRoute
 import at.eventful.messless.services.users.UsersService
 import io.ktor.server.application.*
+import io.ktor.server.plugins.di.*
 
 val router = WebSocketRouter()
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
-fun Application.module() {
+suspend fun Application.module() {
     // Install plugins
     configureDI()
     configureDatabases()
