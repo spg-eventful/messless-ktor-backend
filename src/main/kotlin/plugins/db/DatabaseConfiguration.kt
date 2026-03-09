@@ -1,7 +1,7 @@
 package at.eventful.messless.plugins.db
 
 import at.eventful.messless.schema.tables.*
-import at.eventful.messless.util.createCurrentMigrationScript
+import at.eventful.messless.util.createDump
 import at.eventful.messless.util.migrateWithFlyway
 import io.ktor.server.application.*
 import io.ktor.server.config.*
@@ -28,7 +28,7 @@ fun Application.configureDatabases() {
     )
 
     transaction {
-        createCurrentMigrationScript(
+        createDump(
             environment.config,
             CompanyTable,
             EquipmentStorageTable,
