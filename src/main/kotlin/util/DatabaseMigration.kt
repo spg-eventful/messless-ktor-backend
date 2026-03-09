@@ -11,15 +11,16 @@ import org.jetbrains.exposed.v1.migration.jdbc.MigrationUtils
 internal val DB_LOGGER = KtorSimpleLogger("Database")
 
 @OptIn(ExperimentalDatabaseMigrationApi::class)
-fun createCurrentMigrationScript(config: ApplicationConfig, vararg tables: Table) {
-    val name = config.property("messless.db.migrations.current").getString()
+fun createDump(config: ApplicationConfig, vararg tables: Table) {
     MigrationUtils.generateMigrationScript(
-        *tables, scriptDirectory = config.property("messless.db.migrations.dir").getString(), scriptName = name
+        *tables,
+        scriptDirectory = config.property("messless.db.dump.dir").getString(),
+        scriptName = config.property("messless.db.dump.name").getString()
     )
-    DB_LOGGER.info("Migration script $name created successfully!")
+    DB_LOGGER.info("DB dumps created! Do not forget to create a new db migration! This is not done automatically!")
 }
 
-fun migrateWithFlyway(config: ApplicationConfig, baselineOnMigrate: Boolean = true) {
+fun migrateWithFlyway(config: ApplicationConfig, baselineOnMigrate: Boolean = false) {
     val dbConfig = DatabaseConfiguration.fromApplicationConfig(config)
     val flyway = Flyway.configure()
         .dataSource(dbConfig.url, dbConfig.user, dbConfig.password)

@@ -1,5 +1,5 @@
 ktor:
-  environment: $?KTOR_ENV:dev
+  environment: ${KTOR_ENV:dev}
   application:
     modules:
       - at.eventful.messless.ApplicationKt.module
@@ -8,9 +8,11 @@ ktor:
 
 messless:
   db:
+    dump:
+      dir: "src/main/resources/db/dump/"
+      name: "full_dump.sql"
     migrations:
       dir: "src/main/resources/db/migrations/"
-      current: "V0.0.0__initial"
     dev:
       driver: "org.h2.Driver"
       url: "jdbc:h2:mem:messlessBackendTest;DB_CLOSE_DELAY=-1"
