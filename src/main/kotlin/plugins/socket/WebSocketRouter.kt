@@ -40,7 +40,7 @@ class WebSocketRouter {
     fun route(
         incoming: IncomingMessage,
         connection: WebSocketConnection
-    ): WebSocketResponse {
+    ): WebSocketResponse<*> {
         LOGGER.trace("Routing ${incoming.method.name} ${incoming.service}")
         val service = routes[incoming.service] ?: throw WebSocketErrorResponse(
             HttpStatusCode.NotFound, "${incoming.service} service not found!"

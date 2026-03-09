@@ -67,18 +67,19 @@ fun Application.configureWebSocket() {
                                 else -> {
                                     WS_LOGGER.warn("An unhandled error occurred handling the last message: ${it.localizedMessage}")
                                     send(
-                                        WebSocketResponse(
+                                        WebSocketResponse<Any>(
                                             HttpStatusCode.InternalServerError,
                                             HttpStatusCode.InternalServerError.description
                                         ).toFrame(incomingId)
                                     )
                                 }
                             }
+                            WS_LOGGER.warn(it.stackTraceToString())
                         }
                     } else {
                         WS_LOGGER.debug("Received incoming message with wrong format. Actual: Binary, Expected: Text")
                         send(
-                            WebSocketResponse(
+                            WebSocketResponse<Any>(
                                 HttpStatusCode.MethodNotAllowed,
                                 "frame has to be in text format, not binary!"
                             ).toFrame(-1)
@@ -86,7 +87,8 @@ fun Application.configureWebSocket() {
                     }
                 }
             }.onFailure { exception ->
-                WS_LOGGER.warn("A critical unhandeled error occurred: ${exception.localizedMessage}")
+                WS_LOGGER.warn("A critical unhandled error occurred: ${exception.localizedMessage}")
+                WS_LOGGER.warn(exception.stackTraceToString())
             }.also {
                 WS_LOGGER.info("Removing a consumer ...")
                 connections.remove(connection.id)

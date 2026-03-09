@@ -1,13 +1,12 @@
 package plugins.socket
 
-import at.eventful.messless.module
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
 import io.ktor.client.plugins.websocket.*
 import io.ktor.http.*
-import io.ktor.server.testing.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import org.junit.jupiter.api.assertThrows
+import testutils.configuredTestApplication
 import testutils.receiveText
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -17,14 +16,7 @@ import kotlin.test.assertEquals
  */
 class WebSocketConfigurationTest {
     @Test
-    fun testWrongFrameType() = testApplication {
-        application {
-            module()
-        }
-        val client = createClient {
-            install(WebSockets.Plugin)
-        }
-
+    fun testWrongFrameType() = configuredTestApplication {
         client.webSocket("/ws") {
             run {
                 send(Frame.Binary(true, ByteArray(8)))

@@ -24,7 +24,7 @@ open class WebSocketErrorResponse(
     @Serializable
     internal data class ErrorResponse(val message: String, val errorClass: String)
 
-    fun toWebSocketResponse(): WebSocketResponse = WebSocketResponse(
+    fun toWebSocketResponse(): WebSocketResponse<*> = WebSocketResponse<Any>(
         code,
         Json.encodeToString(
             ErrorResponse(

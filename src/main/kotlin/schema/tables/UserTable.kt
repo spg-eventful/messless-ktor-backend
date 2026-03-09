@@ -12,5 +12,5 @@ object UserTable : BaseTable("users") {
     val firstName = varchar("first_name", 255)
     val lastName = varchar("last_name", 255)
 
-    val companyId = reference("company_id", CompanyTable)
+    val companyId = reference("company_id", CompanyTable).nullable()
 }
