@@ -4,7 +4,9 @@ import at.eventful.messless.repositories.users.commands.UpdateUserCmd
 import at.eventful.messless.schema.dao.UserDao
 import at.eventful.messless.schema.entities.UserEntity
 import at.eventful.messless.schema.tables.UserTable
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import repositories.users.commands.CreateUserCmd
 import kotlin.time.Clock
@@ -13,13 +15,19 @@ import kotlin.time.ExperimentalTime
 class UserRepositoryImpl : UserRepository {
     @OptIn(ExperimentalTime::class)
     override fun allUsers(): List<UserDao> = transaction {
-        UserEntity.find { (UserTable.deletedAt eq null) }.toList().map(UserDao::from) as List<UserDao>
+        UserEntity.find { (UserTable.deletedAt neq null) }.toList().map(UserDao::from) as List<UserDao>
     }
 
     @OptIn(ExperimentalTime::class)
     override fun userById(id: Int): UserDao? = transaction {
         val user = UserEntity.findById(id)
         return@transaction if (user?.deletedAt == null) UserDao.from(user) else null
+    }
+
+    @OptIn(ExperimentalTime::class)
+    override fun userByEmail(email: String): UserDao? = transaction {
+        val user = UserEntity.find { (UserTable.email eq email) and (UserTable.deletedAt neq null) }.firstOrNull()
+        return@transaction UserDao.from(user)
     }
 
     override fun addUser(user: CreateUserCmd): UserDao = transaction {
