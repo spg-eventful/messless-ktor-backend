@@ -3,6 +3,7 @@ package testutils
 import io.ktor.client.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.server.config.*
+import io.ktor.server.plugins.di.*
 import io.ktor.server.testing.*
 
 class MockApplicationContext(val builder: ApplicationTestBuilder) {
@@ -11,6 +12,7 @@ class MockApplicationContext(val builder: ApplicationTestBuilder) {
             install(WebSockets)
         }
     }
+    val dependencies = builder.application.dependencies
 }
 
 fun configuredTestApplication(block: suspend MockApplicationContext.() -> Unit) = testApplication {

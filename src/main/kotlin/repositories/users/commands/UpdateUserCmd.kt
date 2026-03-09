@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UpdateUserCmd(
+    val `$id`: Int,
     var email: String,
     var phone: String,
     var firstName: String,

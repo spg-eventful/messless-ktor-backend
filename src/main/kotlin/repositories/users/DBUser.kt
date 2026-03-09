@@ -3,6 +3,7 @@ package at.eventful.messless.repositories.users
 import at.eventful.messless.repositories.IConvertibleDBType
 import at.eventful.messless.repositories.companies.DBCompany
 import at.eventful.messless.schema.entities.UserEntity
+import at.eventful.messless.schema.utils.UserRole
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -14,6 +15,7 @@ data class DBUser(
     val phone: String,
     val company: DBCompany?,
     val password: String,
+    val role: UserRole,
 ) {
     companion object : IConvertibleDBType<UserEntity, DBUser> {
         override fun from(entity: UserEntity?): DBUser? = entity?.let {
@@ -25,6 +27,7 @@ data class DBUser(
                 phone = entity.phone,
                 company = if (entity.company != null) DBCompany.from(entity.company!!) else null,
                 password = entity.password,
+                role = entity.role,
             )
         }
 
@@ -36,6 +39,7 @@ data class DBUser(
             phone = "+43 123 456 7890",
             company = null, // TODO
             password = "password",
+            role = UserRole.Admin
         )
     }
 }

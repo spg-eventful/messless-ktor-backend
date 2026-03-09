@@ -7,10 +7,14 @@ import at.eventful.messless.plugins.socket.WebSocketService
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
 import at.eventful.messless.repositories.users.commands.UpdateUserCmd
 import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.plugins.di.*
 import repositories.users.UsersRepository
 import repositories.users.commands.CreateUserCmd
 
-class UsersService(private val usersRepo: UsersRepository) : WebSocketService("users") {
+class UsersService(app: Application) : WebSocketService("users") {
+    val usersRepo: UsersRepository by app.dependencies
+
     override fun ServiceMethod.create(): WebSocketResponse<UserDto> {
         val cmd = incoming.receiveBody<CreateUserCmd>()
 

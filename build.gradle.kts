@@ -34,10 +34,8 @@ dependencies {
     implementation("net.postgis:postgis-jdbc:2023.1.0")
 
     implementation("org.locationtech.jts:jts-core:1.19.0")
-    implementation("io.insert-koin:koin-ktor:4.1.2-Beta1")
-    implementation("io.insert-koin:koin-logger-slf4j:4.1.2-Beta1")
-    implementation("io.insert-koin:koin-test:4.1.2-Beta1")
     testImplementation("io.mockk:mockk:${mockkVersion}")
+    implementation("io.ktor:ktor-server-di:${ktorVersion}")
 
     implementation("io.ktor:ktor-server-content-negotiation:3.3.2")
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.2")
