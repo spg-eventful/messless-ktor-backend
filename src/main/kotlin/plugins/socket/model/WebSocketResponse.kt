@@ -2,6 +2,7 @@ package at.eventful.messless.plugins.socket.model
 
 import io.ktor.http.*
 import io.ktor.websocket.*
+import kotlinx.serialization.json.Json
 
 /**
  * After processing a message, the WebSocket responds with a slightly different messaging schema:
@@ -16,14 +17,15 @@ import io.ktor.websocket.*
  * 0;201;{"id":1,"message":"Hello,World"}
  * ```
  */
-data class WebSocketResponse(
+data class WebSocketResponse<RESPONSE_TYPE>(
     val statusCode: Int,
-    val body: String?,
+    val body: String? = null,
     var id: Int? = null,
 ) {
-    constructor(statusCode: HttpStatusCode, body: String?, id: Int? = null) : this(
+    constructor(statusCode: HttpStatusCode, body: String? = null, id: Int? = null) : this(
         statusCode.value, body, id = id
     )
+
 
     /**
      * The response is not a valid [WebSocketResponse] and can not be converted into one.
@@ -42,11 +44,20 @@ data class WebSocketResponse(
     }
 
     companion object {
+
         /**
          * Convert a serialized [WebSocketResponse] (stringified) into a [WebSocketResponse] instance.
          * @throws InvalidWebSocketResponse if the response is not valid
          */
-        fun fromString(s: String): WebSocketResponse {
+        @JvmName("fromStringTyped")
+        fun <RESPONSE_TYPE> fromString(s: String): WebSocketResponse<RESPONSE_TYPE> =
+            fromString(s) as WebSocketResponse<RESPONSE_TYPE>
+
+        /**
+         * Convert a serialized [WebSocketResponse] (stringified) into a [WebSocketResponse] instance.
+         * @throws InvalidWebSocketResponse if the response is not valid
+         */
+        fun fromString(s: String): WebSocketResponse<Any> {
             return try {
                 val components = s.split(";")
 
@@ -59,5 +70,11 @@ data class WebSocketResponse(
                 throw InvalidWebSocketResponse(s)
             }
         }
+
+        /**
+         * Create a [WebSocketResponse] with a body that is json encoded to a string.
+         */
+        inline fun <reified T> from(statusCode: HttpStatusCode, body: T, id: Int? = null): WebSocketResponse<T> =
+            WebSocketResponse(statusCode, Json.encodeToString(body), id)
     }
 }
