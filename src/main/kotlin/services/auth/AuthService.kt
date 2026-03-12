@@ -6,6 +6,7 @@ import at.eventful.messless.plugins.socket.ServiceMethod
 import at.eventful.messless.plugins.socket.WebSocketService
 import at.eventful.messless.plugins.socket.auth.AuthenticatedConnection
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
+import at.eventful.messless.schema.dto.AuthDto
 import at.eventful.messless.schema.dto.UserDto
 import at.eventful.messless.services.auth.commands.CreateAuthBasicCmd
 import at.eventful.messless.services.auth.commands.CreateAuthJWTCmd
@@ -36,7 +37,7 @@ class AuthService(app: Application, val argon2: Argon2) : WebSocketService("auth
     /**
      * Authenticates an existing JWT via the [CreateAuthJWTCmd] or creates a new JWT via the [CreateAuthBasicCmd].
      */
-    override fun ServiceMethod.create(): WebSocketResponse<UserDto> {
+    override fun ServiceMethod.create(): WebSocketResponse<AuthDto> {
         val cmd = runCatching { incoming.receiveBody<CreateAuthJWTCmd>() }.getOrNull()
             ?: incoming.receiveBody<CreateAuthBasicCmd>()
 
@@ -48,7 +49,10 @@ class AuthService(app: Application, val argon2: Argon2) : WebSocketService("auth
             val user = usersRepo.userById(subject) ?: throw Unauthorized("subject not found")
 
             connection.auth.grant(AuthenticatedConnection(jwt.expiresAtAsInstant, user))
-            return WebSocketResponse(HttpStatusCode.OK)
+            return WebSocketResponse.from(
+                HttpStatusCode.OK,
+                AuthDto(cmd.jwt, UserDto.from(user))
+            )
         }
 
         if (cmd !is CreateAuthBasicCmd) throw BadRequest("request body must either be an object {jwt: \"token\"} or basic auth(email, password) [json]")
@@ -61,15 +65,17 @@ class AuthService(app: Application, val argon2: Argon2) : WebSocketService("auth
 
         // grant access token
         // TODO: Refresh token
-        return WebSocketResponse(
+        val jwt = JWT.create()
+            .withAudience(jwtConfig.audience)
+            .withIssuer(jwtConfig.issuer)
+            .withSubject(user.email)
+            .withClaim("id", user.id)
+            .withExpiresAt(expiry)
+            .sign(Algorithm.HMAC256(jwtConfig.secret))
+
+        return WebSocketResponse.from(
             HttpStatusCode.Created,
-            JWT.create()
-                .withAudience(jwtConfig.audience)
-                .withIssuer(jwtConfig.issuer)
-                .withSubject(user.email)
-                .withClaim("id", user.id)
-                .withExpiresAt(expiry)
-                .sign(Algorithm.HMAC256(jwtConfig.secret))
+            AuthDto(jwt, UserDto.from(user))
         )
     }
 

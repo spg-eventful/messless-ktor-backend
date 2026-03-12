@@ -4,6 +4,7 @@ import at.eventful.messless.plugins.socket.model.IncomingMessage
 import at.eventful.messless.plugins.socket.model.Method
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
 import at.eventful.messless.schema.dao.UserDao
+import at.eventful.messless.schema.dto.AuthDto
 import at.eventful.messless.services.auth.commands.CreateAuthBasicCmd
 import at.eventful.messless.services.auth.commands.CreateAuthJWTCmd
 import at.eventful.messless.services.echo.CreateEchoCmd
@@ -53,7 +54,8 @@ class AuthServiceTest {
                     val res = WebSocketResponse.fromString(receiveText())
                     assertEquals(201, res.statusCode)
 
-                    val jwt = JWT.decode(res.body)
+                    val decoded = Json.decodeFromString<AuthDto>(res.body!!)
+                    val jwt = JWT.decode(decoded.jwt)
                     val sub = jwt.claims["id"]?.asInt()
                     assertNotNull(sub)
                     assertEquals(fakeUser.id, sub, "subject does not match!")
@@ -144,7 +146,7 @@ class AuthServiceTest {
                     )
                     val res = WebSocketResponse.fromString(receiveText())
                     assertEquals(201, res.statusCode)
-                    jwt = res.body
+                    jwt = Json.decodeFromString<AuthDto>(res.body!!).jwt
                 }
             }
 
