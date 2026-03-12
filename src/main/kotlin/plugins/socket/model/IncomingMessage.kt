@@ -28,7 +28,7 @@ data class IncomingMessage(
             return Json.decodeFromString<T>(body)
         } catch (e: SerializationException) {
             exposedLogger.debug("Serialization error (probably a client-side mistake): ", e)
-            throw BadRequest("Unable to deserialize body. The type does not match!")
+            throw BadRequest(e.message)
         }
     }
 }
