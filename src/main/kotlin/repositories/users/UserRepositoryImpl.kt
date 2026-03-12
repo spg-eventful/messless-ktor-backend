@@ -29,7 +29,7 @@ class UserRepositoryImpl(val argon2: Argon2) : UserRepository {
 
     @OptIn(ExperimentalTime::class)
     override fun userByEmail(email: String): UserDao? = transaction {
-        val user = UserEntity.find { (UserTable.email eq email) and (UserTable.deletedAt neq null) }.firstOrNull()
+        val user = UserEntity.find { (UserTable.email eq email) and (UserTable.deletedAt eq null) }.firstOrNull()
         return@transaction UserDao.from(user)
     }
 
