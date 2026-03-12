@@ -4,7 +4,10 @@ import at.eventful.messless.repositories.equipment.commands.CreateEquipmentCmd
 import at.eventful.messless.repositories.equipment.commands.UpdateEquipmentCmd
 import at.eventful.messless.schema.dao.EquipmentDao
 import at.eventful.messless.schema.entities.EquipmentEntity
+import at.eventful.messless.schema.entities.EquipmentStorageEntity
+import at.eventful.messless.schema.entities.WarehouseEntity
 import at.eventful.messless.schema.tables.EquipmentTable
+import net.postgis.jdbc.geometry.Point
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.time.Clock
@@ -14,9 +17,10 @@ class EquipmentRepositoryImpl : EquipmentRepository {
     override fun addEquipment(equipment: CreateEquipmentCmd): EquipmentDao = transaction {
         EquipmentDao.from(EquipmentEntity.new {
             label = equipment.label
-            location = equipment.location
-            belongsTo = equipment.belongsTo
-            storage = equipment.storage
+            location = Point(equipment.longitude, equipment.latitude)
+            belongsTo = WarehouseEntity.findById(equipment.belongsToWarehouse) ?: throw Error("Warehouse not found")
+            storage = EquipmentStorageEntity.findById(equipment.equipmentStorage!!)
+                ?: throw Error("Equipment storage not found")
         })!!
     }
 
@@ -35,9 +39,10 @@ class EquipmentRepositoryImpl : EquipmentRepository {
     override fun updateEquipment(id: Int, equipment: UpdateEquipmentCmd): EquipmentDao? = transaction {
         EquipmentDao.from(EquipmentEntity.findByIdAndUpdate(id) {
             it.label = equipment.label
-            it.location = equipment.location
-            it.belongsTo = equipment.belongsTo
-            it.storage = equipment.storage
+            it.location = Point(equipment.longitude, equipment.latitude)
+            it.belongsTo = WarehouseEntity.findById(equipment.belongsToWarehouse) ?: throw Error("Warehouse not found")
+            it.storage = EquipmentStorageEntity.findById(equipment.equipmentStorage!!)
+                ?: throw Error("Equipment storage not found")
         })
     }
 
