@@ -1,0 +1,3 @@
+package at.eventful.messless.repositories.equipment
+
+interface EquipmentRepository
