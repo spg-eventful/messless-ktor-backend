@@ -17,6 +17,7 @@ import repositories.users.UserRepository
 import repositories.users.commands.CreateUserCmd
 import testutils.configuredTestApplication
 import testutils.receiveText
+import testutils.sendLoginFrame
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -55,8 +56,17 @@ class UsersServiceTest {
 
     @Test
     fun testUserReadNotFound() = configuredTestApplication {
+        val user = UserDao.fake(99).copy(role = UserRole.Admin)
+        dependencies.provide<UserRepository> {
+            usersRepository
+        }
+        every { usersRepository.userById(user.id) } returns user
+        every { usersRepository.userById(1) } returns null
+
         client.webSocket("/ws") {
             run {
+                sendLoginFrame(this@configuredTestApplication, user)
+
                 send(
                     Frame.Text(
                         IncomingMessage(
@@ -71,6 +81,33 @@ class UsersServiceTest {
     }
 
     @Test
+    fun testUserReadAlienNotFound() = configuredTestApplication {
+        val fakeUser = UserDao.fake(99)
+        dependencies.provide<UserRepository> {
+            usersRepository
+        }
+        every { usersRepository.userById(fakeUser.id) } returns fakeUser
+        every { usersRepository.userById(1) } returns null
+
+        client.webSocket("/ws") {
+            run {
+                sendLoginFrame(this@configuredTestApplication, fakeUser)
+
+                send(
+                    Frame.Text(
+                        IncomingMessage(
+                            0, "users", Method.READ, "1"
+                        ).toString()
+                    )
+                )
+                val res = WebSocketResponse.fromString(receiveText())
+                assertEquals(403, res.statusCode)
+            }
+        }
+    }
+
+
+    @Test
     fun testUserRead() = configuredTestApplication {
         dependencies.provide<UserRepository> {
             usersRepository
@@ -79,6 +116,8 @@ class UsersServiceTest {
 
         client.webSocket("/ws") {
             run {
+                sendLoginFrame(this@configuredTestApplication, usersRepository.userById(1)!!)
+
                 send(
                     Frame.Text(
                         IncomingMessage(
@@ -195,5 +234,4 @@ class UsersServiceTest {
             }
         }
     }
-
 }

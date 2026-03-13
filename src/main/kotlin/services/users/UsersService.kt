@@ -1,12 +1,15 @@
 package at.eventful.messless.services.users
 
 import at.eventful.messless.errors.responses.BadRequest
+import at.eventful.messless.errors.responses.Forbidden
 import at.eventful.messless.errors.responses.NotFound
+import at.eventful.messless.errors.responses.Unauthorized
 import at.eventful.messless.plugins.socket.ServiceMethod
 import at.eventful.messless.plugins.socket.WebSocketService
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
 import at.eventful.messless.repositories.users.commands.UpdateUserCmd
 import at.eventful.messless.schema.dto.UserDto
+import at.eventful.messless.schema.utils.UserRole
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.di.*
@@ -40,11 +43,16 @@ class UsersService(app: Application) : WebSocketService("users") {
     }
 
     override fun ServiceMethod.get(id: Int): WebSocketResponse<UserDto> {
-        val user = usersRepo.userById(id) ?: throw NotFound("User with id $id not found")
-        return WebSocketResponse.from(
-            HttpStatusCode.OK,
-            UserDto.from(user),
-        )
+        connection.auth.auth?.let {
+            if (it.user.role != UserRole.Admin && it.user.id != id) throw Forbidden("You are only allowed to query for your own user!")
+
+            val user = usersRepo.userById(id) ?: throw NotFound("User with id $id not found")
+            return WebSocketResponse.from(
+                HttpStatusCode.OK,
+                UserDto.from(user),
+            )
+        }
+        throw Unauthorized()
     }
 
     override fun ServiceMethod.update(id: Int): WebSocketResponse<UserDto> {

@@ -6,6 +6,7 @@ import at.eventful.messless.plugins.socket.ServiceMethod
 import at.eventful.messless.plugins.socket.WebSocketService
 import at.eventful.messless.plugins.socket.auth.AuthenticatedConnection
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
+import at.eventful.messless.schema.dao.UserDao
 import at.eventful.messless.schema.dto.AuthDto
 import at.eventful.messless.schema.dto.UserDto
 import at.eventful.messless.services.auth.commands.CreateAuthBasicCmd
@@ -45,8 +46,8 @@ class AuthService(app: Application, val argon2: Argon2) : WebSocketService("auth
             val jwt = runCatching { JWT.decode(cmd.jwt) }.getOrNull() ?: throw BadRequest("unable to decode jwt")
             if (jwt.expiresAt.before(Date())) throw Unauthorized("jwt expired")
 
-            val subject = jwt.getClaim("id").asInt() ?: throw Unauthorized("subject must be a parsable integer")
-            val user = usersRepo.userById(subject) ?: throw Unauthorized("subject not found")
+            val userId = jwt.getClaim("id").asInt() ?: throw Unauthorized("id must be a parsable integer")
+            val user = usersRepo.userById(userId) ?: throw Unauthorized("user with id $userId not found")
 
             connection.auth.grant(AuthenticatedConnection(jwt.expiresAtAsInstant, user))
             return WebSocketResponse.from(
@@ -59,20 +60,12 @@ class AuthService(app: Application, val argon2: Argon2) : WebSocketService("auth
         val user = usersRepo.userByEmail(cmd.email) ?: throw Unauthorized()
         if (!argon2.verify(user.password, cmd.password.toCharArray())) throw Unauthorized()
 
-        val expiry = Date(System.currentTimeMillis() + 60000)
         // authenticates the current session
+        val (jwt, expiry) = generateJWT(jwtConfig, user)
         connection.auth.grant(AuthenticatedConnection(expiry.toInstant(), user))
 
         // grant access token
         // TODO: Refresh token
-        val jwt = JWT.create()
-            .withAudience(jwtConfig.audience)
-            .withIssuer(jwtConfig.issuer)
-            .withSubject(user.email)
-            .withClaim("id", user.id)
-            .withExpiresAt(expiry)
-            .sign(Algorithm.HMAC256(jwtConfig.secret))
-
         return WebSocketResponse.from(
             HttpStatusCode.Created,
             AuthDto(jwt, UserDto.from(user))
@@ -85,5 +78,21 @@ class AuthService(app: Application, val argon2: Argon2) : WebSocketService("auth
 
     override fun ServiceMethod.delete(id: Int): WebSocketResponse<Nothing> {
         TODO("Revoke refresh token / logout")
+    }
+
+    companion object {
+        fun generateJWT(config: JWTConfig, user: UserDao): Pair<String, Date> {
+            val expiry = Date(System.currentTimeMillis() + 60000)
+            return Pair(
+                JWT.create()
+                    .withAudience(config.audience)
+                    .withIssuer(config.issuer)
+                    .withSubject(user.email)
+                    .withClaim("id", user.id)
+                    .withExpiresAt(expiry)
+                    .sign(Algorithm.HMAC256(config.secret)),
+                expiry
+            )
+        }
     }
 }
