@@ -31,7 +31,7 @@ class UsersServiceTest {
     )
 
     @Test
-    fun testUserCreation() = configuredTestApplication {
+    fun create() = configuredTestApplication {
         dependencies.provide<UserRepository> {
             usersRepository
         }
@@ -55,7 +55,7 @@ class UsersServiceTest {
     }
 
     @Test
-    fun testUserReadNotFound() = configuredTestApplication {
+    fun `read with non-existant user`() = configuredTestApplication {
         val user = UserDao.fake(99).copy(role = UserRole.Admin)
         dependencies.provide<UserRepository> {
             usersRepository
@@ -81,7 +81,7 @@ class UsersServiceTest {
     }
 
     @Test
-    fun testUserReadAlienNotFound() = configuredTestApplication {
+    fun `read with non-existant user performed by unauthorized user`() = configuredTestApplication {
         val fakeUser = UserDao.fake(99)
         dependencies.provide<UserRepository> {
             usersRepository
@@ -108,7 +108,7 @@ class UsersServiceTest {
 
 
     @Test
-    fun testUserRead() = configuredTestApplication {
+    fun read() = configuredTestApplication {
         dependencies.provide<UserRepository> {
             usersRepository
         }
@@ -132,7 +132,7 @@ class UsersServiceTest {
     }
 
     @Test
-    fun testUserReadAll() = configuredTestApplication {
+    fun `read all`() = configuredTestApplication {
         client.webSocket("/ws") {
             run {
                 send(
@@ -149,7 +149,7 @@ class UsersServiceTest {
     }
 
     @Test
-    fun testUserUpdate() = configuredTestApplication {
+    fun update() = configuredTestApplication {
         val fakeUser = UserDao.fake(1)
         val cmd = UpdateUserCmd(
             fakeUser.id,
@@ -181,7 +181,7 @@ class UsersServiceTest {
     }
 
     @Test
-    fun testUserUpdateNotFound() = configuredTestApplication {
+    fun `update with non-existant user`() = configuredTestApplication {
         val fakeUser = UserDao.fake(1)
         val cmd = UpdateUserCmd(
             2,
@@ -213,7 +213,7 @@ class UsersServiceTest {
     }
 
     @Test
-    fun testUserDelete() = configuredTestApplication {
+    fun delete() = configuredTestApplication {
         val fakeUser = UserDao.fake(1)
         dependencies.provide<UserRepository> {
             usersRepository
