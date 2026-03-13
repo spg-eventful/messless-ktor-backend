@@ -1,236 +1,103 @@
 package services.users
 
-import at.eventful.messless.plugins.socket.model.IncomingMessage
 import at.eventful.messless.plugins.socket.model.Method
-import at.eventful.messless.plugins.socket.model.WebSocketResponse
 import at.eventful.messless.repositories.users.commands.UpdateUserCmd
 import at.eventful.messless.schema.dao.UserDao
 import at.eventful.messless.schema.utils.UserRole
 import io.ktor.client.plugins.websocket.*
-import io.ktor.websocket.*
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import repositories.users.UserRepository
 import repositories.users.commands.CreateUserCmd
 import testutils.configuredTestApplication
-import testutils.receiveText
+import testutils.sendAndAssert
 import testutils.sendLoginFrame
-import kotlin.test.Test
-import kotlin.test.assertEquals
 
 
 @ExtendWith(MockKExtension::class)
 class UsersServiceTest {
     val usersRepository = mockk<UserRepository>()
 
-    fun userFakeCreateCmd(): CreateUserCmd = CreateUserCmd(
-        "test@abc.com", "banane", UserRole.CompanyAdmin, "+4300000000", "firstname", "lastname"
-    )
-
-    @Test
-    fun create() = configuredTestApplication {
-        dependencies.provide<UserRepository> {
-            usersRepository
+    companion object {
+        data class ParameterizedReq(
+            val name: String,
+            val user: UserDao,
+            val expectedStatus: Int,
+            val method: Method,
+            val payload: String?
+        ) {
+            override fun toString(): String =
+                "${method.name} ${user.role.name} $name"
         }
-        every { usersRepository.addUser(any()) } returns UserDao.fake(1)
 
-        client.webSocket("/ws") {
-            run {
-                send(
-                    Frame.Text(
-                        IncomingMessage(
-                            0, "users", Method.CREATE, Json.encodeToString(
-                                userFakeCreateCmd()
-                            )
-                        ).toString()
-                    )
-                )
-                val res = WebSocketResponse.fromString(receiveText())
-                assertEquals(201, res.statusCode)
-            }
-        }
-    }
+        val admin = UserDao.fake(1).copy(role = UserRole.Admin)
+        val owner = UserDao.fake(2).copy(role = UserRole.CompanyAdmin)
+        val stranger = UserDao.fake(3).copy(role = UserRole.Worker)
 
-    @Test
-    fun `read with non-existant user`() = configuredTestApplication {
-        val user = UserDao.fake(99).copy(role = UserRole.Admin)
-        dependencies.provide<UserRepository> {
-            usersRepository
-        }
-        every { usersRepository.userById(user.id) } returns user
-        every { usersRepository.userById(1) } returns null
-
-        client.webSocket("/ws") {
-            run {
-                sendLoginFrame(this@configuredTestApplication, user)
-
-                send(
-                    Frame.Text(
-                        IncomingMessage(
-                            0, "users", Method.READ, "1"
-                        ).toString()
-                    )
-                )
-                val res = WebSocketResponse.fromString(receiveText())
-                assertEquals(404, res.statusCode)
-            }
-        }
-    }
-
-    @Test
-    fun `read with non-existant user performed by unauthorized user`() = configuredTestApplication {
-        val fakeUser = UserDao.fake(99)
-        dependencies.provide<UserRepository> {
-            usersRepository
-        }
-        every { usersRepository.userById(fakeUser.id) } returns fakeUser
-        every { usersRepository.userById(1) } returns null
-
-        client.webSocket("/ws") {
-            run {
-                sendLoginFrame(this@configuredTestApplication, fakeUser)
-
-                send(
-                    Frame.Text(
-                        IncomingMessage(
-                            0, "users", Method.READ, "1"
-                        ).toString()
-                    )
-                )
-                val res = WebSocketResponse.fromString(receiveText())
-                assertEquals(403, res.statusCode)
-            }
-        }
-    }
-
-
-    @Test
-    fun read() = configuredTestApplication {
-        dependencies.provide<UserRepository> {
-            usersRepository
-        }
-        every { usersRepository.userById(1) } returns UserDao.fake(1)
-
-        client.webSocket("/ws") {
-            run {
-                sendLoginFrame(this@configuredTestApplication, usersRepository.userById(1)!!)
-
-                send(
-                    Frame.Text(
-                        IncomingMessage(
-                            0, "users", Method.READ, "1"
-                        ).toString()
-                    )
-                )
-                val res = WebSocketResponse.fromString(receiveText())
-                assertEquals(200, res.statusCode)
-            }
-        }
-    }
-
-    @Test
-    fun `read all`() = configuredTestApplication {
-        client.webSocket("/ws") {
-            run {
-                send(
-                    Frame.Text(
-                        IncomingMessage(
-                            0, "users", Method.READ
-                        ).toString()
-                    )
-                )
-                val res = WebSocketResponse.fromString(receiveText())
-                assertEquals(200, res.statusCode)
-            }
-        }
-    }
-
-    @Test
-    fun update() = configuredTestApplication {
-        val fakeUser = UserDao.fake(1)
-        val cmd = UpdateUserCmd(
-            fakeUser.id,
-            fakeUser.email,
-            fakeUser.phone,
-            fakeUser.firstName,
-            fakeUser.lastName,
-            fakeUser.role,
+        val updateCmd = UpdateUserCmd(
+            owner.id,
+            owner.email,
+            owner.phone,
+            owner.firstName,
+            owner.lastName,
+            owner.role,
+        )
+        val createCmd = CreateUserCmd(
+            owner.email,
+            "banane",
+            owner.role,
+            owner.phone,
+            owner.firstName,
+            owner.lastName,
         )
 
-        dependencies.provide<UserRepository> {
-            usersRepository
-        }
-        every { usersRepository.updateUser(1, any()) } returns fakeUser
-
-        client.webSocket("/ws") {
-            run {
-                send(
-                    Frame.Text(
-                        IncomingMessage(
-                            0, "users", Method.UPDATE, Json.encodeToString(cmd)
-                        ).toString()
-                    )
-                )
-                val res = WebSocketResponse.fromString(receiveText())
-                assertEquals(200, res.statusCode)
-            }
-        }
-    }
-
-    @Test
-    fun `update with non-existant user`() = configuredTestApplication {
-        val fakeUser = UserDao.fake(1)
-        val cmd = UpdateUserCmd(
-            2,
-            fakeUser.email,
-            fakeUser.phone,
-            fakeUser.firstName,
-            fakeUser.lastName,
-            fakeUser.role,
+        @JvmStatic
+        fun requestMatrix() = listOf(
+            // CREATE
+            ParameterizedReq("creates owner", owner, 201, Method.CREATE, Json.encodeToString(createCmd)),
+            // TODO: Test who can create what role
+            // READ
+            ParameterizedReq("reads owner", admin, 200, Method.READ, owner.id.toString()),
+            ParameterizedReq("reads owner", owner, 200, Method.READ, owner.id.toString()),
+            ParameterizedReq("reads owner", stranger, 403, Method.READ, owner.id.toString()),
+            // READ ALL
+            ParameterizedReq("reads all", admin, 200, Method.READ, null),
+            ParameterizedReq("reads all", owner, 200, Method.READ, null),
+            ParameterizedReq("reads all", stranger, 200, Method.READ, null),
+            // UPDATE
+            ParameterizedReq("update owner", admin, 200, Method.UPDATE, Json.encodeToString(updateCmd)),
+            ParameterizedReq("update owner", owner, 200, Method.UPDATE, Json.encodeToString(updateCmd)),
+            ParameterizedReq("update owner", stranger, 403, Method.UPDATE, Json.encodeToString(updateCmd)),
+            // DELETE
+            ParameterizedReq("delete owner", admin, 204, Method.DELETE, owner.id.toString()),
+            ParameterizedReq("delete owner", owner, 204, Method.DELETE, owner.id.toString()),
+            ParameterizedReq("delete owner", stranger, 403, Method.DELETE, owner.id.toString()),
         )
-
-        dependencies.provide<UserRepository> {
-            usersRepository
-        }
-        every { usersRepository.updateUser(2, any()) } returns null
-
-        client.webSocket("/ws") {
-            run {
-                send(
-                    Frame.Text(
-                        IncomingMessage(
-                            0, "users", Method.UPDATE, Json.encodeToString(cmd)
-                        ).toString()
-                    )
-                )
-                val res = WebSocketResponse.fromString(receiveText())
-                assertEquals(404, res.statusCode)
-            }
-        }
     }
 
-    @Test
-    fun delete() = configuredTestApplication {
-        val fakeUser = UserDao.fake(1)
-        dependencies.provide<UserRepository> {
-            usersRepository
-        }
-        every { usersRepository.removeUser(1) } returns fakeUser
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("requestMatrix")
+    fun makeRequest(
+        pr: ParameterizedReq
+    ) = configuredTestApplication {
+        dependencies.provide<UserRepository> { usersRepository }
+        every { usersRepository.addUser(createCmd) } returns owner
+        every { usersRepository.allUsers() } returns listOf(admin, owner, stranger)
+        every { usersRepository.userById(admin.id) } returns admin
+        every { usersRepository.userById(owner.id) } returns owner
+        every { usersRepository.userById(stranger.id) } returns stranger
+        every { usersRepository.updateUser(owner.id, updateCmd) } returns owner
+        every { usersRepository.removeUser(owner.id) } returns owner
 
         client.webSocket("/ws") {
             run {
-                send(
-                    Frame.Text(
-                        IncomingMessage(
-                            0, "users", Method.DELETE, "1"
-                        ).toString()
-                    )
-                )
-                val res = WebSocketResponse.fromString(receiveText())
-                assertEquals(204, res.statusCode)
+                sendLoginFrame(this@configuredTestApplication, pr.user)
+                sendAndAssert("users", pr.method, pr.payload, pr.expectedStatus)
             }
         }
     }

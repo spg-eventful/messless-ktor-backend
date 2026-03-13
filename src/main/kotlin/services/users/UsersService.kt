@@ -36,10 +36,13 @@ class UsersService(app: Application) : WebSocketService("users") {
     }
 
     override fun ServiceMethod.find(): WebSocketResponse<List<UserDto>> {
-        return WebSocketResponse.from(
-            HttpStatusCode.OK,
-            usersRepo.allUsers().map(UserDto::from),
-        )
+        connection.auth.auth?.let {
+            return WebSocketResponse.from(
+                HttpStatusCode.OK,
+                usersRepo.allUsers().map(UserDto::from),
+            )
+        }
+        throw Unauthorized()
     }
 
     override fun ServiceMethod.get(id: Int): WebSocketResponse<UserDto> {
@@ -56,18 +59,31 @@ class UsersService(app: Application) : WebSocketService("users") {
     }
 
     override fun ServiceMethod.update(id: Int): WebSocketResponse<UserDto> {
-        val updated = usersRepo.updateUser(id, incoming.receiveBody<UpdateUserCmd>())
-            ?: throw NotFound("User with id $id not found")
-        return WebSocketResponse.from(
-            HttpStatusCode.OK,
-            UserDto.from(updated),
-        )
+        connection.auth.auth?.let {
+            if (it.user.role != UserRole.Admin && it.user.id != id) throw Forbidden("You are only allowed to update your own user!")
+
+            val cmd = incoming.receiveBody<UpdateUserCmd>()
+            if (it.user.role != UserRole.Admin && cmd.role != it.user.role) throw Forbidden("You are not allowed to update your own role!")
+
+            val updated = usersRepo.updateUser(id, cmd)
+                ?: throw NotFound("User with id $id not found")
+            return WebSocketResponse.from(
+                HttpStatusCode.OK,
+                UserDto.from(updated),
+            )
+        }
+        throw Unauthorized()
     }
 
     override fun ServiceMethod.delete(id: Int): WebSocketResponse<Nothing> {
-        usersRepo.removeUser(id) ?: throw NotFound("User with id $id not found")
-        return WebSocketResponse(
-            HttpStatusCode.NoContent
-        )
+        connection.auth.auth?.let {
+            if (it.user.role != UserRole.Admin && it.user.id != id) throw Forbidden("You are only allowed to delete your own user!")
+
+            usersRepo.removeUser(id) ?: throw NotFound("User with id $id not found")
+            return WebSocketResponse(
+                HttpStatusCode.NoContent
+            )
+        }
+        throw Unauthorized()
     }
 }
