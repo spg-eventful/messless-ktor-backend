@@ -12,7 +12,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.di.*
 
-class EquipmentService(app: Application) : WebSocketService("equipment") {
+class EquipmentService(app: Application) : WebSocketService("equipments") {
     val equipmentRepo: EquipmentRepository by app.dependencies
 
     override fun ServiceMethod.create(): WebSocketResponse<EquipmentDto> {
@@ -36,10 +36,10 @@ class EquipmentService(app: Application) : WebSocketService("equipment") {
     }
 
     override fun ServiceMethod.get(id: Int): WebSocketResponse<EquipmentDto> {
-        val eqipment = equipmentRepo.equipmentById(id) ?: throw NotFound("Equipment with id $id not found")
+        val equipment = equipmentRepo.equipmentById(id) ?: throw NotFound("Equipment with id $id not found")
         return WebSocketResponse.from(
             HttpStatusCode.OK,
-            EquipmentDto.from(eqipment),
+            EquipmentDto.from(equipment),
         )
     }
 
