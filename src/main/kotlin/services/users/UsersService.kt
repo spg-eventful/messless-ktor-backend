@@ -19,20 +19,25 @@ import repositories.users.commands.CreateUserCmd
 class UsersService(app: Application) : WebSocketService("users") {
     val usersRepo: UserRepository by app.dependencies
 
+    // TODO: On boot, we need to create an admin user if none exists
     override fun ServiceMethod.create(): WebSocketResponse<UserDto> {
-        val cmd = incoming.receiveBody<CreateUserCmd>()
-
-        try {
-            return WebSocketResponse.from(
-                HttpStatusCode.Created,
-                UserDto.from(usersRepo.addUser(cmd)),
-            )
-        } catch (e: Exception) {
-            if (e.message?.contains("PUBLIC.USERS_EMAIL_UNIQUE") ?: false) {
-                throw BadRequest("A user with this email already exists.")
+        connection.auth.auth?.let {
+            val cmd = incoming.receiveBody<CreateUserCmd>()
+            if (it.user.role != UserRole.Admin && cmd.role.asInt() > it.user.role.asInt()) throw Forbidden("You are not allowed to create a user with this role!")
+            // TODO: add user to company
+            try {
+                return WebSocketResponse.from(
+                    HttpStatusCode.Created,
+                    UserDto.from(usersRepo.addUser(cmd)),
+                )
+            } catch (e: Exception) {
+                if (e.message?.contains("PUBLIC.USERS_EMAIL_UNIQUE") ?: false) {
+                    throw BadRequest("A user with this email already exists.")
+                }
+                throw e
             }
-            throw e
         }
+        throw Unauthorized()
     }
 
     override fun ServiceMethod.find(): WebSocketResponse<List<UserDto>> {
@@ -63,10 +68,9 @@ class UsersService(app: Application) : WebSocketService("users") {
             if (it.user.role != UserRole.Admin && it.user.id != id) throw Forbidden("You are only allowed to update your own user!")
 
             val cmd = incoming.receiveBody<UpdateUserCmd>()
-            if (it.user.role != UserRole.Admin && cmd.role != it.user.role) throw Forbidden("You are not allowed to update your own role!")
+            if (cmd.role.asInt() > it.user.role.asInt()) throw Forbidden("You are not allowed to update to this role!")
 
-            val updated = usersRepo.updateUser(id, cmd)
-                ?: throw NotFound("User with id $id not found")
+            val updated = usersRepo.updateUser(id, cmd) ?: throw NotFound("User with id $id not found")
             return WebSocketResponse.from(
                 HttpStatusCode.OK,
                 UserDto.from(updated),

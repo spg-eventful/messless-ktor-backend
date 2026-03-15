@@ -59,8 +59,21 @@ class UsersServiceTest {
         @JvmStatic
         fun requestMatrix() = listOf(
             // CREATE
+            ParameterizedReq(
+                "creates admin",
+                admin,
+                201,
+                Method.CREATE,
+                Json.encodeToString(createCmd.copy(role = UserRole.Admin))
+            ),
             ParameterizedReq("creates owner", owner, 201, Method.CREATE, Json.encodeToString(createCmd)),
-            // TODO: Test who can create what role
+            ParameterizedReq(
+                "creates owner role above allowed",
+                owner,
+                403,
+                Method.CREATE,
+                Json.encodeToString(createCmd.copy(role = UserRole.Admin))
+            ),
             // READ
             ParameterizedReq("reads owner", admin, 200, Method.READ, owner.id.toString()),
             ParameterizedReq("reads owner", owner, 200, Method.READ, owner.id.toString()),
@@ -72,6 +85,13 @@ class UsersServiceTest {
             // UPDATE
             ParameterizedReq("update owner", admin, 200, Method.UPDATE, Json.encodeToString(updateCmd)),
             ParameterizedReq("update owner", owner, 200, Method.UPDATE, Json.encodeToString(updateCmd)),
+            ParameterizedReq(
+                "update owner role above allowed",
+                owner,
+                403,
+                Method.UPDATE,
+                Json.encodeToString(updateCmd.copy(role = UserRole.Admin))
+            ),
             ParameterizedReq("update owner", stranger, 403, Method.UPDATE, Json.encodeToString(updateCmd)),
             // DELETE
             ParameterizedReq("delete owner", admin, 204, Method.DELETE, owner.id.toString()),
@@ -86,7 +106,7 @@ class UsersServiceTest {
         pr: ParameterizedReq
     ) = configuredTestApplication {
         dependencies.provide<UserRepository> { usersRepository }
-        every { usersRepository.addUser(createCmd) } returns owner
+        every { usersRepository.addUser(any()) } returns owner
         every { usersRepository.allUsers() } returns listOf(admin, owner, stranger)
         every { usersRepository.userById(admin.id) } returns admin
         every { usersRepository.userById(owner.id) } returns owner
