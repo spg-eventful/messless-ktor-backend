@@ -18,3 +18,8 @@ messless:
       url: "jdbc:h2:mem:messlessBackendTest;DB_CLOSE_DELAY=-1"
       user: "tester"
       password: ""
+  jwt:
+    secret: $JWT_SECRET
+    issuer: "messless"
+    audience: "msls frontends"
+    realm: "main"
