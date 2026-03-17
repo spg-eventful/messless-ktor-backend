@@ -1,8 +1,8 @@
 package services.users
 
+import ParameterizedReq
 import at.eventful.messless.plugins.socket.model.Method
 import at.eventful.messless.repositories.users.commands.UpdateUserCmd
-import at.eventful.messless.schema.dao.UserDao
 import at.eventful.messless.schema.utils.UserRole
 import io.ktor.client.plugins.websocket.*
 import io.mockk.every
@@ -14,6 +14,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import repositories.users.UserRepository
 import repositories.users.commands.CreateUserCmd
+import testutils.AuthorizationTest
 import testutils.configuredTestApplication
 import testutils.sendAndAssert
 import testutils.sendLoginFrame
@@ -23,22 +24,7 @@ import testutils.sendLoginFrame
 class UsersServiceTest {
     val usersRepository = mockk<UserRepository>()
 
-    companion object {
-        data class ParameterizedReq(
-            val name: String,
-            val user: UserDao,
-            val expectedStatus: Int,
-            val method: Method,
-            val payload: String?
-        ) {
-            override fun toString(): String =
-                "${method.name} ${user.role.name} $name"
-        }
-
-        val admin = UserDao.fake(1).copy(role = UserRole.Admin)
-        val owner = UserDao.fake(2).copy(role = UserRole.CompanyAdmin)
-        val stranger = UserDao.fake(3).copy(role = UserRole.Worker)
-
+    companion object : AuthorizationTest() {
         val updateCmd = UpdateUserCmd(
             owner.id,
             owner.email,
