@@ -9,12 +9,14 @@ import at.eventful.messless.services.eqipments.EquipmentService
 import at.eventful.messless.services.index.registerIndexRoute
 import at.eventful.messless.services.users.UsersService
 import io.ktor.server.application.*
+import io.ktor.server.plugins.di.*
+import services.auth.AuthService
 
 val router = WebSocketRouter()
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
-fun Application.module() {
+suspend fun Application.module() {
     // Install plugins
     configureDI()
     configureDatabases()
@@ -25,5 +27,5 @@ fun Application.module() {
 
     // Register WS routes
     router.removeAllRoutes()
-    router.register(EchoService(), UsersService(this), EquipmentService(this))
+    router.register(EchoService(), dependencies.resolve<UsersService>(), dependencies.resolve<AuthService>(), EquipmentService(this))
 }

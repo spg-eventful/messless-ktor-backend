@@ -74,7 +74,11 @@ data class WebSocketResponse<RESPONSE_TYPE>(
         /**
          * Create a [WebSocketResponse] with a body that is json encoded to a string.
          */
-        inline fun <reified T> from(statusCode: HttpStatusCode, body: T, id: Int? = null): WebSocketResponse<T> =
+        inline fun <reified RESPONSE_TYPE> from(
+            statusCode: HttpStatusCode,
+            body: RESPONSE_TYPE,
+            id: Int? = null
+        ): WebSocketResponse<RESPONSE_TYPE> =
             WebSocketResponse(statusCode, Json.encodeToString(body), id)
     }
 }
