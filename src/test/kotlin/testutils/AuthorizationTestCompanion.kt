@@ -14,8 +14,8 @@ open class AuthorizationTestCompanion {
 
     object CompanyTwo {
         val company = CompanyDao.fake(2)
-        val admin = UserDao.fake(1).copy(role = UserRole.Admin, company = company)
-        val owner = UserDao.fake(2).copy(role = UserRole.CompanyAdmin, company = company)
-        val worker = UserDao.fake(3).copy(role = UserRole.Worker, company = company)
+        val admin = UserDao.fake(4).copy(role = UserRole.Admin, company = company)
+        val owner = UserDao.fake(5).copy(role = UserRole.CompanyAdmin, company = company)
+        val worker = UserDao.fake(6).copy(role = UserRole.Worker, company = company)
     }
 }

@@ -8,6 +8,7 @@ import at.eventful.messless.services.echo.EchoService
 import at.eventful.messless.services.eqipments.EquipmentService
 import at.eventful.messless.services.index.registerIndexRoute
 import at.eventful.messless.services.users.UsersService
+import at.eventful.messless.services.warehouse.WarehouseService
 import io.ktor.server.application.*
 import io.ktor.server.plugins.di.*
 import services.auth.AuthService
@@ -27,5 +28,11 @@ suspend fun Application.module() {
 
     // Register WS routes
     router.removeAllRoutes()
-    router.register(EchoService(), dependencies.resolve<UsersService>(), dependencies.resolve<AuthService>(), EquipmentService(this))
+    router.register(
+        EchoService(),
+        dependencies.resolve<UsersService>(),
+        dependencies.resolve<AuthService>(),
+        dependencies.resolve<WarehouseService>(),
+        dependencies.resolve<EquipmentService>()
+    )
 }
