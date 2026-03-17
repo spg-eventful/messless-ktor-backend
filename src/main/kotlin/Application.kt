@@ -27,5 +27,10 @@ suspend fun Application.module() {
 
     // Register WS routes
     router.removeAllRoutes()
-    router.register(EchoService(), dependencies.resolve<UsersService>(), dependencies.resolve<AuthService>(), WarehouseService(this))
+    router.register(
+        EchoService(),
+        dependencies.resolve<UsersService>(),
+        dependencies.resolve<AuthService>(),
+        dependencies.resolve<WarehouseService>()
+    )
 }

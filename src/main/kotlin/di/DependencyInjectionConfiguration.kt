@@ -3,6 +3,7 @@ package at.eventful.messless.di
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
 import at.eventful.messless.repositories.warehouse.WarehouseRepositoryImpl
 import at.eventful.messless.services.users.UsersService
+import at.eventful.messless.services.warehouse.WarehouseService
 import de.mkammerer.argon2.Argon2
 import de.mkammerer.argon2.Argon2Factory
 import io.ktor.server.application.*
@@ -13,14 +14,16 @@ import services.auth.AuthService
 
 fun Application.configureDI() {
     dependencies {
+        // Repositories
         provide<UserRepository> { UserRepositoryImpl(resolve<Argon2>()) }
+        provide<WarehouseRepository> { WarehouseRepositoryImpl() }
 
         // Services
         provide<UsersService> { UsersService(this@configureDI) }
         provide<AuthService> { AuthService(this@configureDI, resolve<Argon2>()) }
+        provide<WarehouseService> { WarehouseService(this@configureDI) }
+
+        // Other
         provide<Argon2> { Argon2Factory.create() }
-    }
-    dependencies {
-        provide<WarehouseRepository> { WarehouseRepositoryImpl() }
     }
 }

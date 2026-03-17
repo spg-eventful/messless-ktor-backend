@@ -41,7 +41,7 @@ class WarehouseServiceTest : AuthorizationTest() {
 
         @JvmStatic
         fun requestMatrix() = listOf(
-            //create
+            // CREATE
             ParameterizedReq("create warehouse", CompanyOne.owner, 201, Method.CREATE, Json.encodeToString(createCmd)),
             ParameterizedReq("create warehouse with admin", CompanyOne.admin, 201, Method.CREATE, Json.encodeToString(createCmd)),
             ParameterizedReq(
@@ -58,8 +58,22 @@ class WarehouseServiceTest : AuthorizationTest() {
                 Method.CREATE,
                 Json.encodeToString(createCmd)
             ),
-
-            //update
+            // READ
+            ParameterizedReq("reads warehouse", CompanyOne.owner, 200, Method.READ, warehouse.id.toString()),
+            ParameterizedReq("reads warehouse", CompanyOne.admin, 200, Method.READ, warehouse.id.toString()),
+            ParameterizedReq("reads warehouse", CompanyOne.worker, 200, Method.READ, warehouse.id.toString()),
+            ParameterizedReq(
+                "reads one from wrong company",
+                CompanyTwo.worker,
+                403,
+                Method.READ,
+                warehouse.id.toString()
+            ),
+            // READ ALL
+            ParameterizedReq("reads all warehouses with admin", CompanyOne.admin, 200, Method.READ, null),
+            ParameterizedReq("reads all warehouses with owner", CompanyOne.owner, 200, Method.READ, null),
+            ParameterizedReq("reads all warehouses with stranger", CompanyOne.worker, 200, Method.READ, null),
+            // UPDATE
             ParameterizedReq("update warehouse", CompanyOne.owner, 200, Method.UPDATE, Json.encodeToString(updateCmd)),
             ParameterizedReq("update warehouse", CompanyOne.admin, 200, Method.UPDATE, Json.encodeToString(updateCmd)),
             ParameterizedReq(
@@ -76,26 +90,7 @@ class WarehouseServiceTest : AuthorizationTest() {
                 Method.UPDATE,
                 Json.encodeToString(updateCmd)
             ),
-
-            //find all
-            ParameterizedReq("find all warehouses with admin", CompanyOne.admin, 200, Method.READ, null),
-            ParameterizedReq("find all warehouses with owner", CompanyOne.owner, 200, Method.READ, null),
-            ParameterizedReq("find all warehouses with stranger", CompanyOne.worker, 200, Method.READ, null),
-
-            //find one
-            ParameterizedReq("find warehouse", CompanyOne.owner, 200, Method.READ, warehouse.id.toString()),
-            ParameterizedReq("find warehouse", CompanyOne.admin, 200, Method.READ, warehouse.id.toString()),
-            ParameterizedReq("find warehouse", CompanyOne.worker, 200, Method.READ, warehouse.id.toString()),
-            ParameterizedReq(
-                "find one from wrong company",
-                CompanyTwo.worker,
-                403,
-                Method.READ,
-                warehouse.id.toString()
-            ),
-
-
-            ///delete
+            /// DELETE
             ParameterizedReq("delete warehouse", CompanyOne.owner, 204, Method.DELETE, warehouse.id.toString()),
             ParameterizedReq(
                 "delete warehouse from wrong company",
