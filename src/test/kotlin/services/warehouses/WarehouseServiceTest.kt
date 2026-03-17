@@ -1,9 +1,7 @@
 package services.warehouses
 
-import ParameterizedReq
 import at.eventful.messless.plugins.socket.model.Method
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
-import at.eventful.messless.schema.dao.CompanyDao
 import at.eventful.messless.schema.dao.WarehouseDao
 import io.ktor.client.plugins.websocket.*
 import io.mockk.every
@@ -16,24 +14,21 @@ import org.junit.jupiter.params.provider.MethodSource
 import repositories.users.UserRepository
 import repositories.warehouse.command.CreateWarehouseCmd
 import repositories.warehouse.command.UpdateWarehouseCmd
-import testutils.AuthorizationTest
-import testutils.configuredTestApplication
-import testutils.sendAndAssert
-import testutils.sendLoginFrame
+import testutils.*
 
 @ExtendWith(MockKExtension::class)
-class WarehouseServiceTest {
+class WarehouseServiceTest : AuthorizationTest() {
     val warehouseRepository = mockk<WarehouseRepository>()
-    val userRepository = mockk<UserRepository>()
+    override val usersRepository = mockk<UserRepository>()
 
-    companion object : AuthorizationTest() {
+    companion object : AuthorizationTestCompanion() {
         val warehouse = WarehouseDao.fake(1)
 
         val createCmd = CreateWarehouseCmd(
             warehouse.label,
             warehouse.latitude,
             warehouse.longitude,
-            owner.company?.id ?: 1,
+            CompanyOne.owner.company?.id ?: 1,
         )
 
         val updateCmd = UpdateWarehouseCmd(
@@ -41,59 +36,59 @@ class WarehouseServiceTest {
             warehouse.label,
             warehouse.latitude,
             warehouse.longitude,
-            owner.company?.id ?: 1,
+            CompanyOne.owner.company?.id ?: 1,
         )
 
         @JvmStatic
         fun requestMatrix() = listOf(
             //create
-            ParameterizedReq("create warehouse", owner, 201, Method.CREATE, Json.encodeToString(createCmd)),
-            ParameterizedReq("create warehouse with admin", admin, 201, Method.CREATE, Json.encodeToString(createCmd)),
+            ParameterizedReq("create warehouse", CompanyOne.owner, 201, Method.CREATE, Json.encodeToString(createCmd)),
+            ParameterizedReq("create warehouse with admin", CompanyOne.admin, 201, Method.CREATE, Json.encodeToString(createCmd)),
             ParameterizedReq(
                 "create warehouse in wrong company",
-                owner,
+                CompanyTwo.owner,
                 403,
                 Method.CREATE,
-                Json.encodeToString(createCmd.copy(companyId = 2))
+                Json.encodeToString(createCmd)
             ),
             ParameterizedReq(
                 "create warehouse with unauthorized user",
-                worker,
+                CompanyOne.worker,
                 403,
                 Method.CREATE,
                 Json.encodeToString(createCmd)
             ),
 
             //update
-            ParameterizedReq("update warehouse", owner, 200, Method.UPDATE, Json.encodeToString(updateCmd)),
-            ParameterizedReq("update warehouse", admin, 200, Method.UPDATE, Json.encodeToString(updateCmd)),
+            ParameterizedReq("update warehouse", CompanyOne.owner, 200, Method.UPDATE, Json.encodeToString(updateCmd)),
+            ParameterizedReq("update warehouse", CompanyOne.admin, 200, Method.UPDATE, Json.encodeToString(updateCmd)),
             ParameterizedReq(
                 "update warehouse from wrong company",
-                owner,
+                CompanyTwo.owner,
                 403,
                 Method.UPDATE,
-                Json.encodeToString(updateCmd.copy(companyId = 2))
+                Json.encodeToString(updateCmd)
             ),
             ParameterizedReq(
                 "update warehouse with unauthorized user",
-                worker,
+                CompanyOne.worker,
                 403,
                 Method.UPDATE,
                 Json.encodeToString(updateCmd)
             ),
 
             //find all
-            ParameterizedReq("find all warehouses with admin", admin, 200, Method.READ, null),
-            ParameterizedReq("find all warehouses with owner", owner, 200, Method.READ, null),
-            ParameterizedReq("find all warehouses with stranger", worker, 200, Method.READ, null),
+            ParameterizedReq("find all warehouses with admin", CompanyOne.admin, 200, Method.READ, null),
+            ParameterizedReq("find all warehouses with owner", CompanyOne.owner, 200, Method.READ, null),
+            ParameterizedReq("find all warehouses with stranger", CompanyOne.worker, 200, Method.READ, null),
 
             //find one
-            ParameterizedReq("find warehouse", owner, 200, Method.READ, warehouse.id.toString()),
-            ParameterizedReq("find warehouse", admin, 200, Method.READ, warehouse.id.toString()),
-            ParameterizedReq("find warehouse", worker, 200, Method.READ, warehouse.id.toString()),
+            ParameterizedReq("find warehouse", CompanyOne.owner, 200, Method.READ, warehouse.id.toString()),
+            ParameterizedReq("find warehouse", CompanyOne.admin, 200, Method.READ, warehouse.id.toString()),
+            ParameterizedReq("find warehouse", CompanyOne.worker, 200, Method.READ, warehouse.id.toString()),
             ParameterizedReq(
                 "find one from wrong company",
-                stranger.copy(company = CompanyDao.fake(2)),
+                CompanyTwo.worker,
                 403,
                 Method.READ,
                 warehouse.id.toString()
@@ -101,36 +96,32 @@ class WarehouseServiceTest {
 
 
             ///delete
-            ParameterizedReq("delete warehouse", owner, 204, Method.DELETE, warehouse.id.toString()),
+            ParameterizedReq("delete warehouse", CompanyOne.owner, 204, Method.DELETE, warehouse.id.toString()),
             ParameterizedReq(
-                "delete warehouse",
-                strangerOwner,
+                "delete warehouse from wrong company",
+                CompanyTwo.owner,
                 403,
                 Method.DELETE,
                 warehouse.id.toString()
             ),
-            ParameterizedReq("delete warehouse", admin, 204, Method.DELETE, warehouse.id.toString()),
-            ParameterizedReq("delete warehouse", worker, 403, Method.DELETE, warehouse.id.toString()),
+            ParameterizedReq("delete warehouse", CompanyOne.admin, 204, Method.DELETE, warehouse.id.toString()),
+            ParameterizedReq("delete warehouse", CompanyOne.worker, 403, Method.DELETE, warehouse.id.toString()),
         )
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("requestMatrix")
-    fun makeRequest(
+    override fun makeRequest(
         pr: ParameterizedReq
     ) = configuredTestApplication {
         dependencies.provide<WarehouseRepository> { warehouseRepository }
-        dependencies.provide<UserRepository> { userRepository }
-        every { userRepository.userById(admin.id) } returns admin
-        every { userRepository.userById(owner.id) } returns owner
-        every { userRepository.userById(strangerOwner.id) } returns strangerOwner
-        every { userRepository.userById(stranger.id) } returns stranger
-        every { userRepository.userById(worker.id) } returns worker
+        dependencies.provide<UserRepository> { usersRepository }
         every { warehouseRepository.addWarehouse(any()) } returns warehouse
         every { warehouseRepository.allWarehouses() } returns listOf(warehouse)
         every { warehouseRepository.warehouseById(warehouse.id) } returns warehouse
         every { warehouseRepository.updateWarehouse(warehouse.id, updateCmd) } returns warehouse
         every { warehouseRepository.removeWarehouse(warehouse.id) } returns warehouse
+        mockAuthRelatedMethods()
 
         client.webSocket("/ws") {
             run {
