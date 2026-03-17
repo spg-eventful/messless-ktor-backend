@@ -5,13 +5,11 @@ import kotlinx.serialization.Serializable
 
 // TODO
 @Serializable
-data class CompanyDao(
-    val id: Int,
-    ) {
+data class CompanyDao(val id: Int) {
     companion object : ConvertibleDao<CompanyEntity, CompanyDao> {
         override fun from(entity: CompanyEntity?): CompanyDao? {
             TODO("Not yet implemented")
         }
-        fun fake(id: Int) = CompanyDao(id = id)
+        fun fake(id: Int): CompanyDao = CompanyDao(id = id)
     }
 }

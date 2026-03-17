@@ -1,3 +1,5 @@
+package testutils
+
 import at.eventful.messless.plugins.socket.model.Method
 import at.eventful.messless.schema.dao.UserDao
 
