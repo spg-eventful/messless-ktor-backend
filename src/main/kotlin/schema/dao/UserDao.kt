@@ -37,7 +37,7 @@ data class UserDao(
             phone = "+43 123 456 7890",
             company = null, // TODO
             password = "password",
-            role = UserRole.Admin
+            role = UserRole.Worker
         )
     }
 }

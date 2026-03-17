@@ -62,9 +62,11 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation:3.3.2")
     implementation("org.jetbrains.exposed:exposed-core:0.61.0")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.61.0")
-    implementation("com.h2database:h2:2.3.232")
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.2")
     implementation("io.ktor:ktor-server-content-negotiation:3.3.2")
+    implementation("io.ktor:ktor-server-auth:${ktorVersion}")
+    implementation("io.ktor:ktor-server-auth-jwt:${ktorVersion}")
+    implementation("de.mkammerer:argon2-jvm:2.12")
 
     implementation("com.h2database:h2:2.4.240")
 
@@ -80,6 +82,10 @@ dependencies {
 
     // Testing
     testImplementation("io.ktor:ktor-server-test-host")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:${kotlinVersion}")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:${kotlinVersion}")
     testImplementation("io.mockk:mockk:${mockkVersion}")
+}
+
+tasks.test {
+    useJUnitPlatform() // Required to bridge kotlin-test to JUnit 5
 }
