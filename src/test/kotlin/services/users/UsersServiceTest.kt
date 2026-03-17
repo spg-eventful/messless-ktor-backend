@@ -2,7 +2,6 @@ package services.users
 
 import at.eventful.messless.plugins.socket.model.Method
 import at.eventful.messless.repositories.users.commands.UpdateUserCmd
-import at.eventful.messless.schema.dao.UserDao
 import at.eventful.messless.schema.utils.UserRole
 import io.ktor.client.plugins.websocket.*
 import io.mockk.every
@@ -14,46 +13,30 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import repositories.users.UserRepository
 import repositories.users.commands.CreateUserCmd
-import testutils.configuredTestApplication
-import testutils.sendAndAssert
-import testutils.sendLoginFrame
+import testutils.*
+import testutils.AuthorizationTestCompanion.CompanyOne
 
 
 @ExtendWith(MockKExtension::class)
-class UsersServiceTest {
-    val usersRepository = mockk<UserRepository>()
+class UsersServiceTest : AuthorizationTest() {
+    override val usersRepository = mockk<UserRepository>()
 
-    companion object {
-        data class ParameterizedReq(
-            val name: String,
-            val user: UserDao,
-            val expectedStatus: Int,
-            val method: Method,
-            val payload: String?
-        ) {
-            override fun toString(): String =
-                "${method.name} ${user.role.name} $name"
-        }
-
-        val admin = UserDao.fake(1).copy(role = UserRole.Admin)
-        val owner = UserDao.fake(2).copy(role = UserRole.CompanyAdmin)
-        val stranger = UserDao.fake(3).copy(role = UserRole.Worker)
-
+    companion object : AuthorizationTestCompanion() {
         val updateCmd = UpdateUserCmd(
-            owner.id,
-            owner.email,
-            owner.phone,
-            owner.firstName,
-            owner.lastName,
-            owner.role,
+            CompanyOne.owner.id,
+            CompanyOne.owner.email,
+            CompanyOne.owner.phone,
+            CompanyOne.owner.firstName,
+            CompanyOne.owner.lastName,
+            CompanyOne.owner.role,
         )
         val createCmd = CreateUserCmd(
-            owner.email,
+            CompanyOne.owner.email,
             "banane",
-            owner.role,
-            owner.phone,
-            owner.firstName,
-            owner.lastName,
+            CompanyOne.owner.role,
+            CompanyOne.owner.phone,
+            CompanyOne.owner.firstName,
+            CompanyOne.owner.lastName,
         )
 
         @JvmStatic
@@ -61,58 +44,56 @@ class UsersServiceTest {
             // CREATE
             ParameterizedReq(
                 "creates admin",
-                admin,
+                CompanyOne.admin,
                 201,
                 Method.CREATE,
                 Json.encodeToString(createCmd.copy(role = UserRole.Admin))
             ),
-            ParameterizedReq("creates owner", owner, 201, Method.CREATE, Json.encodeToString(createCmd)),
+            ParameterizedReq("creates owner", CompanyOne.owner, 201, Method.CREATE, Json.encodeToString(createCmd)),
             ParameterizedReq(
                 "creates owner role above allowed",
-                owner,
+                CompanyOne.owner,
                 403,
                 Method.CREATE,
                 Json.encodeToString(createCmd.copy(role = UserRole.Admin))
             ),
             // READ
-            ParameterizedReq("reads owner", admin, 200, Method.READ, owner.id.toString()),
-            ParameterizedReq("reads owner", owner, 200, Method.READ, owner.id.toString()),
-            ParameterizedReq("reads owner", stranger, 403, Method.READ, owner.id.toString()),
+            ParameterizedReq("reads owner", CompanyOne.admin, 200, Method.READ, CompanyOne.owner.id.toString()),
+            ParameterizedReq("reads owner", CompanyOne.owner, 200, Method.READ, CompanyOne.owner.id.toString()),
+            ParameterizedReq("reads owner", CompanyOne.worker, 403, Method.READ, CompanyOne.owner.id.toString()),
             // READ ALL
-            ParameterizedReq("reads all", admin, 200, Method.READ, null),
-            ParameterizedReq("reads all", owner, 200, Method.READ, null),
-            ParameterizedReq("reads all", stranger, 200, Method.READ, null),
+            ParameterizedReq("reads all", CompanyOne.admin, 200, Method.READ, null),
+            ParameterizedReq("reads all", CompanyOne.owner, 200, Method.READ, null),
+            ParameterizedReq("reads all", CompanyOne.worker, 200, Method.READ, null),
             // UPDATE
-            ParameterizedReq("update owner", admin, 200, Method.UPDATE, Json.encodeToString(updateCmd)),
-            ParameterizedReq("update owner", owner, 200, Method.UPDATE, Json.encodeToString(updateCmd)),
+            ParameterizedReq("update owner", CompanyOne.admin, 200, Method.UPDATE, Json.encodeToString(updateCmd)),
+            ParameterizedReq("update owner", CompanyOne.owner, 200, Method.UPDATE, Json.encodeToString(updateCmd)),
             ParameterizedReq(
                 "update owner role above allowed",
-                owner,
+                CompanyOne.owner,
                 403,
                 Method.UPDATE,
                 Json.encodeToString(updateCmd.copy(role = UserRole.Admin))
             ),
-            ParameterizedReq("update owner", stranger, 403, Method.UPDATE, Json.encodeToString(updateCmd)),
+            ParameterizedReq("update owner", CompanyOne.worker, 403, Method.UPDATE, Json.encodeToString(updateCmd)),
             // DELETE
-            ParameterizedReq("delete owner", admin, 204, Method.DELETE, owner.id.toString()),
-            ParameterizedReq("delete owner", owner, 204, Method.DELETE, owner.id.toString()),
-            ParameterizedReq("delete owner", stranger, 403, Method.DELETE, owner.id.toString()),
+            ParameterizedReq("delete owner", CompanyOne.admin, 204, Method.DELETE, CompanyOne.owner.id.toString()),
+            ParameterizedReq("delete owner", CompanyOne.owner, 204, Method.DELETE, CompanyOne.owner.id.toString()),
+            ParameterizedReq("delete owner", CompanyOne.worker, 403, Method.DELETE, CompanyOne.owner.id.toString()),
         )
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("requestMatrix")
-    fun makeRequest(
+    override fun makeRequest(
         pr: ParameterizedReq
     ) = configuredTestApplication {
         dependencies.provide<UserRepository> { usersRepository }
-        every { usersRepository.addUser(any()) } returns owner
-        every { usersRepository.allUsers() } returns listOf(admin, owner, stranger)
-        every { usersRepository.userById(admin.id) } returns admin
-        every { usersRepository.userById(owner.id) } returns owner
-        every { usersRepository.userById(stranger.id) } returns stranger
-        every { usersRepository.updateUser(owner.id, updateCmd) } returns owner
-        every { usersRepository.removeUser(owner.id) } returns owner
+        every { usersRepository.addUser(any()) } returns CompanyOne.owner
+        every { usersRepository.allUsers() } returns listOf(CompanyOne.admin, CompanyOne.owner, CompanyOne.worker)
+        every { usersRepository.updateUser(CompanyOne.owner.id, updateCmd) } returns CompanyOne.owner
+        every { usersRepository.removeUser(CompanyOne.owner.id) } returns CompanyOne.owner
+        mockAuthRelatedMethods()
 
         client.webSocket("/ws") {
             run {
