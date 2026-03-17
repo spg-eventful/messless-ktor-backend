@@ -1,10 +1,26 @@
 package testutils
 
-import at.eventful.messless.schema.dao.UserDao
-import at.eventful.messless.schema.utils.UserRole
+import io.mockk.every
+import io.mockk.mockk
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
+import repositories.users.UserRepository
+import testutils.AuthorizationTestCompanion.CompanyOne
 
-open class AuthorizationTest {
-    val admin = UserDao.fake(1).copy(role = UserRole.Admin)
-    val owner = UserDao.fake(2).copy(role = UserRole.CompanyAdmin)
-    val stranger = UserDao.fake(3).copy(role = UserRole.Worker)
+abstract class AuthorizationTest {
+    open val usersRepository = mockk<UserRepository>()
+
+    companion object : AuthorizationTestCompanion()
+
+    fun mockAuthRelatedMethods() {
+        every { usersRepository.userById(CompanyOne.admin.id) } returns CompanyOne.admin
+        every { usersRepository.userById(CompanyOne.owner.id) } returns CompanyOne.owner
+        every { usersRepository.userById(CompanyOne.worker.id) } returns CompanyOne.worker
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("requestMatrix")
+    abstract fun makeRequest(
+        pr: ParameterizedReq
+    )
 }
