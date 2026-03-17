@@ -1,7 +1,6 @@
 package at.eventful.messless.schema.dao
 
 import at.eventful.messless.schema.entities.WarehouseEntity
-import at.eventful.messless.schema.utils.Point
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -28,7 +27,7 @@ data class WarehouseDao (
             label = label,
             latitude = 0.0,
             longitude = 0.0,
-            company = null
+            company = CompanyDao.fake(1)
         )
     }
 
