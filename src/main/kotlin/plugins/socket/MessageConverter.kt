@@ -56,7 +56,8 @@ class MessageConverter {
         val service = components[2].trim().lowercase()
         if (service.isEmpty()) throw MessageConversionError(message, "No service specified")
 
-        val body = if (components.size == 4) components[3].trim() else null
+        val body =
+            if (components.size >= 4) components.subList(3, components.size).joinToString(";").trim() else null
 
         return IncomingMessage(
             id,

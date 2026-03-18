@@ -10,5 +10,6 @@ data class CompanyDao(val id: Int) {
         override fun from(entity: CompanyEntity?): CompanyDao? {
             TODO("Not yet implemented")
         }
+        fun fake(id: Int): CompanyDao = CompanyDao(id = id)
     }
 }
