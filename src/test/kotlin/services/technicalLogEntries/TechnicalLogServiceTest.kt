@@ -1,0 +1,126 @@
+package services.technicalLogEntries
+
+import at.eventful.messless.plugins.socket.model.Method
+import at.eventful.messless.repositories.equipment.EquipmentRepository
+import at.eventful.messless.repositories.technicalLogEntries.TechnicalLogEntryRepository
+import at.eventful.messless.repositories.technicalLogEntries.commands.CreateTechnicalLogEntryCmd
+import at.eventful.messless.repositories.technicalLogEntries.commands.FindTechnicalLogByEquipmentCmd
+import at.eventful.messless.repositories.warehouse.WarehouseRepository
+import at.eventful.messless.schema.dao.EquipmentDao
+import at.eventful.messless.schema.dao.TechnicalLogEntryDao
+import at.eventful.messless.schema.dao.WarehouseDao
+import at.eventful.messless.schema.utils.Status
+import io.ktor.client.plugins.websocket.webSocket
+import io.mockk.every
+import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
+import kotlinx.serialization.json.Json
+import net.bytebuddy.matcher.ElementMatchers.any
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
+import repositories.users.UserRepository
+import testutils.AuthorizationTest
+import testutils.AuthorizationTestCompanion
+import testutils.ParameterizedReq
+import testutils.configuredTestApplication
+import testutils.sendAndAssert
+import testutils.sendLoginFrame
+
+@ExtendWith(MockKExtension::class)
+class TechnicalLogServiceTest : AuthorizationTest() {
+    val technicalLogRepository = mockk<TechnicalLogEntryRepository>()
+    override val usersRepository = mockk<UserRepository>()
+    val equipmentRepository = mockk<EquipmentRepository>()
+    val warehouseRepository = mockk<WarehouseRepository>()
+
+    companion object : AuthorizationTestCompanion() {
+        val technicalLog = TechnicalLogEntryDao.fake(1)
+
+        val createCmd = CreateTechnicalLogEntryCmd(
+            technicalLog.isCheckIn,
+            technicalLog.attachedTo?.id ?: 1,
+            technicalLog.byUser?.id ?: 1,
+            technicalLog.loggable,
+            technicalLog.status ?: Status.Warehouse,
+        )
+
+        val findCmd = FindTechnicalLogByEquipmentCmd(
+            technicalLog.attachedTo?.id ?: 1,
+        )
+
+        @JvmStatic
+        fun requestMatrix() = listOf(
+            // CREATE
+            ParameterizedReq(
+                "create technical log entry",
+                CompanyOne.owner,
+                201,
+                Method.CREATE,
+                Json.encodeToString(createCmd)
+            ),
+            ParameterizedReq(
+                "create technical log entry with wrong user",
+                CompanyTwo.owner,
+                403,
+                Method.CREATE,
+                Json.encodeToString(createCmd)
+            ),
+            // FIND
+            ParameterizedReq(
+                "find technical log entries",
+                CompanyOne.owner,
+                200,
+                Method.READ,
+                Json.encodeToString(findCmd)
+            ),
+            ParameterizedReq(
+                "find technical log entries with wrong user",
+                CompanyTwo.owner,
+                403,
+                Method.READ,
+                Json.encodeToString(findCmd)
+            ),
+            // DELETE
+            ParameterizedReq(
+                "delete technical log entry",
+                CompanyOne.owner,
+                204,
+                Method.DELETE,
+                technicalLog.id.toString()
+            ),
+            ParameterizedReq(
+                "delete technical log entry with wrong user",
+                CompanyTwo.owner,
+                403,
+                Method.DELETE,
+                technicalLog.id.toString()
+            )
+        )
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("requestMatrix")
+    override fun makeRequest(
+        pr: ParameterizedReq
+    ) = configuredTestApplication {
+        dependencies.provide<UserRepository> { usersRepository }
+        dependencies.provide<EquipmentRepository> { equipmentRepository }
+        dependencies.provide<TechnicalLogEntryRepository> { technicalLogRepository }
+        dependencies.provide<WarehouseRepository> { warehouseRepository }
+
+        every { technicalLogRepository.addTechnicalLogEntry(any()) } returns technicalLog
+        every { technicalLogRepository.allTechnicalLogEntries() } returns listOf(technicalLog)
+        every { technicalLogRepository.removeTechnicalLogEntry(any()) } returns technicalLog
+        every {warehouseRepository.warehouseById(any()) } returns WarehouseDao.fake(1)
+        every {equipmentRepository.equipmentById(any()) } returns EquipmentDao.fake(1)
+        mockAuthRelatedMethods()
+
+        client.webSocket("/ws") {
+            run {
+                sendLoginFrame(this@configuredTestApplication, pr.user)
+                sendAndAssert("technical-log-entries", pr.method, pr.payload, pr.expectedStatus)
+            }
+        }
+    }
+}

@@ -1,6 +1,7 @@
 package at.eventful.messless.schema.dao
 
 import at.eventful.messless.schema.entities.TechnicalLogEntryEntity
+import at.eventful.messless.schema.utils.Status
 import kotlinx.serialization.Serializable
 
 // TODO: Use EquipmentDao instead of Int in attachedTo
@@ -8,27 +9,30 @@ import kotlinx.serialization.Serializable
 data class TechnicalLogEntryDao(
     val id: Int,
     val isCheckIn: Boolean,
-    val attachedTo: Int,
+    val attachedTo: EquipmentDao?,
     val byUser: UserDao?,
-    val loggable: Int
+    val loggable: Int,
+    val status: Status?,
 ) {
     companion object : ConvertibleDao<TechnicalLogEntryEntity, TechnicalLogEntryDao> {
         override fun from(entity: TechnicalLogEntryEntity?): TechnicalLogEntryDao? = entity?.let {
             TechnicalLogEntryDao(
                 id = entity.id.value,
                 isCheckIn = entity.isCheckIn,
-                attachedTo = entity.attachedTo.value,
+                attachedTo = EquipmentDao.from(entity.attachedTo),
                 byUser = UserDao.from(entity.byUser),
-                loggable = entity.loggable
+                loggable = entity.loggable,
+                status = entity.status,
             )
         }
 
         fun fake(id: Int) = TechnicalLogEntryDao(
             id = id,
             isCheckIn = false,
-            attachedTo = 1,
-            byUser = null,
-            loggable = 1
+            attachedTo = EquipmentDao.fake(1),
+            byUser = UserDao.fake(1),
+            loggable = 1,
+            status = Status.Warehouse
         )
     }
 }

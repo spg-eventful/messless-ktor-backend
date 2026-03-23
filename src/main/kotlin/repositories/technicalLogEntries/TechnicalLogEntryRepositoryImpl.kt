@@ -18,20 +18,16 @@ class TechnicalLogEntryRepositoryImpl : TechnicalLogEntryRepository {
             TechnicalLogEntryDao.from(
                 TechnicalLogEntryEntity.new {
                     isCheckIn = createTechnicalLogEntryCommand.isCheckIn
-                    attachedTo = EquipmentEntity.findById(createTechnicalLogEntryCommand.attachedTo)!!.id
+                    attachedTo = EquipmentEntity.findById(createTechnicalLogEntryCommand.attachedTo)!!
                     byUser = UserEntity.findById(createTechnicalLogEntryCommand.byUser)!!
                     loggable = createTechnicalLogEntryCommand.loggable
+                    status = createTechnicalLogEntryCommand.status
                 }
             )!!
         }
 
     override fun allTechnicalLogEntries(): List<TechnicalLogEntryDao> = transaction {
         TechnicalLogEntryEntity.all().map(TechnicalLogEntryDao::from) as List<TechnicalLogEntryDao>
-    }
-
-    override fun technicalLogEntryById(id: Int): TechnicalLogEntryDao? = transaction {
-        val technicalLogEntry = TechnicalLogEntryEntity.findById(id)
-         return@transaction if (technicalLogEntry != null) TechnicalLogEntryDao.from(technicalLogEntry) else null
     }
 
     @OptIn(ExperimentalTime::class)

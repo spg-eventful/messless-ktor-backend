@@ -1,5 +1,6 @@
 package at.eventful.messless.schema.entities
 
+import at.eventful.messless.schema.tables.EquipmentTable
 import at.eventful.messless.schema.tables.TechnicalLogEntryTable
 import at.eventful.messless.schema.utils.BaseEntity
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
@@ -14,9 +15,10 @@ class TechnicalLogEntryEntity(id: EntityID<Int>) : BaseEntity(id) {
     override var updatedAt by TechnicalLogEntryTable.updatedAt
     override var deletedAt by TechnicalLogEntryTable.deletedAt
 
+    var status by TechnicalLogEntryTable.status
     var isCheckIn by TechnicalLogEntryTable.isCheckIn
     // the Equipment the log entry is attached to
-    var attachedTo by TechnicalLogEntryTable.attachedTo
+    var attachedTo by EquipmentEntity referencedOn TechnicalLogEntryTable.attachedTo
     var byUser by UserEntity referencedOn TechnicalLogEntryTable.byUser
 
     var loggable by TechnicalLogEntryTable.loggable
