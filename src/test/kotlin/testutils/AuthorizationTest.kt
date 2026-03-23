@@ -17,10 +17,12 @@ abstract class AuthorizationTest {
         every { usersRepository.userById(CompanyOne.admin.id) } returns CompanyOne.admin
         every { usersRepository.userById(CompanyOne.owner.id) } returns CompanyOne.owner
         every { usersRepository.userById(CompanyOne.worker.id) } returns CompanyOne.worker
+        every { usersRepository.userById(CompanyOne.stageHand.id) } returns CompanyOne.stageHand
 
         every { usersRepository.userById(CompanyTwo.admin.id) } returns CompanyTwo.admin
         every { usersRepository.userById(CompanyTwo.owner.id) } returns CompanyTwo.owner
         every { usersRepository.userById(CompanyTwo.worker.id) } returns CompanyTwo.worker
+        every { usersRepository.userById(CompanyTwo.stageHand.id) } returns CompanyTwo.stageHand
     }
 
     @ParameterizedTest(name = "{0}")
