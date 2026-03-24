@@ -19,7 +19,7 @@ class EventsService(app: Application) : WebSocketService("events") {
 
     override fun ServiceMethod.create(): WebSocketResponse<EventDto> {
         connection.auth.auth?.let {
-            if (it.user.role.asInt() > 2) throw Forbidden("You are not allowed to create events!")
+            if (it.user.role.asInt() < 3) throw Forbidden("You are not allowed to create events!")
 
             val cmd = incoming.receiveBody<CreateEventCmd>()
 
@@ -58,6 +58,8 @@ class EventsService(app: Application) : WebSocketService("events") {
 
     override fun ServiceMethod.update(id: Int): WebSocketResponse<EventDto> {
         connection.auth.auth?.let {
+            if (it.user.role.asInt() < 3) throw Forbidden("You are not allowed to update events!")
+
             val updated = eventsRepo.updateEvent(id, incoming.receiveBody<UpdateEventCmd>())
                 ?: throw NotFound("Event with id $id not found")
             return WebSocketResponse.from(
@@ -70,7 +72,7 @@ class EventsService(app: Application) : WebSocketService("events") {
 
     override fun ServiceMethod.delete(id: Int): WebSocketResponse<EventDto> {
         connection.auth.auth?.let {
-            if (it.user.role.asInt() > 2) throw Forbidden("You are not allowed to delete events!")
+            if (it.user.role.asInt() < 3) throw Forbidden("You are not allowed to delete events!")
             eventsRepo.removeEvent(id) ?: throw NotFound("Event with id $id not found")
             return WebSocketResponse(
                 HttpStatusCode.NoContent
