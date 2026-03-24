@@ -1,9 +1,7 @@
 package at.eventful.messless.schema.tables
 
-import at.eventful.messless.schema.utils.Status
 import at.eventful.messless.schema.utils.BaseTable
 import at.eventful.messless.schema.utils.point
-import kotlin.reflect.KClass
 
 object EquipmentTable : BaseTable("equipment") {
 

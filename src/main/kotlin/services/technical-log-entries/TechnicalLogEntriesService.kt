@@ -5,23 +5,22 @@ import at.eventful.messless.errors.responses.Unauthorized
 import at.eventful.messless.plugins.socket.ServiceMethod
 import at.eventful.messless.plugins.socket.WebSocketService
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
-import at.eventful.messless.repositories.equipment.EquipmentRepositoryImpl
+import at.eventful.messless.repositories.equipment.EquipmentRepository
 import at.eventful.messless.repositories.technicalLogEntries.TechnicalLogEntryRepository
 import at.eventful.messless.repositories.technicalLogEntries.commands.CreateTechnicalLogEntryCmd
 import at.eventful.messless.repositories.technicalLogEntries.commands.FindTechnicalLogByEquipmentCmd
-import at.eventful.messless.repositories.warehouse.WarehouseRepositoryImpl
+import at.eventful.messless.repositories.warehouse.WarehouseRepository
 import at.eventful.messless.schema.dto.TechnicalLogEntryDto
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.Application
-import io.ktor.server.plugins.di.dependencies
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.plugins.di.*
 import org.jetbrains.exposed.v1.core.exposedLogger
-import repositories.warehouse.command.CreateWarehouseCmd
 
 //TODO: check for company
 class TechnicalLogEntriesService(app: Application) : WebSocketService("technical-log-entries") {
     val technicalLogEntryRepo: TechnicalLogEntryRepository by app.dependencies
-    val equipmentRepo: EquipmentRepositoryImpl by app.dependencies
-    val warehouseRepo: WarehouseRepositoryImpl by app.dependencies
+    val equipmentRepo: EquipmentRepository by app.dependencies
+    val warehouseRepo: WarehouseRepository by app.dependencies
 
     override fun ServiceMethod.create(): WebSocketResponse<TechnicalLogEntryDto> {
         connection.auth.auth?.let {

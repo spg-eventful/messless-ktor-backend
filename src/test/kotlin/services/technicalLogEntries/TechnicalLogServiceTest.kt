@@ -10,22 +10,16 @@ import at.eventful.messless.schema.dao.EquipmentDao
 import at.eventful.messless.schema.dao.TechnicalLogEntryDao
 import at.eventful.messless.schema.dao.WarehouseDao
 import at.eventful.messless.schema.utils.Status
-import io.ktor.client.plugins.websocket.webSocket
+import io.ktor.client.plugins.websocket.*
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
-import net.bytebuddy.matcher.ElementMatchers.any
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import repositories.users.UserRepository
-import testutils.AuthorizationTest
-import testutils.AuthorizationTestCompanion
-import testutils.ParameterizedReq
-import testutils.configuredTestApplication
-import testutils.sendAndAssert
-import testutils.sendLoginFrame
+import testutils.*
 
 @ExtendWith(MockKExtension::class)
 class TechnicalLogServiceTest : AuthorizationTest() {
@@ -105,15 +99,15 @@ class TechnicalLogServiceTest : AuthorizationTest() {
         pr: ParameterizedReq
     ) = configuredTestApplication {
         dependencies.provide<UserRepository> { usersRepository }
-        dependencies.provide<EquipmentRepository> { equipmentRepository }
         dependencies.provide<TechnicalLogEntryRepository> { technicalLogRepository }
+        dependencies.provide<EquipmentRepository> { equipmentRepository }
         dependencies.provide<WarehouseRepository> { warehouseRepository }
 
         every { technicalLogRepository.addTechnicalLogEntry(any()) } returns technicalLog
         every { technicalLogRepository.allTechnicalLogEntries() } returns listOf(technicalLog)
         every { technicalLogRepository.removeTechnicalLogEntry(any()) } returns technicalLog
-        every {warehouseRepository.warehouseById(any()) } returns WarehouseDao.fake(1)
-        every {equipmentRepository.equipmentById(any()) } returns EquipmentDao.fake(1)
+        every { equipmentRepository.equipmentById(any()) } returns EquipmentDao.fake(1)
+        every { warehouseRepository.warehouseById(any()) } returns WarehouseDao.fake(1)
         mockAuthRelatedMethods()
 
         client.webSocket("/ws") {

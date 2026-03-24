@@ -34,7 +34,7 @@ suspend fun Application.module() {
         dependencies.resolve<UsersService>(),
         dependencies.resolve<AuthService>(),
         dependencies.resolve<WarehouseService>(),
-        dependencies.resolve< TechnicalLogEntriesService>(),
+        dependencies.resolve<TechnicalLogEntriesService>(),
         dependencies.resolve<EquipmentsService>()
     )
 }
