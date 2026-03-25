@@ -22,7 +22,7 @@ class WebSocketMessageSchemaTest {
 
 
     @Test
-    fun testValidRequest() = configuredTestApplication {
+    fun `valid request should work`() = configuredTestApplication {
         client.webSocket("/ws") {
             // 200 OK
             run {
@@ -34,7 +34,7 @@ class WebSocketMessageSchemaTest {
     }
 
     @Test
-    fun testInvalidRequest() = configuredTestApplication {
+    fun `invalid request should not work`() = configuredTestApplication {
         client.webSocket("/ws") {
             // Nothing passed
             run {

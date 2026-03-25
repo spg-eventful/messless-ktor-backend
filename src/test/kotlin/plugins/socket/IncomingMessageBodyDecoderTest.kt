@@ -16,7 +16,7 @@ class IncomingMessageBodyDecoderTest {
     private val service = "echo"
 
     @Test
-    fun testNullBody() = configuredTestApplication {
+    fun `null body should return bad request`() = configuredTestApplication {
         client.webSocket("/ws") {
             run {
                 send(
@@ -33,7 +33,7 @@ class IncomingMessageBodyDecoderTest {
     }
 
     @Test
-    fun testWrongBody() = configuredTestApplication {
+    fun `invalid body should return bad request`() = configuredTestApplication {
         client.webSocket("/ws") {
             run {
                 send(
@@ -51,7 +51,7 @@ class IncomingMessageBodyDecoderTest {
 
 
     @Test
-    fun testCorrectBody() = configuredTestApplication {
+    fun `valid body should work`() = configuredTestApplication {
         client.webSocket("/ws") {
             run {
                 send(

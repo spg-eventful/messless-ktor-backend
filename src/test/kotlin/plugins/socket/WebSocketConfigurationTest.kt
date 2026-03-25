@@ -16,7 +16,7 @@ import kotlin.test.assertEquals
  */
 class WebSocketConfigurationTest {
     @Test
-    fun testWrongFrameType() = configuredTestApplication {
+    fun `wrong frame type should fail`() = configuredTestApplication {
         client.webSocket("/ws") {
             run {
                 send(Frame.Binary(true, ByteArray(8)))

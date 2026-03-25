@@ -8,7 +8,7 @@ import kotlin.test.Test
 
 class WebSocketResponseTest {
     @Test
-    fun toFrameWithId() {
+    fun `frame with id should not throw`() {
         val wsRes = WebSocketResponse<Any>(
             HttpStatusCode.OK,
             HttpStatusCode.OK.description,
@@ -26,7 +26,7 @@ class WebSocketResponseTest {
     }
 
     @Test
-    fun toFrameWithoutId() {
+    fun `frame without id should throw`() {
         val wsRes = WebSocketResponse<Any>(
             HttpStatusCode.OK,
             HttpStatusCode.OK.description,
