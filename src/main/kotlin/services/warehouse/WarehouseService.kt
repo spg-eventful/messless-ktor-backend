@@ -31,9 +31,6 @@ class WarehouseService(app: Application) : WebSocketService("warehouse") {
                     HttpStatusCode.Created, WarehouseDto.from(warehouseRepository.addWarehouse(cmd))
                 )
             } catch (e: Exception) {
-                if (e.message?.contains("PUBLIC.USERS_EMAIL_UNIQUE") ?: false) {
-                    throw BadRequest("A user with this email already exists.")
-                }
                 throw e
             }
         }
