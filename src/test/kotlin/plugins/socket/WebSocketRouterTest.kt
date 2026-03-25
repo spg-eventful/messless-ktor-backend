@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 class WebSocketRouterTest {
     @Test
-    fun serviceAlreadyRegistered() {
+    fun `registering service that is already registered should fail`() {
         val router = WebSocketRouter()
         assertThrows<ServiceAlreadyRegistered> { router.register(EchoService(), EchoService()) }
     }

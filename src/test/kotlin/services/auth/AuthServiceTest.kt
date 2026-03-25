@@ -33,7 +33,7 @@ class AuthServiceTest {
     @Nested
     inner class BasicAuthTests {
         @Test
-        fun testCreateAuthBasicWithCorrectCredentials() = configuredTestApplication {
+        fun `correct credentials should work`() = configuredTestApplication {
             val fakeUser = UserDao.fake(99)
             dependencies.provide<Argon2> { argon2 }
             dependencies.provide<UserRepository> { usersRepository }
@@ -66,7 +66,7 @@ class AuthServiceTest {
         }
 
         @Test
-        fun testCreateAuthBasicWithWrongCredentials() = configuredTestApplication {
+        fun `wrong credentials should fail`() = configuredTestApplication {
             val fakeUser = UserDao.fake(99)
 
             dependencies.provide<UserRepository> {
@@ -94,7 +94,7 @@ class AuthServiceTest {
         }
 
         @Test
-        fun testCreateAuthBasicWithNonexistentUser() = configuredTestApplication {
+        fun `nonexistent user should fail`() = configuredTestApplication {
             dependencies.provide<UserRepository> {
                 usersRepository
             }
@@ -123,7 +123,7 @@ class AuthServiceTest {
     @Nested
     inner class JWTAuthTests {
         @Test
-        fun testAuthenticateUsingValidJWT() = configuredTestApplication {
+        fun `valid jwt should work`() = configuredTestApplication {
             val fakeUser = UserDao.fake(99)
             dependencies.provide<Argon2> { argon2 }
             dependencies.provide<UserRepository> { usersRepository }
