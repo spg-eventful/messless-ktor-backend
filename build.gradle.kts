@@ -26,6 +26,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:1.0.0")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
+    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
 
     implementation("org.jetbrains.exposed:exposed-core:1.0.0")
     implementation("org.jetbrains.exposed:exposed-jdbc:1.0.0")
@@ -46,6 +47,7 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation:3.3.2")
 
     implementation("com.h2database:h2:2.4.240")
+    implementation("org.postgresql:postgresql:42.7.2")
 
     implementation("org.jetbrains.exposed:exposed-migration-core:1.1.1")
     implementation("org.jetbrains.exposed:exposed-migration-jdbc:1.1.1")
