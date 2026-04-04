@@ -4,22 +4,24 @@ ktor:
     modules:
       - at.eventful.messless.ApplicationKt.module
   deployment:
-    port: $PORT:8080
+    port: ${PORT:8080}
 
 messless:
   db:
+    driver: ${DB_DRIVER:org.postgresql.Driver}
+    url: ${DB_URL:jdbc:postgresql://localhost:5440/messless}
+    user: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+
     dump:
       dir: "src/main/resources/db/dump/"
-      name: "full_dump.sql"
+      name: "full_dump"
+
     migrations:
       dir: "src/main/resources/db/migrations/"
-    dev:
-      driver: "org.h2.Driver"
-      url: "jdbc:h2:mem:messlessBackendTest;DB_CLOSE_DELAY=-1"
-      user: "tester"
-      password: ""
+
   jwt:
-    secret: $JWT_SECRET
+    secret: ${JWT_SECRET:dev-secret}
     issuer: "messless"
     audience: "msls frontends"
     realm: "main"

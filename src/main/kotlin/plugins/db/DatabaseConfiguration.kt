@@ -11,20 +11,29 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 data class DatabaseConfiguration(val url: String, val user: String, val password: String) {
     companion object {
         fun fromApplicationConfig(config: ApplicationConfig): DatabaseConfiguration {
-            val env = config.property("ktor.environment").getString()
+            config.property("ktor.environment").getString()
             return DatabaseConfiguration(
-                config.property("messless.db.$env.url").getString(),
-                config.property("messless.db.$env.user").getString(),
-                config.property("messless.db.$env.password").getString(),
+                config.property("messless.db.url").getString(),
+                config.property("messless.db.user").getString(),
+                config.property("messless.db.password").getString(),
             )
         }
     }
 }
 
 fun Application.configureDatabases() {
-    val conf = DatabaseConfiguration.fromApplicationConfig(environment.config)
-    Database.connect(
-        url = conf.url, user = conf.user, password = conf.password
+    val config = environment.config.config("messless.db")
+
+    val url = config.property("url").getString()
+    val user = config.property("user").getString()
+    val password = config.property("password").getString()
+    val driver = config.property("driver").getString()
+
+    connectWithRetry(
+        url = url,
+        driver = driver,
+        user = user,
+        password = password
     )
 
     transaction {
@@ -40,4 +49,33 @@ fun Application.configureDatabases() {
         )
         migrateWithFlyway(environment.config, baselineOnMigrate = true)
     }
+}
+
+fun connectWithRetry(
+    url: String,
+    driver: String,
+    user: String,
+    password: String
+) {
+    repeat(5) { attempt ->
+        try {
+            val db = Database.connect(
+                url = url,
+                driver = driver,
+                user = user,
+                password = password
+            )
+
+            transaction(db) {
+                exec("SELECT 1")
+            }
+
+            println("Connected to DB")
+            return
+        } catch (e: Exception) {
+            println("DB not ready yet (attempt: ${attempt + 1})")
+            Thread.sleep(1000)
+        }
+    }
+    throw RuntimeException("Could not connect to DB after retries")
 }

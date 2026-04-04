@@ -5,19 +5,32 @@ import at.eventful.messless.plugins.db.configureDatabases
 import at.eventful.messless.plugins.socket.WebSocketRouter
 import at.eventful.messless.plugins.socket.configureWebSocket
 import at.eventful.messless.services.echo.EchoService
-import at.eventful.messless.services.eqipments.EquipmentsService
+import at.eventful.messless.services.equipments.EquipmentsService
 import at.eventful.messless.services.events.EventsService
 import at.eventful.messless.services.index.registerIndexRoute
 import at.eventful.messless.services.technicalLogEntries.TechnicalLogEntriesService
 import at.eventful.messless.services.users.UsersService
 import at.eventful.messless.services.warehouse.WarehouseService
+import io.github.cdimascio.dotenv.dotenv
 import io.ktor.server.application.*
+import io.ktor.server.netty.*
 import io.ktor.server.plugins.di.*
 import services.auth.AuthService
 
 val router = WebSocketRouter()
 
-fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+fun main(args: Array<String>) {
+    val dotenv = dotenv {
+        ignoreIfMalformed = true
+        ignoreIfMissing = true
+    }
+
+    dotenv.entries().forEach { entry ->
+        System.setProperty(entry.key, entry.value)
+    }
+
+    EngineMain.main(args)
+}
 
 suspend fun Application.module() {
     // Install plugins

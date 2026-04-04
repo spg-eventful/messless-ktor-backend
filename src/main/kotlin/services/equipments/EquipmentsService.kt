@@ -1,4 +1,4 @@
-package at.eventful.messless.services.eqipments
+package at.eventful.messless.services.equipments
 
 import at.eventful.messless.errors.responses.Forbidden
 import at.eventful.messless.errors.responses.NotFound

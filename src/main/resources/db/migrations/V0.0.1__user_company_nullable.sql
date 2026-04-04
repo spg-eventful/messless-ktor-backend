@@ -1,1 +1,0 @@
-ALTER TABLE users ALTER COLUMN company_id INT NULL;

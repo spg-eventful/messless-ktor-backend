@@ -8,7 +8,7 @@ import at.eventful.messless.repositories.technicalLogEntries.TechnicalLogEntryRe
 import at.eventful.messless.repositories.technicalLogEntries.TechnicalLogEntryRepositoryImpl
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
 import at.eventful.messless.repositories.warehouse.WarehouseRepositoryImpl
-import at.eventful.messless.services.eqipments.EquipmentsService
+import at.eventful.messless.services.equipments.EquipmentsService
 import at.eventful.messless.services.events.EventsService
 import at.eventful.messless.services.technicalLogEntries.TechnicalLogEntriesService
 import at.eventful.messless.services.users.UsersService
