@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 
 class ApplicationTest {
     @Test
-    fun testApplicationIndex() = configuredTestApplication {
+    fun `index route returns OK`() = configuredTestApplication {
         val response = client.get("/")
         assertEquals(HttpStatusCode.OK, response.status)
         assertEquals("OK", response.bodyAsText())
