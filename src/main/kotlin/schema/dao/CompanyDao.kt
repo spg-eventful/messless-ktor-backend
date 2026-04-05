@@ -7,8 +7,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CompanyDao(val id: Int) {
     companion object : ConvertibleDao<CompanyEntity, CompanyDao> {
-        override fun from(entity: CompanyEntity?): CompanyDao? {
-            TODO("Not yet implemented")
+        override fun from(entity: CompanyEntity?): CompanyDao? = entity?.let{
+            CompanyDao(id = entity.id.value)
         }
         fun fake(id: Int): CompanyDao = CompanyDao(id = id)
     }

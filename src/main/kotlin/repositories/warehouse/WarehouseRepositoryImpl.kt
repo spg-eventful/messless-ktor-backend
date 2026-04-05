@@ -1,6 +1,7 @@
 package at.eventful.messless.repositories.warehouse
 
 import at.eventful.messless.schema.dao.WarehouseDao
+import at.eventful.messless.schema.entities.CompanyEntity
 import at.eventful.messless.schema.entities.WarehouseEntity
 import at.eventful.messless.schema.tables.WarehouseTable
 import net.postgis.jdbc.geometry.Point
@@ -19,6 +20,7 @@ class WarehouseRepositoryImpl : WarehouseRepository {
             WarehouseEntity.new {
                 label = createWarehouseCommand.label
                 location = Point(createWarehouseCommand.latitude, createWarehouseCommand.longitude)
+                //company = CompanyEntity.findById(createWarehouseCommand.companyId) ?: throw Error("Company not found")
             }
         )!!
     }
