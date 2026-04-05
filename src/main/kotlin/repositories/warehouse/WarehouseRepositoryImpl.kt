@@ -20,7 +20,7 @@ class WarehouseRepositoryImpl : WarehouseRepository {
             WarehouseEntity.new {
                 label = createWarehouseCommand.label
                 location = Point(createWarehouseCommand.latitude, createWarehouseCommand.longitude)
-                //company = CompanyEntity.findById(createWarehouseCommand.companyId) ?: throw Error("Company not found")
+                company = CompanyEntity.findById(createWarehouseCommand.companyId) ?: throw Error("Company not found")
             }
         )!!
     }
