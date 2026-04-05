@@ -2,6 +2,7 @@ package at.eventful.messless
 
 import at.eventful.messless.di.configureDI
 import at.eventful.messless.plugins.db.configureDatabases
+import at.eventful.messless.plugins.db.seedDatabase
 import at.eventful.messless.plugins.socket.WebSocketRouter
 import at.eventful.messless.plugins.socket.configureWebSocket
 import at.eventful.messless.services.echo.EchoService
@@ -36,6 +37,7 @@ suspend fun Application.module() {
     // Install plugins
     configureDI()
     configureDatabases()
+    seedDatabase()
     configureWebSocket()
 
     // Register HTTP routes

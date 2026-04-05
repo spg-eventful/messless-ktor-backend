@@ -1,11 +1,18 @@
 package at.eventful.messless.plugins.db
 
 import at.eventful.messless.schema.tables.*
+import at.eventful.messless.schema.utils.UserRole
+import at.eventful.messless.services.auth.hashWithDefaultConfig
 import at.eventful.messless.util.createDump
 import at.eventful.messless.util.migrateWithFlyway
+import de.mkammerer.argon2.Argon2Factory
+import io.github.cdimascio.dotenv.dotenv
 import io.ktor.server.application.*
 import io.ktor.server.config.*
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 data class DatabaseConfiguration(val url: String, val user: String, val password: String) {
@@ -48,6 +55,43 @@ fun Application.configureDatabases() {
             WarehouseTable
         )
         migrateWithFlyway(environment.config, baselineOnMigrate = true)
+    }
+}
+
+fun Application.seedDatabase() {
+    transaction {
+        val adminExists = !UserTable
+            .select(UserTable.role eq UserRole.Admin)
+            .limit(1)
+            .empty()
+
+        if (!adminExists) {
+            val argon2 = Argon2Factory.create()
+            val dotenv = dotenv {
+                ignoreIfMalformed = true
+                ignoreIfMissing = true
+            }
+
+            val adminUser = dotenv["ADMIN_USER"] ?: "admin@msls.at"
+            val adminPassword = dotenv["ADMIN_PASSWORD"] ?: "admin"
+
+            try {
+                val hash = argon2.hashWithDefaultConfig(adminPassword)
+
+                UserTable.insert {
+                    it[UserTable.email] = adminUser
+                    it[UserTable.password] = hash
+                    it[UserTable.role] = UserRole.Admin
+                    it[firstName] = "System"
+                    it[lastName] = "Admin"
+                    it[phone] = "0000"
+                }
+
+                log.info("Default-Admin created: $adminUser")
+            } catch (e: Exception) {
+                log.error(e.message)
+            }
+        }
     }
 }
 
