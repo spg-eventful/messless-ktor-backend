@@ -5,8 +5,8 @@ import at.eventful.messless.schema.utils.UserRole
 import at.eventful.messless.services.auth.hashWithDefaultConfig
 import at.eventful.messless.util.createDump
 import at.eventful.messless.util.migrateWithFlyway
-import de.mkammerer.argon2.Argon2Factory
-import io.github.cdimascio.dotenv.dotenv
+import de.mkammerer.argon2.Argon2
+import io.github.cdimascio.dotenv.Dotenv
 import io.ktor.server.application.*
 import io.ktor.server.config.*
 import org.jetbrains.exposed.v1.core.eq
@@ -58,7 +58,7 @@ fun Application.configureDatabases() {
     }
 }
 
-fun Application.seedDatabase() {
+fun Application.seedDatabase(argon2: Argon2, dotenv: Dotenv) {
     transaction {
         val adminExists = !UserTable
             .select(UserTable.role eq UserRole.Admin)
@@ -66,12 +66,6 @@ fun Application.seedDatabase() {
             .empty()
 
         if (!adminExists) {
-            val argon2 = Argon2Factory.create()
-            val dotenv = dotenv {
-                ignoreIfMalformed = true
-                ignoreIfMissing = true
-            }
-
             val adminUser = dotenv["ADMIN_USER"] ?: "admin@msls.at"
             val adminPassword = dotenv["ADMIN_PASSWORD"] ?: "admin"
 

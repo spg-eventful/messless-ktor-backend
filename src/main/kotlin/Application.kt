@@ -12,6 +12,8 @@ import at.eventful.messless.services.index.registerIndexRoute
 import at.eventful.messless.services.technicalLogEntries.TechnicalLogEntriesService
 import at.eventful.messless.services.users.UsersService
 import at.eventful.messless.services.warehouse.WarehouseService
+import de.mkammerer.argon2.Argon2
+import io.github.cdimascio.dotenv.Dotenv
 import io.github.cdimascio.dotenv.dotenv
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
@@ -36,8 +38,10 @@ fun main(args: Array<String>) {
 suspend fun Application.module() {
     // Install plugins
     configureDI()
+    val argon2 = dependencies.resolve<Argon2>()
+    val dotenv = dependencies.resolve<Dotenv>()
     configureDatabases()
-    seedDatabase()
+    seedDatabase(argon2, dotenv)
     configureWebSocket()
 
     // Register HTTP routes
