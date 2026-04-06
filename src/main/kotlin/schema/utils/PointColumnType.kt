@@ -7,8 +7,10 @@
 package at.eventful.messless.schema.utils
 
 import net.postgis.jdbc.PGbox2d
+import net.postgis.jdbc.PGgeometry
 import net.postgis.jdbc.geometry.Point
 import org.jetbrains.exposed.v1.core.*
+import org.postgresql.util.PGobject
 
 
 fun Table.point(name: String, srid: Int = 4326): Column<Point> = registerColumn(name, PointColumnType(srid))
@@ -27,11 +29,19 @@ private class PointColumnType(val srid: Int = 4326) : ColumnType<Point>() {
     override fun sqlType() = "GEOMETRY(POINT, $srid)"
 
     override fun valueFromDB(value: Any): Point? {
-        return value as? Point
+        return when (value) {
+            is Point -> value
+            is PGobject -> Point(value.value)
+            is String -> Point(value)
+            else -> null
+        }
     }
 
     override fun notNullValueToDB(value: Point): Any {
-        return value
+        val obj = PGobject()
+        obj.type = "geometry"
+        obj.value = value.toString()
+        return obj
     }
 }
 
