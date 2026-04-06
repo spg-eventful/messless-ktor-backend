@@ -38,10 +38,12 @@ fun main(args: Array<String>) {
 suspend fun Application.module() {
     // Install plugins
     configureDI()
-    val argon2 = dependencies.resolve<Argon2>()
-    val dotenv = dependencies.resolve<Dotenv>()
+
     configureDatabases()
-    seedDatabase(argon2, dotenv)
+    seedDatabase(
+        dependencies.resolve<Argon2>(),
+        dependencies.resolve<Dotenv>()
+    )
     configureWebSocket()
 
     // Register HTTP routes
