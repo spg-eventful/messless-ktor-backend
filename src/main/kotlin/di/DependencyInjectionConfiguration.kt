@@ -15,6 +15,8 @@ import at.eventful.messless.services.users.UsersService
 import at.eventful.messless.services.warehouse.WarehouseService
 import de.mkammerer.argon2.Argon2
 import de.mkammerer.argon2.Argon2Factory
+import io.github.cdimascio.dotenv.Dotenv
+import io.github.cdimascio.dotenv.dotenv
 import io.ktor.server.application.*
 import io.ktor.server.plugins.di.*
 import repositories.users.UserRepository
@@ -40,5 +42,11 @@ fun Application.configureDI() {
 
         // Other
         provide<Argon2> { Argon2Factory.create() }
+        provide<Dotenv> {
+            dotenv {
+                ignoreIfMalformed = true
+                ignoreIfMissing = true
+            }
+        }
     }
 }
