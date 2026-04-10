@@ -17,7 +17,7 @@ class EquipmentRepositoryImpl : EquipmentRepository {
     override fun addEquipment(equipment: CreateEquipmentCmd): EquipmentDao = transaction {
         EquipmentDao.from(EquipmentEntity.new {
             label = equipment.label
-            location = Point(equipment.longitude, equipment.latitude)
+            location = Point(equipment.latitude, equipment.longitude)
             belongsTo = WarehouseEntity.findById(equipment.belongsToWarehouse)
                 ?: throw Error("Warehouse not found")
             storage = equipment.equipmentStorage?.let {
