@@ -14,5 +14,5 @@ class EventEntity(id: EntityID<Int>) : BaseEntity(id) {
     override var updatedAt by EventTable.updatedAt
     override var deletedAt by EventTable.deletedAt
 
-    var loggable: LoggableEntity? by LoggableEntity referencedOn EventTable.loggable
+    var loggable: LoggableEntity by LoggableEntity referencedOn EventTable.loggable
 }

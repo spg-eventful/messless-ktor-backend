@@ -29,7 +29,7 @@ class EventRepositoryImpl : EventRepository {
                         LoggableType.Event
                     )
                 ).id
-            )
+            ) ?: throw Error("Loggable not found")
         })!!
     }
 
