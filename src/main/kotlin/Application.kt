@@ -5,6 +5,7 @@ import at.eventful.messless.plugins.db.configureDatabases
 import at.eventful.messless.plugins.db.seedDatabase
 import at.eventful.messless.plugins.socket.WebSocketRouter
 import at.eventful.messless.plugins.socket.configureWebSocket
+import at.eventful.messless.services.company.CompanyService
 import at.eventful.messless.services.echo.EchoService
 import at.eventful.messless.services.equipments.EquipmentsService
 import at.eventful.messless.services.events.EventsService
@@ -58,6 +59,7 @@ suspend fun Application.module() {
         dependencies.resolve<WarehouseService>(),
         dependencies.resolve<EquipmentsService>(),
         dependencies.resolve<EventsService>(),
-        dependencies.resolve<TechnicalLogEntriesService>()
+        dependencies.resolve<TechnicalLogEntriesService>(),
+        dependencies.resolve<CompanyService>()
     )
 }
