@@ -17,8 +17,6 @@ data class EquipmentDao(
             EquipmentDao(
                 id = entity.id.value,
                 label = entity.label,
-                latitude = entity.location.x,
-                longitude = entity.location.y,
                 belongsToWarehouse = entity.belongsTo.id.value,
                 equipmentStorage = entity.isStorage?.id?.value,
             )

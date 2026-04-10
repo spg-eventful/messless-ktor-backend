@@ -20,7 +20,6 @@ data class TechnicalLogEntryDao(
                 attachedTo = EquipmentDao.from(entity.attachedTo),
                 byUser = UserDao.from(entity.byUser),
                 loggable = entity.loggable,
-                status = entity.status,
             )
         }
 
