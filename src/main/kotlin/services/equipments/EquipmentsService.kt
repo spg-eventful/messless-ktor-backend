@@ -11,6 +11,7 @@ import at.eventful.messless.repositories.equipment.commands.CreateEquipmentCmd
 import at.eventful.messless.repositories.equipment.commands.UpdateEquipmentCmd
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
 import at.eventful.messless.schema.dto.EquipmentDto
+import at.eventful.messless.schema.utils.UserRole
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.di.*
@@ -28,7 +29,7 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
             val warehouse = warehouseRepo.warehouseById(cmd.belongsToWarehouse)
                 ?: throw NotFound("Warehouse with id ${cmd.belongsToWarehouse} not found")
 
-            if (warehouse.company?.id != it.user.company?.id) throw Forbidden("You are not allowed to create equipment in another companies warehouse!")
+            if (warehouse.company?.id != it.user.company?.id && it.user.role.asInt() != UserRole.Admin.asInt()) throw Forbidden("You are not allowed to create equipment in another companies warehouse!")
 
             try {
                 return WebSocketResponse.from(
