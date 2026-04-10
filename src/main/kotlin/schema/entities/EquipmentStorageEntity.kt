@@ -13,4 +13,6 @@ class EquipmentStorageEntity(id: EntityID<Int>) : BaseEntity(id) {
     override var createdAt by EquipmentStorageTable.createdAt
     override var updatedAt by EquipmentStorageTable.updatedAt
     override var deletedAt by EquipmentStorageTable.deletedAt
+
+    var loggable by LoggableEntity referencedOn EquipmentStorageTable.loggable
 }

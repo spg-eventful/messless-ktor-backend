@@ -13,4 +13,6 @@ class EventEntity(id: EntityID<Int>) : BaseEntity(id) {
     override var createdAt by EventTable.createdAt
     override var updatedAt by EventTable.updatedAt
     override var deletedAt by EventTable.deletedAt
+
+    var loggable: LoggableEntity? by LoggableEntity referencedOn EventTable.loggable
 }

@@ -24,8 +24,9 @@ class EquipmentRepositoryImpl : EquipmentRepository {
 
     @OptIn(ExperimentalTime::class)
     override fun allEquipment(): List<EquipmentDao> = transaction {
+        val mapper: (EquipmentEntity?) -> EquipmentDao? = EquipmentDao::from
         EquipmentEntity.find { (EquipmentTable.deletedAt eq null) }.toList()
-            .map { EquipmentDao::from } as List<EquipmentDao>
+            .map { mapper } as List<EquipmentDao>
     }
 
     @OptIn(ExperimentalTime::class)

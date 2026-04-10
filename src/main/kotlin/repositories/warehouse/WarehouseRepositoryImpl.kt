@@ -1,10 +1,14 @@
 package at.eventful.messless.repositories.warehouse
 
+import at.eventful.messless.repositories.loggable.LoggableRepositoryImpl
+import at.eventful.messless.repositories.loggable.command.CreateLoggableCmd
+import at.eventful.messless.repositories.loggable.command.UpdateLoggableCmd
 import at.eventful.messless.schema.dao.WarehouseDao
 import at.eventful.messless.schema.entities.CompanyEntity
+import at.eventful.messless.schema.entities.LoggableEntity
 import at.eventful.messless.schema.entities.WarehouseEntity
 import at.eventful.messless.schema.tables.WarehouseTable
-import net.postgis.jdbc.geometry.Point
+import at.eventful.messless.schema.utils.LoggableType
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.isNull
@@ -15,11 +19,21 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 class WarehouseRepositoryImpl : WarehouseRepository {
+    val loggableRepository = LoggableRepositoryImpl()
+
     override fun addWarehouse(createWarehouseCommand: CreateWarehouseCmd): WarehouseDao = transaction {
         WarehouseDao.from(
             WarehouseEntity.new {
-                label = createWarehouseCommand.label
-                location = Point(createWarehouseCommand.latitude, createWarehouseCommand.longitude)
+                loggable = LoggableEntity.findById(
+                    loggableRepository.addLoggable(
+                        CreateLoggableCmd(
+                            createWarehouseCommand.label,
+                            createWarehouseCommand.longitude,
+                            createWarehouseCommand.latitude,
+                            LoggableType.Warehouse
+                        )
+                    ).id
+                ) ?: throw Error("Loggable not found")
                 company = CompanyEntity.findById(createWarehouseCommand.companyId) ?: throw Error("Company not found")
             }
         )!!
@@ -38,16 +52,25 @@ class WarehouseRepositoryImpl : WarehouseRepository {
     }
 
     @OptIn(ExperimentalTime::class)
-    override fun updateWarehouse(id: Int, updateWarehouseCmd: UpdateWarehouseCmd): WarehouseDao? = transaction {
+    override fun updateWarehouse(id: Int, updateWarehouseCmd: UpdateWarehouseCmd): WarehouseDao = transaction {
         WarehouseDao.from(WarehouseEntity.findByIdAndUpdate(updateWarehouseCmd.`$id`) {
-            it.label = updateWarehouseCmd.label
-            it.location = Point(updateWarehouseCmd.latitude, updateWarehouseCmd.longitude)
+            loggableRepository.updateLoggable(
+                it.loggable.id.value,
+                UpdateLoggableCmd(
+                    it.loggable.id.value,
+                    updateWarehouseCmd.label,
+                    updateWarehouseCmd.longitude,
+                    updateWarehouseCmd.latitude,
+                    LoggableType.Warehouse
+                )
+            )
         })!!
     }
 
     @OptIn(ExperimentalTime::class)
     override fun removeWarehouse(id: Int): WarehouseDao? = transaction {
         WarehouseDao.from(WarehouseEntity.findSingleByAndUpdate(WarehouseTable.id eq id and WarehouseTable.deletedAt.isNull()) {
+            loggableRepository.removeLoggable(it.loggable.id.value)
             it.deletedAt = Clock.System.now()
         })
     }

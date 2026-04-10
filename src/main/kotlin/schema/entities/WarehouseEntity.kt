@@ -15,4 +15,5 @@ class WarehouseEntity(id: EntityID<Int>) : BaseEntity(id) {
     override var deletedAt by WarehouseTable.deletedAt
 
     var company by CompanyEntity referencedOn WarehouseTable.companyId
+    var loggable by LoggableEntity referencedOn WarehouseTable.loggable
 }

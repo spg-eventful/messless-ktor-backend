@@ -7,26 +7,20 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class EventDao(
     val id: Int,
-    val label: String,
-    val longitude: Double,
-    val latitude: Double,
+    val loggable: LoggableDao?,
 ) {
     companion object : ConvertibleDao<EventEntity, EventDao> {
         override fun from(entity: EventEntity?, loggable: LoggableEntity?): EventDao? = entity?.let {
             if (loggable == null) return@let null
             EventDao(
                 id = entity.id.value,
-                label = loggable.label,
-                latitude = loggable.location.x,
-                longitude = loggable.location.y,
+                loggable = LoggableDao.from(entity.loggable),
             )
         }
 
         fun fake(id: Int) = EventDao(
             id = id,
-            label = "Fake event",
-            latitude = 0.0,
-            longitude = 0.0,
+            loggable = LoggableDao.fake(1),
         )
     }
 }
