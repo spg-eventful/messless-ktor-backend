@@ -1,7 +1,7 @@
 package at.eventful.messless.schema.tables
 
-import at.eventful.messless.schema.utils.LoggableTable
+import at.eventful.messless.schema.utils.BaseTable
 
-object WarehouseTable : LoggableTable("warehouses") {
+object WarehouseTable : BaseTable("warehouses") {
     val companyId = reference("company_id", CompanyTable)
 }

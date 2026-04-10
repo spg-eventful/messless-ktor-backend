@@ -19,7 +19,7 @@ class EquipmentRepositoryImpl : EquipmentRepository {
             label = equipment.label
             location = Point(equipment.longitude, equipment.latitude)
             belongsTo = WarehouseEntity.findById(equipment.belongsToWarehouse) ?: throw Error("Warehouse not found")
-            storage = EquipmentStorageEntity.findById(equipment.equipmentStorage!!)
+            isStorage = EquipmentStorageEntity.findById(equipment.equipmentStorage!!)
                 ?: throw Error("Equipment storage not found")
         })!!
     }
@@ -41,7 +41,7 @@ class EquipmentRepositoryImpl : EquipmentRepository {
             it.label = equipment.label
             it.location = Point(equipment.longitude, equipment.latitude)
             it.belongsTo = WarehouseEntity.findById(equipment.belongsToWarehouse) ?: throw Error("Warehouse not found")
-            it.storage = EquipmentStorageEntity.findById(equipment.equipmentStorage!!)
+            it.isStorage = EquipmentStorageEntity.findById(equipment.equipmentStorage!!)
                 ?: throw Error("Equipment storage not found")
         })
     }

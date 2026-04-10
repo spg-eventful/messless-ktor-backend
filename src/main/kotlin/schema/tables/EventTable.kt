@@ -1,5 +1,5 @@
 package at.eventful.messless.schema.tables
 
-import at.eventful.messless.schema.utils.LoggableTable
+import at.eventful.messless.schema.utils.BaseTable
 
-object EventTable : LoggableTable("events")
+object EventTable : BaseTable("events")

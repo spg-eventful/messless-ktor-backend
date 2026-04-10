@@ -20,7 +20,7 @@ data class EquipmentDao(
                 latitude = entity.location.x,
                 longitude = entity.location.y,
                 belongsToWarehouse = entity.belongsTo.id.value,
-                equipmentStorage = entity.storage?.id?.value,
+                equipmentStorage = entity.isStorage?.id?.value,
             )
         }
 

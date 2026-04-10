@@ -9,7 +9,6 @@ import at.eventful.messless.repositories.warehouse.WarehouseRepository
 import at.eventful.messless.schema.dao.EquipmentDao
 import at.eventful.messless.schema.dao.TechnicalLogEntryDao
 import at.eventful.messless.schema.dao.WarehouseDao
-import at.eventful.messless.schema.utils.Status
 import io.ktor.client.plugins.websocket.*
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
@@ -36,7 +35,6 @@ class TechnicalLogServiceTest : AuthorizationTest() {
             technicalLog.attachedTo?.id ?: 1,
             technicalLog.byUser?.id ?: 1,
             technicalLog.loggable,
-            technicalLog.status ?: Status.Warehouse,
         )
 
         val findCmd = FindTechnicalLogByEquipmentCmd(
