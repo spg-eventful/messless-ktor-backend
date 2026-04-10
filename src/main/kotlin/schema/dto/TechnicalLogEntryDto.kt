@@ -12,7 +12,6 @@ data class TechnicalLogEntryDto(
     val byUser: Int?,
     val userFullName: String,
     val loggable: Int,
-    val status: String,
 ) {
     companion object{
         fun from(technicalLogEntry: TechnicalLogEntryDao) = TechnicalLogEntryDto(
@@ -23,7 +22,6 @@ data class TechnicalLogEntryDto(
             byUser = technicalLogEntry.byUser?.id,
             userFullName = "${technicalLogEntry.byUser?.firstName} ${technicalLogEntry.byUser?.lastName}",
             loggable = technicalLogEntry.loggable,
-            status = technicalLogEntry.status.toString(),
             )
     }
 }
