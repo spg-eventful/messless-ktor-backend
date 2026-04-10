@@ -7,8 +7,6 @@ import kotlinx.serialization.Serializable
 data class EquipmentDao(
     val id: Int,
     val label: String,
-    val longitude: Double,
-    val latitude: Double,
     val belongsToWarehouse: Int,
     val equipmentStorage: Int?,
 ) {
@@ -25,8 +23,6 @@ data class EquipmentDao(
         fun fake(id: Int) = EquipmentDao(
             id = id,
             label = "Fake equipment",
-            latitude = 0.0,
-            longitude = 0.0,
             belongsToWarehouse = 1,
             equipmentStorage = 1,
         )

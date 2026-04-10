@@ -1,6 +1,7 @@
 package at.eventful.messless.schema.dao
 
 import at.eventful.messless.schema.entities.EventEntity
+import at.eventful.messless.schema.entities.LoggableEntity
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -11,12 +12,13 @@ data class EventDao(
     val latitude: Double,
 ) {
     companion object : ConvertibleDao<EventEntity, EventDao> {
-        override fun from(entity: EventEntity?): EventDao? = entity?.let {
+        override fun from(entity: EventEntity?, loggable: LoggableEntity?): EventDao? = entity?.let {
+            if (loggable == null) return@let null
             EventDao(
                 id = entity.id.value,
-                label = entity.label,
-                latitude = entity.location.x,
-                longitude = entity.location.y,
+                label = loggable.label,
+                latitude = loggable.location.x,
+                longitude = loggable.location.y,
             )
         }
 

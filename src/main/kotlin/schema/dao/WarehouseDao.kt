@@ -1,5 +1,6 @@
 package at.eventful.messless.schema.dao
 
+import at.eventful.messless.schema.entities.LoggableEntity
 import at.eventful.messless.schema.entities.WarehouseEntity
 import kotlinx.serialization.Serializable
 
@@ -12,12 +13,13 @@ data class WarehouseDao (
     val company: CompanyDao?
 ){
     companion object : ConvertibleDao<WarehouseEntity, WarehouseDao>{
-        override fun from(entity: WarehouseEntity?): WarehouseDao? = entity?.let {
+        override fun from(entity: WarehouseEntity?, loggable: LoggableEntity?): WarehouseDao? = entity?.let {
+            if (loggable == null) return@let null
             WarehouseDao(
                 id = entity.id.value,
-                label = entity.label,
-                latitude = entity.location.x,
-                longitude = entity.location.y,
+                label = loggable.label,
+                latitude = loggable.location.x,
+                longitude = loggable.location.y,
                 company = CompanyDao.from(entity.company)
             )
         }
