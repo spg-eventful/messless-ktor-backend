@@ -1,6 +1,6 @@
 package at.eventful.messless.schema.utils
 
-enum class Status {
+enum class LoggableType {
     Warehouse,
     Equipment,
     Event

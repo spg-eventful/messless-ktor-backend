@@ -6,6 +6,8 @@ import at.eventful.messless.repositories.equipment.EquipmentRepository
 import at.eventful.messless.repositories.equipment.EquipmentRepositoryImpl
 import at.eventful.messless.repositories.event.EventRepository
 import at.eventful.messless.repositories.event.EventRepositoryImpl
+import at.eventful.messless.repositories.loggable.LoggableRepository
+import at.eventful.messless.repositories.loggable.LoggableRepositoryImpl
 import at.eventful.messless.repositories.technicalLogEntries.TechnicalLogEntryRepository
 import at.eventful.messless.repositories.technicalLogEntries.TechnicalLogEntryRepositoryImpl
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
@@ -35,6 +37,7 @@ fun Application.configureDI() {
         provide<EquipmentRepository> { EquipmentRepositoryImpl() }
         provide<EventRepository> { EventRepositoryImpl() }
         provide<CompanyRepository> { CompanyRepositoryImpl() }
+        provide<LoggableRepository> { LoggableRepositoryImpl() }
 
         // Services
         provide<UsersService> { UsersService(this@configureDI) }

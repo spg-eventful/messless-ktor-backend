@@ -52,7 +52,8 @@ fun Application.configureDatabases() {
             EventTable,
             TechnicalLogEntryTable,
             UserTable,
-            WarehouseTable
+            WarehouseTable,
+            LoggableTable
         )
         migrateWithFlyway(environment.config, baselineOnMigrate = true)
     }

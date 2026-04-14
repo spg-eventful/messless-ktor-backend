@@ -17,10 +17,8 @@ class EquipmentRepositoryImpl : EquipmentRepository {
     override fun addEquipment(equipment: CreateEquipmentCmd): EquipmentDao = transaction {
         EquipmentDao.from(EquipmentEntity.new {
             label = equipment.label
-            location = Point(equipment.latitude, equipment.longitude)
-            belongsTo = WarehouseEntity.findById(equipment.belongsToWarehouse)
-                ?: throw Error("Warehouse not found")
-            storage = equipment.equipmentStorage?.let {
+            belongsTo = WarehouseEntity.findById(equipment.belongsToWarehouse) ?: throw Error("Warehouse not found")
+            isStorage = equipment.equipmentStorage?.let {
                 EquipmentStorageEntity.findById(it) ?: throw Error("Equipment storage not found")
             }
         })!!
@@ -28,8 +26,9 @@ class EquipmentRepositoryImpl : EquipmentRepository {
 
     @OptIn(ExperimentalTime::class)
     override fun allEquipment(): List<EquipmentDao> = transaction {
-        EquipmentEntity.find { (EquipmentTable.deletedAt eq null) }
-            .map(EquipmentDao::from) as List<EquipmentDao>
+        val mapper: (EquipmentEntity?) -> EquipmentDao? = EquipmentDao::from
+        EquipmentEntity.find { (EquipmentTable.deletedAt eq null) }.toList()
+            .map { mapper } as List<EquipmentDao>
     }
 
     @OptIn(ExperimentalTime::class)
@@ -38,17 +37,15 @@ class EquipmentRepositoryImpl : EquipmentRepository {
         return@transaction if (equipment?.deletedAt == null) EquipmentDao.from(equipment) else null
     }
 
-    override fun updateEquipment(id: Int, equipment: UpdateEquipmentCmd): EquipmentDao? =
-        transaction {
-            EquipmentDao.from(EquipmentEntity.findByIdAndUpdate(id) {
-                it.label = equipment.label
-                it.location = Point(equipment.longitude, equipment.latitude)
-                it.belongsTo = WarehouseEntity.findById(equipment.belongsToWarehouse)
-                    ?: throw Error("Warehouse not found")
-                it.storage = EquipmentStorageEntity.findById(equipment.equipmentStorage!!)
-                    ?: throw Error("Equipment storage not found")
-            })
-        }
+    override fun updateEquipment(id: Int, equipment: UpdateEquipmentCmd): EquipmentDao? = transaction {
+        EquipmentDao.from(EquipmentEntity.findByIdAndUpdate(id) {
+            it.label = equipment.label
+            it.belongsTo = WarehouseEntity.findById(equipment.belongsToWarehouse) ?: throw Error("Warehouse not found")
+            it.isStorage = equipment.equipmentStorage?.let {
+                EquipmentStorageEntity.findById(it) ?: throw Error("Equipment storage not found")
+            }
+        })
+    }
 
     @OptIn(ExperimentalTime::class)
     override fun removeEquipment(id: Int): EquipmentDao? = transaction {

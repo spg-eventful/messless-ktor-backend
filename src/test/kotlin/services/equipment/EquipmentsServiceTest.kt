@@ -32,16 +32,12 @@ class EquipmentsServiceTest : AuthorizationTest() {
         val updateCmd = UpdateEquipmentCmd(
             equipment.id,
             equipment.label,
-            equipment.longitude,
-            equipment.latitude,
             equipment.belongsToWarehouse,
             equipment.equipmentStorage,
         )
 
         val createCmd = CreateEquipmentCmd(
             equipment.label,
-            equipment.longitude,
-            equipment.latitude,
             equipment.belongsToWarehouse,
             equipment.equipmentStorage,
         )

@@ -1,6 +1,7 @@
 package at.eventful.messless.schema.dto
 
 import at.eventful.messless.schema.dao.EventDao
+import at.eventful.messless.schema.dao.LoggableDao
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -11,11 +12,11 @@ data class EventDto(
     val latitude: Double,
 ) {
     companion object {
-        fun from(event: EventDao): EventDto = EventDto(
+        fun from(event: EventDao, loggable: LoggableDao): EventDto = EventDto(
             id = event.id,
-            label = event.label,
-            longitude = event.longitude,
-            latitude = event.latitude,
+            label = loggable.label,
+            longitude = loggable.longitude,
+            latitude = loggable.latitude,
         )
     }
 }
