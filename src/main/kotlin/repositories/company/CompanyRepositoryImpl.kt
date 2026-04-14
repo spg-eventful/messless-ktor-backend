@@ -21,8 +21,9 @@ class CompanyRepositoryImpl : CompanyRepository {
 
     @OptIn(ExperimentalTime::class)
     override fun allCompanies(): List<CompanyDao> = transaction {
+        val mapper: (CompanyEntity?) -> CompanyDao? = CompanyDao::from
         CompanyEntity.find { CompanyTable.deletedAt eq null }.toList()
-            .map { CompanyDao::from } as List<CompanyDao>
+            .map { mapper } as List<CompanyDao>
     }
 
     @OptIn(ExperimentalTime::class)
