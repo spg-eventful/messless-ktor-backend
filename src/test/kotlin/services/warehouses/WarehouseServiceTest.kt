@@ -2,6 +2,8 @@ package services.warehouses
 
 import at.eventful.messless.plugins.socket.model.Method
 import at.eventful.messless.repositories.loggable.LoggableRepository
+import at.eventful.messless.repositories.loggable.command.CreateLoggableCmd
+import at.eventful.messless.repositories.loggable.command.UpdateLoggableCmd
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
 import at.eventful.messless.schema.dao.LoggableDao
 import at.eventful.messless.schema.dao.WarehouseDao
@@ -41,6 +43,21 @@ class WarehouseServiceTest : AuthorizationTest() {
             loggable.latitude,
             loggable.longitude,
             CompanyOne.owner.company?.id ?: 1,
+        )
+
+        val updateLoggableCmd = UpdateLoggableCmd(
+            loggable.id,
+            loggable.label,
+            loggable.longitude,
+            loggable.latitude,
+            loggable.loggableType
+        )
+
+        val createLoggableCmd = CreateLoggableCmd(
+            loggable.label,
+            loggable.longitude,
+            loggable.latitude,
+            loggable.loggableType
         )
 
         @JvmStatic
@@ -115,11 +132,16 @@ class WarehouseServiceTest : AuthorizationTest() {
     ) = configuredTestApplication {
         dependencies.provide<WarehouseRepository> { warehouseRepository }
         dependencies.provide<UserRepository> { usersRepository }
+        dependencies.provide<LoggableRepository> { loggableRepository }
         every { warehouseRepository.addWarehouse(any()) } returns warehouse
         every { warehouseRepository.allWarehouses() } returns listOf(warehouse)
         every { warehouseRepository.warehouseById(warehouse.id) } returns warehouse
         every { warehouseRepository.updateWarehouse(warehouse.id, updateCmd) } returns warehouse
         every { warehouseRepository.removeWarehouse(warehouse.id) } returns warehouse
+        every { loggableRepository.loggableById(loggable.id) } returns loggable
+        every { loggableRepository.updateLoggable(loggable.id, updateLoggableCmd) } returns loggable
+        every { loggableRepository.addLoggable(createLoggableCmd) } returns loggable
+        every { loggableRepository.removeLoggable(loggable.id) } returns loggable
         mockAuthRelatedMethods()
 
         client.webSocket("/ws") {
