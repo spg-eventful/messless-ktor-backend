@@ -1,5 +1,7 @@
 package at.eventful.messless.di
 
+import at.eventful.messless.repositories.company.CompanyRepository
+import at.eventful.messless.repositories.company.CompanyRepositoryImpl
 import at.eventful.messless.repositories.equipment.EquipmentRepository
 import at.eventful.messless.repositories.equipment.EquipmentRepositoryImpl
 import at.eventful.messless.repositories.event.EventRepository
@@ -10,6 +12,7 @@ import at.eventful.messless.repositories.technicalLogEntries.TechnicalLogEntryRe
 import at.eventful.messless.repositories.technicalLogEntries.TechnicalLogEntryRepositoryImpl
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
 import at.eventful.messless.repositories.warehouse.WarehouseRepositoryImpl
+import at.eventful.messless.services.company.CompanyService
 import at.eventful.messless.services.equipments.EquipmentsService
 import at.eventful.messless.services.events.EventsService
 import at.eventful.messless.services.technicalLogEntries.TechnicalLogEntriesService
@@ -33,6 +36,7 @@ fun Application.configureDI() {
         provide<TechnicalLogEntryRepository> { TechnicalLogEntryRepositoryImpl() }
         provide<EquipmentRepository> { EquipmentRepositoryImpl() }
         provide<EventRepository> { EventRepositoryImpl() }
+        provide<CompanyRepository> { CompanyRepositoryImpl() }
         provide<LoggableRepository> { LoggableRepositoryImpl() }
 
         // Services
@@ -42,6 +46,7 @@ fun Application.configureDI() {
         provide<TechnicalLogEntriesService> { TechnicalLogEntriesService(this@configureDI) }
         provide<EquipmentsService> { EquipmentsService(this@configureDI) }
         provide<EventsService> { EventsService(this@configureDI) }
+        provide<CompanyService> { CompanyService(this@configureDI) }
 
         // Other
         provide<Argon2> { Argon2Factory.create() }

@@ -7,6 +7,7 @@ import at.eventful.messless.schema.entities.EquipmentEntity
 import at.eventful.messless.schema.entities.EquipmentStorageEntity
 import at.eventful.messless.schema.entities.WarehouseEntity
 import at.eventful.messless.schema.tables.EquipmentTable
+import net.postgis.jdbc.geometry.Point
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.time.Clock
@@ -17,8 +18,9 @@ class EquipmentRepositoryImpl : EquipmentRepository {
         EquipmentDao.from(EquipmentEntity.new {
             label = equipment.label
             belongsTo = WarehouseEntity.findById(equipment.belongsToWarehouse) ?: throw Error("Warehouse not found")
-            isStorage = EquipmentStorageEntity.findById(equipment.equipmentStorage!!)
-                ?: throw Error("Equipment storage not found")
+            isStorage = equipment.equipmentStorage?.let {
+                EquipmentStorageEntity.findById(it) ?: throw Error("Equipment storage not found")
+            }
         })!!
     }
 
@@ -39,8 +41,9 @@ class EquipmentRepositoryImpl : EquipmentRepository {
         EquipmentDao.from(EquipmentEntity.findByIdAndUpdate(id) {
             it.label = equipment.label
             it.belongsTo = WarehouseEntity.findById(equipment.belongsToWarehouse) ?: throw Error("Warehouse not found")
-            it.isStorage = EquipmentStorageEntity.findById(equipment.equipmentStorage!!)
-                ?: throw Error("Equipment storage not found")
+            it.isStorage = equipment.equipmentStorage?.let {
+                EquipmentStorageEntity.findById(it) ?: throw Error("Equipment storage not found")
+            }
         })
     }
 
