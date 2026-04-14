@@ -9,6 +9,7 @@ import at.eventful.messless.plugins.socket.model.WebSocketResponse
 import at.eventful.messless.repositories.event.EventRepository
 import at.eventful.messless.repositories.event.commands.CreateEventCmd
 import at.eventful.messless.repositories.event.commands.UpdateEventCmd
+import at.eventful.messless.repositories.loggable.LoggableRepository
 import at.eventful.messless.schema.dto.EventDto
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -16,17 +17,21 @@ import io.ktor.server.plugins.di.*
 
 class EventsService(app: Application) : WebSocketService("events") {
     val eventsRepo: EventRepository by app.dependencies
+    val loggableRepo: LoggableRepository by app.dependencies
 
     override fun ServiceMethod.create(): WebSocketResponse<EventDto> {
         connection.auth.auth?.let {
             if (it.user.role.asInt() < 3) throw Forbidden("You are not allowed to create events!")
 
             val cmd = incoming.receiveBody<CreateEventCmd>()
-
             try {
+                val addedEvent = eventsRepo.addEvent(cmd)
+                val loggable = loggableRepo.loggableById(
+                    addedEvent.loggable?.id ?: throw NotFound("Event ${addedEvent.loggable?.id} not found!")
+                ) ?: throw NotFound("Event ${addedEvent.loggable?.id} not found!")
                 return WebSocketResponse.from(
                     HttpStatusCode.Created,
-                    EventDto.from(eventsRepo.addEvent(cmd)),
+                    EventDto.from(addedEvent, loggable)
                 )
             } catch (e: Exception) {
                 throw e
@@ -39,7 +44,8 @@ class EventsService(app: Application) : WebSocketService("events") {
         connection.auth.auth?.let {
             return WebSocketResponse.from(
                 HttpStatusCode.OK,
-                eventsRepo.allEvents().map(EventDto::from),
+                eventsRepo.allEvents()
+                    .map { (event, loggable) -> EventDto.from(eventsRepo.eventById(event)!!, loggable!!) },
             )
         }
         throw Unauthorized()
@@ -50,7 +56,12 @@ class EventsService(app: Application) : WebSocketService("events") {
             val event = eventsRepo.eventById(id) ?: throw NotFound("Event with id $id not found")
             return WebSocketResponse.from(
                 HttpStatusCode.OK,
-                EventDto.from(event),
+                EventDto.from(
+                    event,
+                    loggableRepo.loggableById(
+                        event.loggable?.id ?: throw NotFound("Event ${event.loggable?.id} not found!")
+                    ) ?: throw NotFound("Event ${event.loggable?.id} not found!")
+                ),
             )
         }
         throw Unauthorized()
@@ -64,7 +75,12 @@ class EventsService(app: Application) : WebSocketService("events") {
                 ?: throw NotFound("Event with id $id not found")
             return WebSocketResponse.from(
                 HttpStatusCode.OK,
-                EventDto.from(updated),
+                EventDto.from(
+                    updated,
+                    loggableRepo.loggableById(
+                        updated.loggable?.id ?: throw NotFound("Event ${updated.loggable?.id} not found!")
+                    ) ?: throw NotFound("Event ${updated.loggable?.id} not found!")
+                ),
             )
         }
         throw Unauthorized()

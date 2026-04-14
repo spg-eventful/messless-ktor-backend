@@ -1,12 +1,12 @@
 package at.eventful.messless.services.warehouse
 
-import at.eventful.messless.errors.responses.BadRequest
 import at.eventful.messless.errors.responses.Forbidden
 import at.eventful.messless.errors.responses.NotFound
 import at.eventful.messless.errors.responses.Unauthorized
 import at.eventful.messless.plugins.socket.ServiceMethod
 import at.eventful.messless.plugins.socket.WebSocketService
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
+import at.eventful.messless.repositories.loggable.LoggableRepository
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
 import at.eventful.messless.schema.dto.WarehouseDto
 import at.eventful.messless.schema.utils.UserRole
@@ -18,7 +18,7 @@ import repositories.warehouse.command.UpdateWarehouseCmd
 
 class WarehouseService(app: Application) : WebSocketService("warehouse") {
     val warehouseRepository: WarehouseRepository by app.dependencies
-
+    val loggableRepository: LoggableRepository by app.dependencies
     override fun ServiceMethod.create(): WebSocketResponse<WarehouseDto> {
         connection.auth.auth?.let {
             if (it.user.role.asInt() < UserRole.Manager.asInt()) throw Forbidden("You are not allowed to create a warehouse!")
@@ -27,8 +27,15 @@ class WarehouseService(app: Application) : WebSocketService("warehouse") {
                 "You are not allowed to create a warehouse in this company!"
             )
             try {
+                val warehouse = warehouseRepository.addWarehouse(cmd)
                 return WebSocketResponse.from(
-                    HttpStatusCode.Created, WarehouseDto.from(warehouseRepository.addWarehouse(cmd))
+                    HttpStatusCode.Created,
+                    WarehouseDto.from(
+                        warehouse,
+                        loggableRepository.loggableById(
+                            warehouse.loggable?.id ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
+                        ) ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
+                    )
                 )
             } catch (e: Exception) {
                 throw e
@@ -42,7 +49,13 @@ class WarehouseService(app: Application) : WebSocketService("warehouse") {
             val companyId = auth.user.company?.id
             return WebSocketResponse.from(
                 HttpStatusCode.OK,
-                warehouseRepository.allWarehouses().filter { it.company?.id == companyId }.map(WarehouseDto::from)
+                warehouseRepository.allWarehouses().filter { it.company?.id == companyId }
+                    .map { (warehouse, _, loggable) ->
+                        WarehouseDto.from(
+                            warehouseRepository.warehouseById(warehouse)!!,
+                            loggable!!
+                        )
+                    }
             )
         }
         throw Unauthorized()
@@ -53,7 +66,13 @@ class WarehouseService(app: Application) : WebSocketService("warehouse") {
             val warehouse = warehouseRepository.warehouseById(id) ?: throw NotFound("Warehouse with id $id not found")
             if (warehouse.company?.id != it.user.company?.id) throw Forbidden("You are not allowed to access this warehouse!")
             return WebSocketResponse.from(
-                HttpStatusCode.OK, WarehouseDto.from(warehouse)
+                HttpStatusCode.OK,
+                WarehouseDto.from(
+                    warehouse,
+                    loggableRepository.loggableById(
+                        warehouse.loggable?.id ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
+                    ) ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
+                )
             )
         }
         throw Unauthorized()
@@ -69,7 +88,13 @@ class WarehouseService(app: Application) : WebSocketService("warehouse") {
             val warehouse =
                 warehouseRepository.updateWarehouse(id, cmd) ?: throw NotFound("Warehouse with id $id not found")
             return WebSocketResponse.from(
-                HttpStatusCode.OK, WarehouseDto.from(warehouse)
+                HttpStatusCode.OK,
+                WarehouseDto.from(
+                    warehouse,
+                    loggableRepository.loggableById(
+                        warehouse.loggable?.id ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
+                    ) ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
+                )
             )
         }
         throw Unauthorized()

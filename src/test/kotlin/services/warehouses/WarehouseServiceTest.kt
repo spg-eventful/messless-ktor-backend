@@ -1,7 +1,9 @@
 package services.warehouses
 
 import at.eventful.messless.plugins.socket.model.Method
+import at.eventful.messless.repositories.loggable.LoggableRepository
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
+import at.eventful.messless.schema.dao.LoggableDao
 import at.eventful.messless.schema.dao.WarehouseDao
 import io.ktor.client.plugins.websocket.*
 import io.mockk.every
@@ -20,22 +22,24 @@ import testutils.*
 class WarehouseServiceTest : AuthorizationTest() {
     val warehouseRepository = mockk<WarehouseRepository>()
     override val usersRepository = mockk<UserRepository>()
+    val loggableRepository = mockk<LoggableRepository>()
 
     companion object : AuthorizationTestCompanion() {
         val warehouse = WarehouseDao.fake(1)
+        val loggable = LoggableDao.fake(1)
 
         val createCmd = CreateWarehouseCmd(
-            warehouse.label,
-            warehouse.latitude,
-            warehouse.longitude,
+            loggable.label,
+            loggable.latitude,
+            loggable.longitude,
             CompanyOne.owner.company?.id ?: 1,
         )
 
         val updateCmd = UpdateWarehouseCmd(
             warehouse.id,
-            warehouse.label,
-            warehouse.latitude,
-            warehouse.longitude,
+            loggable.label,
+            loggable.latitude,
+            loggable.longitude,
             CompanyOne.owner.company?.id ?: 1,
         )
 

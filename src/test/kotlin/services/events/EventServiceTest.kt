@@ -4,7 +4,11 @@ import at.eventful.messless.plugins.socket.model.Method
 import at.eventful.messless.repositories.event.EventRepository
 import at.eventful.messless.repositories.event.commands.CreateEventCmd
 import at.eventful.messless.repositories.event.commands.UpdateEventCmd
+import at.eventful.messless.repositories.loggable.LoggableRepository
+import at.eventful.messless.repositories.loggable.command.CreateLoggableCmd
+import at.eventful.messless.repositories.loggable.command.UpdateLoggableCmd
 import at.eventful.messless.schema.dao.EventDao
+import at.eventful.messless.schema.dao.LoggableDao
 import io.ktor.client.plugins.websocket.*
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
@@ -20,21 +24,38 @@ import testutils.*
 class EventServiceTest : AuthorizationTest() {
     val eventRepository = mockk<EventRepository>()
     override val usersRepository = mockk<UserRepository>()
+    val loggableRepository = mockk<LoggableRepository>()
 
     companion object : AuthorizationTestCompanion() {
         val event = EventDao.fake(1)
+        val loggable = LoggableDao.fake(1)
 
         val updateCmd = UpdateEventCmd(
             event.id,
-            event.label,
-            event.longitude,
-            event.latitude,
+            loggable.label,
+            loggable.longitude,
+            loggable.latitude,
         )
 
         val createCmd = CreateEventCmd(
-            event.label,
-            event.longitude,
-            event.latitude,
+            loggable.label,
+            loggable.longitude,
+            loggable.latitude,
+        )
+
+        val updateLoggableCmd = UpdateLoggableCmd(
+            loggable.id,
+            loggable.label,
+            loggable.longitude,
+            loggable.latitude,
+            loggable.loggableType
+        )
+
+        val createLoggableCmd = CreateLoggableCmd(
+            loggable.label,
+            loggable.longitude,
+            loggable.latitude,
+            loggable.loggableType
         )
 
         @JvmStatic
@@ -72,11 +93,16 @@ class EventServiceTest : AuthorizationTest() {
     override fun makeRequest(pr: ParameterizedReq) = configuredTestApplication {
         dependencies.provide<UserRepository> { usersRepository }
         dependencies.provide<EventRepository> { eventRepository }
+        dependencies.provide<LoggableRepository> { loggableRepository }
         every { eventRepository.addEvent(any()) } returns event
         every { eventRepository.allEvents() } returns listOf(event)
         every { eventRepository.eventById(event.id) } returns event
         every { eventRepository.updateEvent(event.id, updateCmd) } returns event
         every { eventRepository.removeEvent(event.id) } returns event
+        every { loggableRepository.loggableById(loggable.id) } returns loggable
+        every { loggableRepository.updateLoggable(loggable.id, updateLoggableCmd) } returns loggable
+        every { loggableRepository.addLoggable(createLoggableCmd) } returns loggable
+        every { loggableRepository.removeLoggable(loggable.id) } returns loggable
 
         mockAuthRelatedMethods()
 

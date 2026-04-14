@@ -1,6 +1,6 @@
 package at.eventful.messless.schema.dto
 
-import at.eventful.messless.schema.dao.CompanyDao
+import at.eventful.messless.schema.dao.LoggableDao
 import at.eventful.messless.schema.dao.WarehouseDao
 import kotlinx.serialization.Serializable
 
@@ -12,11 +12,11 @@ data class WarehouseDto(
     val longitude: Double,
 ){
     companion object{
-        fun from(warehouse: WarehouseDao): WarehouseDto = WarehouseDto(
+        fun from(warehouse: WarehouseDao, loggable: LoggableDao): WarehouseDto = WarehouseDto(
             id = warehouse.id,
-            label = warehouse.label,
-            latitude = warehouse.latitude,
-            longitude = warehouse.longitude,
+            label = loggable.label,
+            latitude = loggable.latitude,
+            longitude = loggable.longitude,
         )
 
     }
