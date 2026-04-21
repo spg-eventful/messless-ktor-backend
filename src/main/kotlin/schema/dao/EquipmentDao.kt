@@ -8,7 +8,8 @@ data class EquipmentDao(
     val id: Int,
     val label: String,
     val belongsToWarehouse: Int,
-    val equipmentStorage: Int?,
+    val storage: Int?,
+    val isStorage: Boolean
 ) {
     companion object : ConvertibleDao<EquipmentEntity, EquipmentDao> {
         override fun from(entity: EquipmentEntity?): EquipmentDao? = entity?.let {
@@ -16,7 +17,8 @@ data class EquipmentDao(
                 id = entity.id.value,
                 label = entity.label,
                 belongsToWarehouse = entity.belongsTo.id.value,
-                equipmentStorage = entity.isStorage?.id?.value,
+                storage = entity.isStorage?.id?.value,
+                isStorage = entity.isStorage?.id?.value != null
             )
         }
 
@@ -24,7 +26,8 @@ data class EquipmentDao(
             id = id,
             label = "Fake equipment",
             belongsToWarehouse = 1,
-            equipmentStorage = 1,
+            storage = 1,
+            isStorage = false
         )
     }
 }

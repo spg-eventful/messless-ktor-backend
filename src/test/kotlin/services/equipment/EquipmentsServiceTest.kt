@@ -4,9 +4,16 @@ import at.eventful.messless.plugins.socket.model.Method
 import at.eventful.messless.repositories.equipment.EquipmentRepository
 import at.eventful.messless.repositories.equipment.commands.CreateEquipmentCmd
 import at.eventful.messless.repositories.equipment.commands.UpdateEquipmentCmd
+import at.eventful.messless.repositories.equipmentStorage.EquipmentStorageRepository
+import at.eventful.messless.repositories.equipmentStorage.commands.UpdateEquipmentStorageCmd
+import at.eventful.messless.repositories.loggable.LoggableRepository
+import at.eventful.messless.repositories.loggable.command.UpdateLoggableCmd
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
 import at.eventful.messless.schema.dao.EquipmentDao
+import at.eventful.messless.schema.dao.EquipmentStorageDao
+import at.eventful.messless.schema.dao.LoggableDao
 import at.eventful.messless.schema.dao.WarehouseDao
+import at.eventful.messless.schema.utils.LoggableType
 import at.eventful.messless.schema.utils.UserRole
 import io.ktor.client.plugins.websocket.*
 import io.mockk.every
@@ -24,22 +31,44 @@ class EquipmentsServiceTest : AuthorizationTest() {
     val equipmentRepository = mockk<EquipmentRepository>()
     override val usersRepository = mockk<UserRepository>()
     val warehouseRepository = mockk<WarehouseRepository>()
+    val equipmentStorageRepository = mockk<EquipmentStorageRepository>()
+    val loggableRepository = mockk<LoggableRepository>()
 
     companion object : AuthorizationTestCompanion() {
         val equipment = EquipmentDao.fake(1)
         val warehouse = WarehouseDao.fake(1)
+        val equipmentStorage = EquipmentStorageDao.fake(1)
+        val loggable = LoggableDao.fake(1)
 
         val updateCmd = UpdateEquipmentCmd(
             equipment.id,
             equipment.label,
             equipment.belongsToWarehouse,
-            equipment.equipmentStorage,
+            equipment.storage,
+            loggable.longitude,
+            loggable.latitude,
         )
 
         val createCmd = CreateEquipmentCmd(
             equipment.label,
             equipment.belongsToWarehouse,
-            equipment.equipmentStorage,
+            equipment.storage,
+            equipment.isStorage,
+        )
+
+        val updateStorageCmd = UpdateEquipmentStorageCmd(
+            equipmentStorage.id,
+            equipmentStorage.loggable?.label ?: throw IllegalStateException("Equipment storage has no loggable!"),
+            equipmentStorage.loggable.latitude,
+            equipmentStorage.loggable.longitude,
+        )
+
+        val updateLoggableCmd = UpdateLoggableCmd(
+            loggable.id,
+            equipment.label,
+            loggable.longitude,
+            loggable.latitude,
+            LoggableType.Equipment
         )
 
         @JvmStatic
@@ -95,12 +124,24 @@ class EquipmentsServiceTest : AuthorizationTest() {
         dependencies.provide<EquipmentRepository> { equipmentRepository }
         dependencies.provide<UserRepository> { usersRepository }
         dependencies.provide<WarehouseRepository> { warehouseRepository }
+        dependencies.provide<EquipmentStorageRepository> { equipmentStorageRepository }
+        dependencies.provide<LoggableRepository> { loggableRepository }
         every { equipmentRepository.allEquipment() } returns listOf(equipment)
         every { equipmentRepository.addEquipment(any()) } returns equipment
         every { equipmentRepository.updateEquipment(equipment.id, updateCmd) } returns equipment
         every { equipmentRepository.removeEquipment(equipment.id) } returns equipment
         every { equipmentRepository.equipmentById(equipment.id) } returns equipment
         every { warehouseRepository.warehouseById(createCmd.belongsToWarehouse) } returns warehouse
+        every { equipmentStorageRepository.addEquipmentStorage(any()) } returns equipmentStorage
+        every { loggableRepository.loggableById(loggable.id) } returns loggable
+        every { equipmentStorageRepository.equipmentStorageById(equipmentStorage.id) } returns equipmentStorage
+        every {
+            equipmentStorageRepository.updateEquipmentStorage(
+                equipmentStorage.id,
+                updateStorageCmd
+            )
+        } returns equipmentStorage
+        every { loggableRepository.updateLoggable(loggable.id, updateLoggableCmd) } returns loggable
         mockAuthRelatedMethods()
 
         client.webSocket("/ws") {

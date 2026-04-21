@@ -18,5 +18,10 @@ data class EquipmentStorageDao(
                     loggable = LoggableDao.from(entity.loggable),
                 )
         }
+
+        fun fake(id: Int) = EquipmentStorageDao(
+            id = id,
+            loggable = LoggableDao.fake(1),
+        )
     }
 }

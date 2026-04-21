@@ -7,7 +7,6 @@ import at.eventful.messless.schema.entities.EquipmentEntity
 import at.eventful.messless.schema.entities.EquipmentStorageEntity
 import at.eventful.messless.schema.entities.WarehouseEntity
 import at.eventful.messless.schema.tables.EquipmentTable
-import net.postgis.jdbc.geometry.Point
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.time.Clock
@@ -26,9 +25,8 @@ class EquipmentRepositoryImpl : EquipmentRepository {
 
     @OptIn(ExperimentalTime::class)
     override fun allEquipment(): List<EquipmentDao> = transaction {
-        val mapper: (EquipmentEntity?) -> EquipmentDao? = EquipmentDao::from
         EquipmentEntity.find { (EquipmentTable.deletedAt eq null) }.toList()
-            .map { mapper } as List<EquipmentDao>
+            .mapNotNull { EquipmentDao.from(it) }
     }
 
     @OptIn(ExperimentalTime::class)
