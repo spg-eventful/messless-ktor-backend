@@ -1,6 +1,7 @@
 package services.equipment
 
 import at.eventful.messless.plugins.socket.model.Method
+import at.eventful.messless.repositories.company.CompanyRepository
 import at.eventful.messless.repositories.equipment.EquipmentRepository
 import at.eventful.messless.repositories.equipment.commands.CreateEquipmentCmd
 import at.eventful.messless.repositories.equipment.commands.UpdateEquipmentCmd
@@ -9,10 +10,7 @@ import at.eventful.messless.repositories.equipmentStorage.commands.UpdateEquipme
 import at.eventful.messless.repositories.loggable.LoggableRepository
 import at.eventful.messless.repositories.loggable.command.UpdateLoggableCmd
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
-import at.eventful.messless.schema.dao.EquipmentDao
-import at.eventful.messless.schema.dao.EquipmentStorageDao
-import at.eventful.messless.schema.dao.LoggableDao
-import at.eventful.messless.schema.dao.WarehouseDao
+import at.eventful.messless.schema.dao.*
 import at.eventful.messless.schema.utils.LoggableType
 import at.eventful.messless.schema.utils.UserRole
 import io.ktor.client.plugins.websocket.*
@@ -33,12 +31,14 @@ class EquipmentsServiceTest : AuthorizationTest() {
     val warehouseRepository = mockk<WarehouseRepository>()
     val equipmentStorageRepository = mockk<EquipmentStorageRepository>()
     val loggableRepository = mockk<LoggableRepository>()
+    val companyRepository = mockk<CompanyRepository>()
 
     companion object : AuthorizationTestCompanion() {
         val equipment = EquipmentDao.fake(1)
         val warehouse = WarehouseDao.fake(1)
         val equipmentStorage = EquipmentStorageDao.fake(1)
         val loggable = LoggableDao.fake(1)
+        val company = CompanyDao.fake(1)
 
         val updateCmd = UpdateEquipmentCmd(
             equipment.id,
@@ -60,6 +60,7 @@ class EquipmentsServiceTest : AuthorizationTest() {
             equipmentStorage.loggable?.label ?: throw IllegalStateException("Equipment storage has no loggable!"),
             equipmentStorage.loggable.latitude,
             equipmentStorage.loggable.longitude,
+            company.id
         )
 
         val updateLoggableCmd = UpdateLoggableCmd(
@@ -67,7 +68,8 @@ class EquipmentsServiceTest : AuthorizationTest() {
             equipment.label,
             loggable.longitude,
             loggable.latitude,
-            LoggableType.Equipment
+            LoggableType.Equipment,
+            company.id
         )
 
         @JvmStatic
@@ -125,6 +127,7 @@ class EquipmentsServiceTest : AuthorizationTest() {
         dependencies.provide<WarehouseRepository> { warehouseRepository }
         dependencies.provide<EquipmentStorageRepository> { equipmentStorageRepository }
         dependencies.provide<LoggableRepository> { loggableRepository }
+        dependencies.provide<CompanyRepository> { companyRepository }
         every { equipmentRepository.allEquipment() } returns listOf(equipment)
         every { equipmentRepository.addEquipment(any()) } returns equipment
         every { equipmentRepository.updateEquipment(equipment.id, updateCmd) } returns equipment
