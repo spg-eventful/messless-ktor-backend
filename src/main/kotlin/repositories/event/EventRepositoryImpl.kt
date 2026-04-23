@@ -26,7 +26,8 @@ class EventRepositoryImpl : EventRepository {
                         event.label,
                         event.longitude,
                         event.latitude,
-                        LoggableType.Event
+                        LoggableType.Event,
+                        event.companyId
                     )
                 ).id
             ) ?: throw Error("Loggable not found")
@@ -35,9 +36,8 @@ class EventRepositoryImpl : EventRepository {
 
     @OptIn(ExperimentalTime::class)
     override fun allEvents(): List<EventDao> = transaction {
-        val mapper: (EventEntity?) -> EventDao? = EventDao::from
         EventEntity.find { (EventTable.deletedAt eq null) }.toList()
-            .map { mapper } as List<EventDao>
+            .mapNotNull { EventDao.from(it) }
     }
 
     @OptIn(ExperimentalTime::class)
@@ -55,7 +55,8 @@ class EventRepositoryImpl : EventRepository {
                     event.label,
                     event.longitude,
                     event.latitude,
-                    LoggableType.Event
+                    LoggableType.Event,
+                    event.companyId
                 )
             )
         })

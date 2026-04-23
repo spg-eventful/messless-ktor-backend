@@ -8,4 +8,5 @@ data class UpdateEventCmd(
     var label: String,
     var longitude: Double,
     var latitude: Double,
+    var companyId: Int,
 )

@@ -1,12 +1,14 @@
 package services.events
 
 import at.eventful.messless.plugins.socket.model.Method
+import at.eventful.messless.repositories.company.CompanyRepository
 import at.eventful.messless.repositories.event.EventRepository
 import at.eventful.messless.repositories.event.commands.CreateEventCmd
 import at.eventful.messless.repositories.event.commands.UpdateEventCmd
 import at.eventful.messless.repositories.loggable.LoggableRepository
 import at.eventful.messless.repositories.loggable.command.CreateLoggableCmd
 import at.eventful.messless.repositories.loggable.command.UpdateLoggableCmd
+import at.eventful.messless.schema.dao.CompanyDao
 import at.eventful.messless.schema.dao.EventDao
 import at.eventful.messless.schema.dao.LoggableDao
 import io.ktor.client.plugins.websocket.*
@@ -25,22 +27,26 @@ class EventServiceTest : AuthorizationTest() {
     val eventRepository = mockk<EventRepository>()
     override val usersRepository = mockk<UserRepository>()
     val loggableRepository = mockk<LoggableRepository>()
+    val companyRepository = mockk<CompanyRepository>()
 
     companion object : AuthorizationTestCompanion() {
         val event = EventDao.fake(1)
         val loggable = LoggableDao.fake(1)
+        val company = CompanyDao.fake(1)
 
         val updateCmd = UpdateEventCmd(
             event.id,
             loggable.label,
             loggable.longitude,
             loggable.latitude,
+            company.id
         )
 
         val createCmd = CreateEventCmd(
             loggable.label,
             loggable.longitude,
             loggable.latitude,
+            company.id
         )
 
         val updateLoggableCmd = UpdateLoggableCmd(
@@ -48,14 +54,16 @@ class EventServiceTest : AuthorizationTest() {
             loggable.label,
             loggable.longitude,
             loggable.latitude,
-            loggable.loggableType
+            loggable.loggableType,
+            company.id
         )
 
         val createLoggableCmd = CreateLoggableCmd(
             loggable.label,
             loggable.longitude,
             loggable.latitude,
-            loggable.loggableType
+            loggable.loggableType,
+            company.id
         )
 
         @JvmStatic
@@ -94,6 +102,7 @@ class EventServiceTest : AuthorizationTest() {
         dependencies.provide<UserRepository> { usersRepository }
         dependencies.provide<EventRepository> { eventRepository }
         dependencies.provide<LoggableRepository> { loggableRepository }
+        dependencies.provide<CompanyRepository> { companyRepository }
         every { eventRepository.addEvent(any()) } returns event
         every { eventRepository.allEvents() } returns listOf(event)
         every { eventRepository.eventById(event.id) } returns event

@@ -1,10 +1,12 @@
 package services.warehouses
 
 import at.eventful.messless.plugins.socket.model.Method
+import at.eventful.messless.repositories.company.CompanyRepository
 import at.eventful.messless.repositories.loggable.LoggableRepository
 import at.eventful.messless.repositories.loggable.command.CreateLoggableCmd
 import at.eventful.messless.repositories.loggable.command.UpdateLoggableCmd
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
+import at.eventful.messless.schema.dao.CompanyDao
 import at.eventful.messless.schema.dao.LoggableDao
 import at.eventful.messless.schema.dao.WarehouseDao
 import io.ktor.client.plugins.websocket.*
@@ -25,10 +27,12 @@ class WarehouseServiceTest : AuthorizationTest() {
     val warehouseRepository = mockk<WarehouseRepository>()
     override val usersRepository = mockk<UserRepository>()
     val loggableRepository = mockk<LoggableRepository>()
+    val companyRepository = mockk<CompanyRepository>()
 
     companion object : AuthorizationTestCompanion() {
         val warehouse = WarehouseDao.fake(1)
         val loggable = LoggableDao.fake(1)
+        val company = CompanyDao.fake(1)
 
         val createCmd = CreateWarehouseCmd(
             loggable.label,
@@ -50,14 +54,16 @@ class WarehouseServiceTest : AuthorizationTest() {
             loggable.label,
             loggable.longitude,
             loggable.latitude,
-            loggable.loggableType
+            loggable.loggableType,
+            company.id
         )
 
         val createLoggableCmd = CreateLoggableCmd(
             loggable.label,
             loggable.longitude,
             loggable.latitude,
-            loggable.loggableType
+            loggable.loggableType,
+            company.id
         )
 
         @JvmStatic
@@ -133,6 +139,7 @@ class WarehouseServiceTest : AuthorizationTest() {
         dependencies.provide<WarehouseRepository> { warehouseRepository }
         dependencies.provide<UserRepository> { usersRepository }
         dependencies.provide<LoggableRepository> { loggableRepository }
+        dependencies.provide<CompanyRepository> { companyRepository }
         every { warehouseRepository.addWarehouse(any()) } returns warehouse
         every { warehouseRepository.allWarehouses() } returns listOf(warehouse)
         every { warehouseRepository.warehouseById(warehouse.id) } returns warehouse

@@ -49,11 +49,12 @@ class WarehouseService(app: Application) : WebSocketService("warehouse") {
             val companyId = auth.user.company?.id
             return WebSocketResponse.from(
                 HttpStatusCode.OK,
-                warehouseRepository.allWarehouses().filter { it.company?.id == companyId }
-                    .map { (warehouse, _, loggable) ->
+                warehouseRepository.allWarehouses()
+                    .filter { auth.user.role == UserRole.Admin || it.company?.id == companyId }
+                    .map { warehouse ->
                         WarehouseDto.from(
-                            warehouseRepository.warehouseById(warehouse)!!,
-                            loggable!!
+                            warehouse,
+                            warehouse.loggable ?: throw NotFound("Loggable not found!")
                         )
                     }
             )

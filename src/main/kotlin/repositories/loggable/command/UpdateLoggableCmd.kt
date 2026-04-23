@@ -10,4 +10,5 @@ data class UpdateLoggableCmd(
     var longitude: Double,
     var latitude: Double,
     var loggableType: LoggableType,
+    var companyId: Int,
 )

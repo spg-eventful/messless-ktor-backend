@@ -55,10 +55,10 @@ open class WebSocketService(val name: String) {
             Method.UPDATE -> {
                 if (incoming.body == null) throw BadRequest("Update calls must include body")
                 val updateId =
-                    ignoreUnknownJson.parseToJsonElement(incoming.body).jsonObject[$$"$id"]?.jsonPrimitive?.int
+                    ignoreUnknownJson.parseToJsonElement(incoming.body).jsonObject["\$id"]?.jsonPrimitive?.int
                 serviceMethod.update(
                     updateId
-                        ?: throw BadRequest($$"Update calls must include id (of type Int) at body.$id json segment")
+                        ?: throw BadRequest("Update calls must include id (of type Int) at body.\$id json segment")
                 )
             }
 

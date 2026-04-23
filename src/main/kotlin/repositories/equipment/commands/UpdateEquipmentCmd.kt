@@ -8,4 +8,6 @@ data class UpdateEquipmentCmd(
     var label: String,
     var belongsToWarehouse: Int,
     var equipmentStorage: Int?,
+    var longitude: Double?,
+    var latitude: Double?,
 )
