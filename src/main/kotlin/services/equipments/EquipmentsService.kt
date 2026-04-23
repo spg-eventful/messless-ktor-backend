@@ -42,16 +42,10 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
                 )
 
                 try {
-                    val equipmentStorage = equipmentStorageRepo.equipmentStorageById(
-                        cmd.equipmentStorage ?: throw NotFound("EquipmentStorage not found")
-                    ) ?: throw NotFound("EquipmentStorage not found")
                     return WebSocketResponse.from(
                         HttpStatusCode.Created,
                         EquipmentDto.from(
-                            equipmentRepo.addEquipment(cmd),
-                            loggableRepo.loggableById(
-                                equipmentStorage.loggable?.id ?: throw NotFound("Loggable not found")
-                            )
+                            equipmentRepo.addEquipment(cmd), null
                         ),
                     )
                 } catch (e: Exception) {
@@ -71,14 +65,14 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
                             cmd.label,
                             warehouse.loggable?.latitude
                                 ?: throw NotFound("Warehouse ${warehouse.id} has no location!"),
-                            warehouse.loggable.longitude
+                            warehouse.loggable.longitude,
+                            warehouse.company?.id ?: throw NotFound("Warehouse ${warehouse.id} has no company!")
                         )
                     )
                     val equipment = equipmentRepo.addEquipment(
                         CreateEquipmentCmd(
                             cmd.label,
                             cmd.belongsToWarehouse,
-                            equipmentStorage.id,
                             cmd.isStorage
                         )
                     )
@@ -155,6 +149,8 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
                 )
                     ?: throw NotFound("EquipmentStorage not found")
                 val loggableId = storage.loggable?.id ?: throw NotFound("Loggable not found")
+                val warehouse =
+                    warehouseRepo.warehouseById(updated.belongsToWarehouse) ?: throw NotFound("Warehouse not found")
                 loggableRepo.updateLoggable(
                     loggableId,
                     UpdateLoggableCmd(
@@ -162,7 +158,8 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
                         updated.label,
                         lon,
                         lat,
-                        LoggableType.Equipment
+                        LoggableType.Equipment,
+                        warehouse.company?.id ?: throw NotFound("Warehouse has no company!")
                     )
                 )
             }

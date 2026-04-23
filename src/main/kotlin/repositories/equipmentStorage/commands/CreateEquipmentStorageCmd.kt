@@ -7,4 +7,5 @@ data class CreateEquipmentStorageCmd(
     val label: String,
     val latitude: Double,
     val longitude: Double,
+    val companyId: Int,
 )

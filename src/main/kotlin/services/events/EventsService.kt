@@ -20,10 +20,12 @@ class EventsService(app: Application) : WebSocketService("events") {
     val loggableRepo: LoggableRepository by app.dependencies
 
     override fun ServiceMethod.create(): WebSocketResponse<EventDto> {
-        connection.auth.auth?.let {
-            if (it.user.role.asInt() < 3) throw Forbidden("You are not allowed to create events!")
+        connection.auth.auth?.let { auth ->
+            if (auth.user.role.asInt() < 3) throw Forbidden("You are not allowed to create events!")
 
             val cmd = incoming.receiveBody<CreateEventCmd>()
+            cmd.companyId = auth.user.company?.id ?: throw Forbidden("User has no company!")
+
             try {
                 val addedEvent = eventsRepo.addEvent(cmd)
                 val loggable = loggableRepo.loggableById(
@@ -45,7 +47,7 @@ class EventsService(app: Application) : WebSocketService("events") {
             return WebSocketResponse.from(
                 HttpStatusCode.OK,
                 eventsRepo.allEvents()
-                    .map { (event, loggable) -> EventDto.from(eventsRepo.eventById(event)!!, loggable!!) },
+                    .map { event -> EventDto.from(event, event.loggable!!) },
             )
         }
         throw Unauthorized()

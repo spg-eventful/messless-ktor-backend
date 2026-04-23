@@ -3,6 +3,7 @@ package at.eventful.messless.repositories.loggable
 import at.eventful.messless.repositories.loggable.command.CreateLoggableCmd
 import at.eventful.messless.repositories.loggable.command.UpdateLoggableCmd
 import at.eventful.messless.schema.dao.LoggableDao
+import at.eventful.messless.schema.entities.CompanyEntity
 import at.eventful.messless.schema.entities.LoggableEntity
 import at.eventful.messless.schema.tables.LoggableTable
 import net.postgis.jdbc.geometry.Point
@@ -17,14 +18,14 @@ class LoggableRepositoryImpl : LoggableRepository {
             label = loggable.label
             location = Point(loggable.latitude, loggable.longitude)
             loggableType = loggable.loggableType
+            company = CompanyEntity.findById(loggable.companyId) ?: throw Error("Company not found")
         })!!
     }
 
     @OptIn(ExperimentalTime::class)
     override fun allLoggables(): List<LoggableDao> = transaction {
-        val mapper: (LoggableEntity?) -> LoggableDao? = LoggableDao::from
         LoggableEntity.find { (LoggableTable.deletedAt eq null) }.toList()
-            .map { mapper } as List<LoggableDao>
+            .mapNotNull { LoggableDao.from(it) }
     }
 
     @OptIn(ExperimentalTime::class)
@@ -38,6 +39,7 @@ class LoggableRepositoryImpl : LoggableRepository {
             it.label = loggable.label
             it.location = Point(loggable.latitude, loggable.longitude)
             it.loggableType = loggable.loggableType
+            it.company = CompanyEntity.findById(loggable.companyId) ?: throw Error("Company not found")
         })
     }
 

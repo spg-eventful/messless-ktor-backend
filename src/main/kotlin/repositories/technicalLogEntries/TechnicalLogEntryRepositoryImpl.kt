@@ -23,7 +23,7 @@ class TechnicalLogEntryRepositoryImpl : TechnicalLogEntryRepository {
         }
 
     override fun allTechnicalLogEntries(): List<TechnicalLogEntryDao> = transaction {
-        TechnicalLogEntryEntity.all().map(TechnicalLogEntryDao::from) as List<TechnicalLogEntryDao>
+        TechnicalLogEntryEntity.all().mapNotNull { TechnicalLogEntryDao.from(it) }
     }
 
     @OptIn(ExperimentalTime::class)

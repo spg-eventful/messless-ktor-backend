@@ -30,7 +30,8 @@ class WarehouseRepositoryImpl : WarehouseRepository {
                             createWarehouseCommand.label,
                             createWarehouseCommand.longitude,
                             createWarehouseCommand.latitude,
-                            LoggableType.Warehouse
+                            LoggableType.Warehouse,
+                            createWarehouseCommand.companyId
                         )
                     ).id
                 ) ?: throw Error("Loggable not found")
@@ -42,7 +43,7 @@ class WarehouseRepositoryImpl : WarehouseRepository {
     @OptIn(ExperimentalTime::class)
     override fun allWarehouses(): List<WarehouseDao> = transaction {
         WarehouseEntity.find { WarehouseTable.deletedAt.isNull() }.toList()
-            .map(WarehouseDao::from) as List<WarehouseDao>
+            .mapNotNull { WarehouseDao.from(it) }
     }
 
     @OptIn(ExperimentalTime::class)
@@ -61,7 +62,8 @@ class WarehouseRepositoryImpl : WarehouseRepository {
                     updateWarehouseCmd.label,
                     updateWarehouseCmd.longitude,
                     updateWarehouseCmd.latitude,
-                    LoggableType.Warehouse
+                    LoggableType.Warehouse,
+                    updateWarehouseCmd.companyId
                 )
             )
         })!!

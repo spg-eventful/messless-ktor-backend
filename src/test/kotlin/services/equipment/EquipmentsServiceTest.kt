@@ -52,7 +52,6 @@ class EquipmentsServiceTest : AuthorizationTest() {
         val createCmd = CreateEquipmentCmd(
             equipment.label,
             equipment.belongsToWarehouse,
-            equipment.storage,
             equipment.isStorage,
         )
 

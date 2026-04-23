@@ -29,7 +29,8 @@ class EquipmentStorageRepositoryImpl : EquipmentStorageRepository {
                             equipmentStorage.label,
                             equipmentStorage.longitude,
                             equipmentStorage.latitude,
-                            LoggableType.Equipment
+                            LoggableType.Equipment,
+                            equipmentStorage.companyId
                         )
                     ).id
                 ) ?: throw Error("Loggable not found")
@@ -40,7 +41,7 @@ class EquipmentStorageRepositoryImpl : EquipmentStorageRepository {
     @OptIn(ExperimentalTime::class)
     override fun allEquipmentStorage(): List<EquipmentStorageDao> = transaction {
         EquipmentStorageEntity.find { EquipmentStorageTable.deletedAt.isNull() }.toList()
-            .map(EquipmentStorageDao::from) as List<EquipmentStorageDao>
+            .mapNotNull { EquipmentStorageDao.from(it) }
     }
 
     @OptIn(ExperimentalTime::class)
@@ -62,7 +63,8 @@ class EquipmentStorageRepositoryImpl : EquipmentStorageRepository {
                     updateEquipmentStorageCmd.label,
                     updateEquipmentStorageCmd.longitude,
                     updateEquipmentStorageCmd.latitude,
-                    LoggableType.Equipment
+                    LoggableType.Equipment,
+                    updateEquipmentStorageCmd.companyId
                 )
             )
         })!!

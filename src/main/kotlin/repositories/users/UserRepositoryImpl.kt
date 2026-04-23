@@ -8,7 +8,7 @@ import at.eventful.messless.services.auth.hashWithDefaultConfig
 import de.mkammerer.argon2.Argon2
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import repositories.users.commands.CreateUserCmd
 import kotlin.time.Clock
@@ -18,7 +18,7 @@ import kotlin.time.ExperimentalTime
 class UserRepositoryImpl(val argon2: Argon2) : UserRepository {
     @OptIn(ExperimentalTime::class)
     override fun allUsers(): List<UserDao> = transaction {
-        UserEntity.find { (UserTable.deletedAt neq null) }.toList().map(UserDao::from) as List<UserDao>
+        UserEntity.find { UserTable.deletedAt.isNull() }.toList().mapNotNull { UserDao.from(it) }
     }
 
     @OptIn(ExperimentalTime::class)

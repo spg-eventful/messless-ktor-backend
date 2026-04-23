@@ -7,4 +7,5 @@ data class CreateEventCmd(
     var label: String,
     var longitude: Double,
     var latitude: Double,
+    var companyId: Int,
 )
