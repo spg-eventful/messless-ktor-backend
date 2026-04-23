@@ -16,7 +16,7 @@ import io.ktor.server.plugins.di.*
 import repositories.warehouse.command.CreateWarehouseCmd
 import repositories.warehouse.command.UpdateWarehouseCmd
 
-class WarehouseService(app: Application) : WebSocketService("warehouse") {
+class WarehouseService(app: Application) : WebSocketService("warehouses") {
     val warehouseRepository: WarehouseRepository by app.dependencies
     val loggableRepository: LoggableRepository by app.dependencies
     override fun ServiceMethod.create(): WebSocketResponse<WarehouseDto> {
@@ -34,7 +34,7 @@ class WarehouseService(app: Application) : WebSocketService("warehouse") {
                         warehouse,
                         loggableRepository.loggableById(
                             warehouse.loggable?.id ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
-                        ) ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
+                        ) ?: throw NotFound("Event ${warehouse.loggable.id} not found!")
                     )
                 )
             } catch (e: Exception) {
@@ -72,7 +72,7 @@ class WarehouseService(app: Application) : WebSocketService("warehouse") {
                     warehouse,
                     loggableRepository.loggableById(
                         warehouse.loggable?.id ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
-                    ) ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
+                    ) ?: throw NotFound("Event ${warehouse.loggable.id} not found!")
                 )
             )
         }
@@ -94,7 +94,7 @@ class WarehouseService(app: Application) : WebSocketService("warehouse") {
                     warehouse,
                     loggableRepository.loggableById(
                         warehouse.loggable?.id ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
-                    ) ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
+                    ) ?: throw NotFound("Event ${warehouse.loggable.id} not found!")
                 )
             )
         }

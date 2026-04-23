@@ -23,6 +23,12 @@ class UserRepositoryImpl(val argon2: Argon2) : UserRepository {
     }
 
     @OptIn(ExperimentalTime::class)
+    override fun usersByCompanyId(companyId: Int): List<UserDao> = transaction {
+        UserEntity.find { UserTable.deletedAt.isNull() and (UserTable.companyId eq companyId) }.toList()
+            .mapNotNull { UserDao.from(it) }
+    }
+
+    @OptIn(ExperimentalTime::class)
     override fun userById(id: Int): UserDao? = transaction {
         val user = UserEntity.findById(id)
         return@transaction if (user?.deletedAt == null) UserDao.from(user) else null
