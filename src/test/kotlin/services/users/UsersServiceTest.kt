@@ -29,6 +29,7 @@ class UsersServiceTest : AuthorizationTest() {
             CompanyOne.owner.firstName,
             CompanyOne.owner.lastName,
             CompanyOne.owner.role,
+            CompanyOne.owner.company?.id ?: 1,
         )
         val createCmd = CreateUserCmd(
             CompanyOne.owner.email,
@@ -37,6 +38,7 @@ class UsersServiceTest : AuthorizationTest() {
             CompanyOne.owner.phone,
             CompanyOne.owner.firstName,
             CompanyOne.owner.lastName,
+            CompanyOne.owner.company?.id ?: 1,
         )
 
         @JvmStatic

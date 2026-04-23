@@ -10,5 +10,6 @@ data class CreateUserCmd(
     var role: UserRole,
     var phone: String,
     var firstName: String,
-    var lastName: String
+    var lastName: String,
+    var companyId: Int?,
 )
