@@ -28,8 +28,9 @@ class EquipmentRepositoryImpl : EquipmentRepository {
                             ?: throw Error("No Loggable Id on Warehouse")
                     ) ?: throw Error("Loggable not found")
                 }
+            } else {
+                isStorage = null
             }
-            isStorage = null
         })!!
     }
 
