@@ -10,5 +10,6 @@ data class UpdateUserCmd(
     var phone: String,
     var firstName: String,
     var lastName: String,
-    var role: UserRole
+    var role: UserRole,
+    var companyId: Int?,
 )

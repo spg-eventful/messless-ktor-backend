@@ -19,12 +19,10 @@ import repositories.users.commands.CreateUserCmd
 class UsersService(app: Application) : WebSocketService("users") {
     val usersRepo: UserRepository by app.dependencies
 
-    // TODO: On boot, we need to create an admin user if none exists
     override fun ServiceMethod.create(): WebSocketResponse<UserDto> {
         connection.auth.auth?.let {
             val cmd = incoming.receiveBody<CreateUserCmd>()
             if (it.user.role != UserRole.Admin && cmd.role.asInt() > it.user.role.asInt()) throw Forbidden("You are not allowed to create a user with this role!")
-            // TODO: add user to company
             try {
                 return WebSocketResponse.from(
                     HttpStatusCode.Created,
