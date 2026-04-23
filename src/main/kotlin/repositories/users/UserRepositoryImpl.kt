@@ -2,6 +2,7 @@ package repositories.users
 
 import at.eventful.messless.repositories.users.commands.UpdateUserCmd
 import at.eventful.messless.schema.dao.UserDao
+import at.eventful.messless.schema.entities.CompanyEntity
 import at.eventful.messless.schema.entities.UserEntity
 import at.eventful.messless.schema.tables.UserTable
 import at.eventful.messless.services.auth.hashWithDefaultConfig
@@ -41,16 +42,20 @@ class UserRepositoryImpl(val argon2: Argon2) : UserRepository {
             lastName = user.lastName
             phone = user.phone
             role = user.role
+            company = CompanyEntity.findById(user.companyId ?: -1)
         })!!
     }
 
     override fun updateUser(id: Int, user: UpdateUserCmd): UserDao? = transaction {
         UserDao.from(UserEntity.findByIdAndUpdate(id) {
-            it.email = user.email
-            it.firstName = user.firstName
-            it.lastName = user.lastName
-            it.phone = user.phone
-            it.role = user.role
+            it.apply {
+                email = user.email
+                firstName = user.firstName
+                lastName = user.lastName
+                phone = user.phone
+                role = user.role
+                company = CompanyEntity.findById(user.companyId ?: -1)
+            }
         })
     }
 
