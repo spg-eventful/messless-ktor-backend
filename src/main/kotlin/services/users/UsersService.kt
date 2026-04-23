@@ -40,9 +40,13 @@ class UsersService(app: Application) : WebSocketService("users") {
 
     override fun ServiceMethod.find(): WebSocketResponse<List<UserDto>> {
         connection.auth.auth?.let {
+            val users = if (it.user.role == UserRole.Admin) usersRepo.allUsers() else usersRepo.usersByCompanyId(
+                it.user.company?.id ?: throw IllegalStateException()
+            )
+
             return WebSocketResponse.from(
                 HttpStatusCode.OK,
-                usersRepo.allUsers().map(UserDto::from),
+                users.map(UserDto::from),
             )
         }
         throw Unauthorized()
@@ -50,8 +54,6 @@ class UsersService(app: Application) : WebSocketService("users") {
 
     override fun ServiceMethod.get(id: Int): WebSocketResponse<UserDto> {
         connection.auth.auth?.let {
-            if (it.user.role != UserRole.Admin && it.user.id != id) throw Forbidden("You are only allowed to query for your own user!")
-
             val user = usersRepo.userById(id) ?: throw NotFound("User with id $id not found")
             return WebSocketResponse.from(
                 HttpStatusCode.OK,

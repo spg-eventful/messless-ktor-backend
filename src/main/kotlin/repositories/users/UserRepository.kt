@@ -11,4 +11,5 @@ interface UserRepository {
     fun userByEmail(email: String): UserDao?
     fun updateUser(id: Int, user: UpdateUserCmd): UserDao?
     fun removeUser(id: Int): UserDao?
+    fun usersByCompanyId(companyId: Int): List<UserDao>
 }

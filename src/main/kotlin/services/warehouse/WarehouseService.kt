@@ -16,7 +16,7 @@ import io.ktor.server.plugins.di.*
 import repositories.warehouse.command.CreateWarehouseCmd
 import repositories.warehouse.command.UpdateWarehouseCmd
 
-class WarehouseService(app: Application) : WebSocketService("warehouse") {
+class WarehouseService(app: Application) : WebSocketService("warehouses") {
     val warehouseRepository: WarehouseRepository by app.dependencies
     val loggableRepository: LoggableRepository by app.dependencies
     override fun ServiceMethod.create(): WebSocketResponse<WarehouseDto> {
