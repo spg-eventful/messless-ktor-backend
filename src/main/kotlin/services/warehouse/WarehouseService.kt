@@ -34,7 +34,7 @@ class WarehouseService(app: Application) : WebSocketService("warehouses") {
                         warehouse,
                         loggableRepository.loggableById(
                             warehouse.loggable?.id ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
-                        ) ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
+                        ) ?: throw NotFound("Event ${warehouse.loggable.id} not found!")
                     )
                 )
             } catch (e: Exception) {
@@ -72,7 +72,7 @@ class WarehouseService(app: Application) : WebSocketService("warehouses") {
                     warehouse,
                     loggableRepository.loggableById(
                         warehouse.loggable?.id ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
-                    ) ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
+                    ) ?: throw NotFound("Event ${warehouse.loggable.id} not found!")
                 )
             )
         }
@@ -94,7 +94,7 @@ class WarehouseService(app: Application) : WebSocketService("warehouses") {
                     warehouse,
                     loggableRepository.loggableById(
                         warehouse.loggable?.id ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
-                    ) ?: throw NotFound("Event ${warehouse.loggable?.id} not found!")
+                    ) ?: throw NotFound("Event ${warehouse.loggable.id} not found!")
                 )
             )
         }
