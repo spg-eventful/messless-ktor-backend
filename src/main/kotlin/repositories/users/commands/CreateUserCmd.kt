@@ -1,4 +1,4 @@
-package repositories.users.commands
+package at.eventful.messless.repositories.users.commands
 
 import at.eventful.messless.schema.utils.UserRole
 import kotlinx.serialization.Serializable

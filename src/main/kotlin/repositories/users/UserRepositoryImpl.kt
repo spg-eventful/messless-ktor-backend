@@ -1,5 +1,6 @@
-package repositories.users
+package at.eventful.messless.repositories.users
 
+import at.eventful.messless.repositories.users.commands.CreateUserCmd
 import at.eventful.messless.repositories.users.commands.UpdateUserCmd
 import at.eventful.messless.schema.dao.UserDao
 import at.eventful.messless.schema.entities.CompanyEntity
@@ -11,7 +12,6 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import repositories.users.commands.CreateUserCmd
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -20,6 +20,12 @@ class UserRepositoryImpl(val argon2: Argon2) : UserRepository {
     @OptIn(ExperimentalTime::class)
     override fun allUsers(): List<UserDao> = transaction {
         UserEntity.find { UserTable.deletedAt.isNull() }.toList().mapNotNull { UserDao.from(it) }
+    }
+
+    @OptIn(ExperimentalTime::class)
+    override fun usersByCompanyId(companyId: Int): List<UserDao> = transaction {
+        UserEntity.find { UserTable.deletedAt.isNull() and (UserTable.companyId eq companyId) }.toList()
+            .mapNotNull { UserDao.from(it) }
     }
 
     @OptIn(ExperimentalTime::class)

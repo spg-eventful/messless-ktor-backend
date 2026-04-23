@@ -1,4 +1,4 @@
-package repositories.warehouse.command
+package at.eventful.messless.repositories.warehouse.command
 
 import kotlinx.serialization.Serializable
 
