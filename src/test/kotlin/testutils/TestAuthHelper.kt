@@ -4,13 +4,13 @@ import at.eventful.messless.plugins.socket.model.IncomingMessage
 import at.eventful.messless.plugins.socket.model.Method
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
 import at.eventful.messless.schema.dao.UserDao
+import at.eventful.messless.services.auth.AuthService
+import at.eventful.messless.services.auth.JWTConfig
 import at.eventful.messless.services.auth.commands.CreateAuthJWTCmd
 import io.ktor.client.plugins.websocket.*
 import io.ktor.server.application.*
 import io.ktor.websocket.*
 import kotlinx.serialization.json.Json
-import services.auth.AuthService
-import services.auth.JWTConfig
 import kotlin.test.assertEquals
 
 fun generateJWT(app: Application, user: UserDao): String {

@@ -8,13 +8,13 @@ import at.eventful.messless.plugins.socket.WebSocketService
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
 import at.eventful.messless.repositories.loggable.LoggableRepository
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
+import at.eventful.messless.repositories.warehouse.command.CreateWarehouseCmd
+import at.eventful.messless.repositories.warehouse.command.UpdateWarehouseCmd
 import at.eventful.messless.schema.dto.WarehouseDto
 import at.eventful.messless.schema.utils.UserRole
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.di.*
-import repositories.warehouse.command.CreateWarehouseCmd
-import repositories.warehouse.command.UpdateWarehouseCmd
 
 class WarehouseService(app: Application) : WebSocketService("warehouses") {
     val warehouseRepository: WarehouseRepository by app.dependencies

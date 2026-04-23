@@ -1,6 +1,8 @@
 package services.users
 
 import at.eventful.messless.plugins.socket.model.Method
+import at.eventful.messless.repositories.users.UserRepository
+import at.eventful.messless.repositories.users.commands.CreateUserCmd
 import at.eventful.messless.repositories.users.commands.UpdateUserCmd
 import at.eventful.messless.schema.utils.UserRole
 import io.ktor.client.plugins.websocket.*
@@ -11,8 +13,6 @@ import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import repositories.users.UserRepository
-import repositories.users.commands.CreateUserCmd
 import testutils.*
 import testutils.AuthorizationTestCompanion.CompanyOne
 
