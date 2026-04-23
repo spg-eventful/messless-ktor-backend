@@ -100,12 +100,15 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
                 equipmentRepo.allEquipment().map { equipment ->
                     EquipmentDto.from(
                         equipment,
-                        loggableRepo.loggableById(
-                            equipmentStorageRepo.equipmentStorageById(
-                                equipment.storage ?: throw NotFound("EquipmentStorage not found")
-                            )?.loggable?.id
-                                ?: throw NotFound("Loggable not found")
-                        ) ?: throw NotFound("Loggable not found")
+                        if (equipment.storage == null) null else {
+                            loggableRepo.loggableById(
+                                equipmentStorageRepo.equipmentStorageById(
+                                    equipment.storage
+                                )?.loggable?.id
+                                    ?: throw NotFound("Loggable not found")
+                            ) ?: throw NotFound("Loggable not found")
+                        }
+
                     )
                 },
             )
@@ -120,14 +123,17 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
                 HttpStatusCode.OK,
                 EquipmentDto.from(
                     equipment,
-                    loggableRepo.loggableById(
-                        equipmentStorageRepo.equipmentStorageById(
-                            equipment.storage ?: throw NotFound("Equipment is not a Storage")
-                        )?.loggable?.id ?: throw NotFound("Loggable not found")
-                    )
-                        ?: throw NotFound(
-                            "Loggable not found"
-                        ),
+                    if (equipment.storage == null) null else {
+                        loggableRepo.loggableById(
+                            equipmentStorageRepo.equipmentStorageById(
+                                equipment.storage
+                            )?.loggable?.id ?: throw NotFound("Loggable not found")
+                        )
+                            ?: throw NotFound(
+                                "Loggable not found"
+                            )
+                    }
+
                 )
             )
         }
