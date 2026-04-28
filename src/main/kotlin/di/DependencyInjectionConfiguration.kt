@@ -12,8 +12,11 @@ import at.eventful.messless.repositories.loggable.LoggableRepository
 import at.eventful.messless.repositories.loggable.LoggableRepositoryImpl
 import at.eventful.messless.repositories.technicalLogEntries.TechnicalLogEntryRepository
 import at.eventful.messless.repositories.technicalLogEntries.TechnicalLogEntryRepositoryImpl
+import at.eventful.messless.repositories.users.UserRepository
+import at.eventful.messless.repositories.users.UserRepositoryImpl
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
 import at.eventful.messless.repositories.warehouse.WarehouseRepositoryImpl
+import at.eventful.messless.services.auth.AuthService
 import at.eventful.messless.services.company.CompanyService
 import at.eventful.messless.services.equipments.EquipmentsService
 import at.eventful.messless.services.events.EventsService
@@ -26,9 +29,6 @@ import io.github.cdimascio.dotenv.Dotenv
 import io.github.cdimascio.dotenv.dotenv
 import io.ktor.server.application.*
 import io.ktor.server.plugins.di.*
-import repositories.users.UserRepository
-import repositories.users.UserRepositoryImpl
-import services.auth.AuthService
 
 fun Application.configureDI() {
     dependencies {

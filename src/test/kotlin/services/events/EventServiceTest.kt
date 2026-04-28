@@ -8,6 +8,7 @@ import at.eventful.messless.repositories.event.commands.UpdateEventCmd
 import at.eventful.messless.repositories.loggable.LoggableRepository
 import at.eventful.messless.repositories.loggable.command.CreateLoggableCmd
 import at.eventful.messless.repositories.loggable.command.UpdateLoggableCmd
+import at.eventful.messless.repositories.users.UserRepository
 import at.eventful.messless.schema.dao.CompanyDao
 import at.eventful.messless.schema.dao.EventDao
 import at.eventful.messless.schema.dao.LoggableDao
@@ -19,7 +20,6 @@ import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import repositories.users.UserRepository
 import testutils.*
 
 @ExtendWith(MockKExtension::class)

@@ -1,4 +1,4 @@
-package services.auth
+package at.eventful.messless.services.auth
 
 import at.eventful.messless.errors.responses.BadRequest
 import at.eventful.messless.errors.responses.Unauthorized
@@ -6,6 +6,7 @@ import at.eventful.messless.plugins.socket.ServiceMethod
 import at.eventful.messless.plugins.socket.WebSocketService
 import at.eventful.messless.plugins.socket.auth.AuthenticatedConnection
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
+import at.eventful.messless.repositories.users.UserRepository
 import at.eventful.messless.schema.dao.UserDao
 import at.eventful.messless.schema.dto.AuthDto
 import at.eventful.messless.schema.dto.UserDto
@@ -17,7 +18,6 @@ import de.mkammerer.argon2.Argon2
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.di.*
-import repositories.users.UserRepository
 import java.util.*
 
 data class JWTConfig(val secret: String, val issuer: String, val audience: String, val realm: String) {

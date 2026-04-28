@@ -1,15 +1,15 @@
 package testutils
 
+import at.eventful.messless.repositories.users.UserRepository
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import repositories.users.UserRepository
 import testutils.AuthorizationTestCompanion.CompanyOne
 import testutils.AuthorizationTestCompanion.CompanyTwo
 
 abstract class AuthorizationTest {
-    open val usersRepository = mockk<UserRepository>()
+    open val usersRepository: UserRepository = mockk<UserRepository>()
 
     companion object : AuthorizationTestCompanion()
 

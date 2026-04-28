@@ -5,6 +5,7 @@ import at.eventful.messless.repositories.equipment.EquipmentRepository
 import at.eventful.messless.repositories.technicalLogEntries.TechnicalLogEntryRepository
 import at.eventful.messless.repositories.technicalLogEntries.commands.CreateTechnicalLogEntryCmd
 import at.eventful.messless.repositories.technicalLogEntries.commands.FindTechnicalLogByEquipmentCmd
+import at.eventful.messless.repositories.users.UserRepository
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
 import at.eventful.messless.schema.dao.EquipmentDao
 import at.eventful.messless.schema.dao.TechnicalLogEntryDao
@@ -17,7 +18,6 @@ import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import repositories.users.UserRepository
 import testutils.*
 
 @ExtendWith(MockKExtension::class)

@@ -9,6 +9,7 @@ import at.eventful.messless.repositories.equipmentStorage.EquipmentStorageReposi
 import at.eventful.messless.repositories.equipmentStorage.commands.UpdateEquipmentStorageCmd
 import at.eventful.messless.repositories.loggable.LoggableRepository
 import at.eventful.messless.repositories.loggable.command.UpdateLoggableCmd
+import at.eventful.messless.repositories.users.UserRepository
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
 import at.eventful.messless.schema.dao.*
 import at.eventful.messless.schema.utils.LoggableType
@@ -21,7 +22,6 @@ import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import repositories.users.UserRepository
 import testutils.*
 
 @ExtendWith(MockKExtension::class)

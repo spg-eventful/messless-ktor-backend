@@ -5,6 +5,7 @@ import at.eventful.messless.plugins.db.configureDatabases
 import at.eventful.messless.plugins.db.seedDatabase
 import at.eventful.messless.plugins.socket.WebSocketRouter
 import at.eventful.messless.plugins.socket.configureWebSocket
+import at.eventful.messless.services.auth.AuthService
 import at.eventful.messless.services.company.CompanyService
 import at.eventful.messless.services.echo.EchoService
 import at.eventful.messless.services.equipments.EquipmentsService
@@ -19,7 +20,6 @@ import io.github.cdimascio.dotenv.dotenv
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.di.*
-import services.auth.AuthService
 
 val router = WebSocketRouter()
 

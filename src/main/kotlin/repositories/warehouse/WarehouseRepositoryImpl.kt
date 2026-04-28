@@ -3,6 +3,8 @@ package at.eventful.messless.repositories.warehouse
 import at.eventful.messless.repositories.loggable.LoggableRepositoryImpl
 import at.eventful.messless.repositories.loggable.command.CreateLoggableCmd
 import at.eventful.messless.repositories.loggable.command.UpdateLoggableCmd
+import at.eventful.messless.repositories.warehouse.command.CreateWarehouseCmd
+import at.eventful.messless.repositories.warehouse.command.UpdateWarehouseCmd
 import at.eventful.messless.schema.dao.WarehouseDao
 import at.eventful.messless.schema.entities.CompanyEntity
 import at.eventful.messless.schema.entities.LoggableEntity
@@ -13,8 +15,6 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import repositories.warehouse.command.CreateWarehouseCmd
-import repositories.warehouse.command.UpdateWarehouseCmd
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 

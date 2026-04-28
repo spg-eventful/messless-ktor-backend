@@ -3,6 +3,7 @@ package services.auth
 import at.eventful.messless.plugins.socket.model.IncomingMessage
 import at.eventful.messless.plugins.socket.model.Method
 import at.eventful.messless.plugins.socket.model.WebSocketResponse
+import at.eventful.messless.repositories.users.UserRepository
 import at.eventful.messless.schema.dao.UserDao
 import at.eventful.messless.schema.dto.AuthDto
 import at.eventful.messless.services.auth.commands.CreateAuthBasicCmd
@@ -18,7 +19,6 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.extension.ExtendWith
-import repositories.users.UserRepository
 import testutils.configuredTestApplication
 import testutils.receiveText
 import kotlin.test.Test

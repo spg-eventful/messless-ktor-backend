@@ -1,8 +1,8 @@
-package repositories.users
+package at.eventful.messless.repositories.users
 
+import at.eventful.messless.repositories.users.commands.CreateUserCmd
 import at.eventful.messless.repositories.users.commands.UpdateUserCmd
 import at.eventful.messless.schema.dao.UserDao
-import repositories.users.commands.CreateUserCmd
 
 interface UserRepository {
     fun addUser(user: CreateUserCmd): UserDao
