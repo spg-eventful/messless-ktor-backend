@@ -111,6 +111,7 @@ class TechnicalLogServiceTest : AuthorizationTest() {
         dependencies.provide<LoggableRepository> { loggableRepository }
         dependencies.provide<EventRepository> { eventRepository }
 
+        every { technicalLogRepository.addTechnicalLogEntry(any(), any()) } returns technicalLog
         every { technicalLogRepository.allTechnicalLogEntries() } returns listOf(technicalLog)
         every { technicalLogRepository.removeTechnicalLogEntry(any()) } returns technicalLog
         every { technicalLogRepository.technicalLogEntryById(any()) } returns technicalLog

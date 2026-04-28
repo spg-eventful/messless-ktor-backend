@@ -53,8 +53,16 @@ class UsersService(app: Application) : WebSocketService("users") {
     }
 
     override fun ServiceMethod.get(id: Int): WebSocketResponse<UserDto> {
-        connection.auth.auth?.let {
+        connection.auth.auth?.let { auth ->
             val user = usersRepo.userById(id) ?: throw NotFound("User with id $id not found")
+
+            if (auth.user.role != UserRole.Admin) {
+                if (user.company?.id != auth.user.company?.id) throw Forbidden("You are not allowed to view users from other companies")
+                if (auth.user.role.asInt() < user.role.asInt() && auth.user.id != user.id) {
+                    throw Forbidden("You are not allowed to view users with a higher role")
+                }
+            }
+
             return WebSocketResponse.from(
                 HttpStatusCode.OK,
                 UserDto.from(user),

@@ -93,6 +93,7 @@ class UsersServiceTest : AuthorizationTest() {
         dependencies.provide<UserRepository> { usersRepository }
         every { usersRepository.addUser(any()) } returns CompanyOne.owner
         every { usersRepository.allUsers() } returns listOf(CompanyOne.admin, CompanyOne.owner, CompanyOne.worker)
+        every { usersRepository.usersByCompanyId(any()) } returns listOf(CompanyOne.admin, CompanyOne.owner, CompanyOne.worker)
         every { usersRepository.updateUser(CompanyOne.owner.id, updateCmd) } returns CompanyOne.owner
         every { usersRepository.removeUser(CompanyOne.owner.id) } returns CompanyOne.owner
         mockAuthRelatedMethods()
