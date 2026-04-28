@@ -18,7 +18,6 @@ data class WarehouseDto(
             latitude = loggable.latitude,
             longitude = loggable.longitude,
         )
-
     }
 }
 
