@@ -10,6 +10,7 @@ data class WarehouseDto(
     val label: String,
     val latitude: Double,
     val longitude: Double,
+    val company: Int
 ){
     companion object{
         fun from(warehouse: WarehouseDao, loggable: LoggableDao): WarehouseDto = WarehouseDto(
@@ -17,6 +18,7 @@ data class WarehouseDto(
             label = loggable.label,
             latitude = loggable.latitude,
             longitude = loggable.longitude,
+            company = warehouse.company!!.id
         )
 
     }
