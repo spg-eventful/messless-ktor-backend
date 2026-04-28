@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 class CreateTechnicalLogEntryCmd(
     val isCheckIn: Boolean,
     val attachedTo: Int,
-    val byUser: Int,
     val loggable: Int,
+    val longitude: Double,
+    val latitude: Double,
 )

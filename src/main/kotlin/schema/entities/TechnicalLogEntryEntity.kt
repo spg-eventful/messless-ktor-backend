@@ -15,9 +15,10 @@ class TechnicalLogEntryEntity(id: EntityID<Int>) : BaseEntity(id) {
     override var deletedAt by TechnicalLogEntryTable.deletedAt
 
     var isCheckIn by TechnicalLogEntryTable.isCheckIn
+    var location by TechnicalLogEntryTable.location
     // the Equipment the log entry is attached to
     var attachedTo by EquipmentEntity referencedOn TechnicalLogEntryTable.attachedTo
     var byUser by UserEntity referencedOn TechnicalLogEntryTable.byUser
 
-    var loggable by TechnicalLogEntryTable.loggable
+    var loggable by LoggableEntity referencedOn TechnicalLogEntryTable.loggable
 }
