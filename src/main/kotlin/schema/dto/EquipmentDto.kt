@@ -16,13 +16,13 @@ data class EquipmentDto(
     val loggableType: LoggableType?,
 ) {
     companion object {
-        fun from(equipment: EquipmentDao, loggable: LoggableDao?): EquipmentDto = EquipmentDto(
+        fun from(equipment: EquipmentDao, loggable: LoggableDao?, longitude: Double?, latitude: Double?): EquipmentDto = EquipmentDto(
             id = equipment.id,
             label = equipment.label,
             belongsToWarehouse = equipment.belongsToWarehouse,
             storage = equipment.storage,
-            longitude = loggable?.longitude,
-            latitude = loggable?.latitude,
+            longitude = loggable?.longitude ?: longitude,
+            latitude = loggable?.latitude ?: latitude,
             loggableType = loggable?.loggableType,
         )
     }

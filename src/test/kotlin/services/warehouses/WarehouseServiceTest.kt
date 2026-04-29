@@ -154,7 +154,7 @@ class WarehouseServiceTest : AuthorizationTest() {
         client.webSocket("/ws") {
             run {
                 sendLoginFrame(this@configuredTestApplication, pr.user)
-                sendAndAssert("warehouse", pr.method, pr.payload, pr.expectedStatus)
+                sendAndAssert("warehouses", pr.method, pr.payload, pr.expectedStatus)
             }
         }
     }

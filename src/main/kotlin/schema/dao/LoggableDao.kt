@@ -17,8 +17,8 @@ data class LoggableDao(
             LoggableDao(
                 id = entity.id.value,
                 label = entity.label,
-                longitude = entity.location.y,
-                latitude = entity.location.x,
+                longitude = entity.location.x,
+                latitude = entity.location.y,
                 loggableType = entity.loggableType,
             )
         }

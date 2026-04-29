@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CreateLoggableCmd(
     var label: String,
-    var longitude: Double,
     var latitude: Double,
+    var longitude: Double,
     var loggableType: LoggableType,
     var companyId: Int,
 )

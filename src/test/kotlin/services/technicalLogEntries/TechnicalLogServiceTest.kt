@@ -2,12 +2,16 @@ package services.technicalLogEntries
 
 import at.eventful.messless.plugins.socket.model.Method
 import at.eventful.messless.repositories.equipment.EquipmentRepository
+import at.eventful.messless.repositories.event.EventRepository
+import at.eventful.messless.repositories.loggable.LoggableRepository
 import at.eventful.messless.repositories.technicalLogEntries.TechnicalLogEntryRepository
 import at.eventful.messless.repositories.technicalLogEntries.commands.CreateTechnicalLogEntryCmd
 import at.eventful.messless.repositories.technicalLogEntries.commands.FindTechnicalLogByEquipmentCmd
 import at.eventful.messless.repositories.users.UserRepository
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
 import at.eventful.messless.schema.dao.EquipmentDao
+import at.eventful.messless.schema.dao.EventDao
+import at.eventful.messless.schema.dao.LoggableDao
 import at.eventful.messless.schema.dao.TechnicalLogEntryDao
 import at.eventful.messless.schema.dao.WarehouseDao
 import io.ktor.client.plugins.websocket.*
@@ -26,6 +30,8 @@ class TechnicalLogServiceTest : AuthorizationTest() {
     override val usersRepository = mockk<UserRepository>()
     val equipmentRepository = mockk<EquipmentRepository>()
     val warehouseRepository = mockk<WarehouseRepository>()
+    val loggableRepository = mockk<LoggableRepository>()
+    val eventRepository = mockk<EventRepository>()
 
     companion object : AuthorizationTestCompanion() {
         val technicalLog = TechnicalLogEntryDao.fake(1)
@@ -34,7 +40,8 @@ class TechnicalLogServiceTest : AuthorizationTest() {
             technicalLog.isCheckIn,
             technicalLog.attachedTo?.id ?: 1,
             technicalLog.byUser?.id ?: 1,
-            technicalLog.loggable,
+            technicalLog.longitude ?: 0.0,
+            technicalLog.latitude ?: 0.0,
         )
 
         val findCmd = FindTechnicalLogByEquipmentCmd(
@@ -100,12 +107,21 @@ class TechnicalLogServiceTest : AuthorizationTest() {
         dependencies.provide<TechnicalLogEntryRepository> { technicalLogRepository }
         dependencies.provide<EquipmentRepository> { equipmentRepository }
         dependencies.provide<WarehouseRepository> { warehouseRepository }
+        dependencies.provide<EquipmentRepository> { equipmentRepository }
+        dependencies.provide<LoggableRepository> { loggableRepository }
+        dependencies.provide<EventRepository> { eventRepository }
 
-        every { technicalLogRepository.addTechnicalLogEntry(any()) } returns technicalLog
+        every { technicalLogRepository.addTechnicalLogEntry(any(), any()) } returns technicalLog
         every { technicalLogRepository.allTechnicalLogEntries() } returns listOf(technicalLog)
         every { technicalLogRepository.removeTechnicalLogEntry(any()) } returns technicalLog
+        every { technicalLogRepository.technicalLogEntryById(any()) } returns technicalLog
         every { equipmentRepository.equipmentById(any()) } returns EquipmentDao.fake(1)
         every { warehouseRepository.warehouseById(any()) } returns WarehouseDao.fake(1)
+        every { equipmentRepository.equipmentById(any()) } returns EquipmentDao.fake(1)
+        every { equipmentRepository.allEquipment() } returns listOf(EquipmentDao.fake(1))
+        every { loggableRepository.loggableById(any()) } returns LoggableDao.fake(1)
+        every { eventRepository.eventById(any()) } returns EventDao.fake(1)
+
         mockAuthRelatedMethods()
 
         client.webSocket("/ws") {

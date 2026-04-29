@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class CreateEquipmentCmd(
     var label: String,
     var belongsToWarehouse: Int,
-    var isStorage: Boolean
+    var isStorage: Boolean = false,
 )

@@ -11,8 +11,10 @@ import at.eventful.messless.repositories.equipment.commands.CreateEquipmentCmd
 import at.eventful.messless.repositories.equipment.commands.UpdateEquipmentCmd
 import at.eventful.messless.repositories.equipmentStorage.EquipmentStorageRepository
 import at.eventful.messless.repositories.equipmentStorage.commands.CreateEquipmentStorageCmd
+import at.eventful.messless.repositories.equipmentStorage.commands.FindEquipmentStorageCmd
 import at.eventful.messless.repositories.loggable.LoggableRepository
 import at.eventful.messless.repositories.loggable.command.UpdateLoggableCmd
+import at.eventful.messless.repositories.technicalLogEntries.TechnicalLogEntryRepository
 import at.eventful.messless.repositories.warehouse.WarehouseRepository
 import at.eventful.messless.schema.dto.EquipmentDto
 import at.eventful.messless.schema.utils.LoggableType
@@ -20,12 +22,15 @@ import at.eventful.messless.schema.utils.UserRole
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.di.*
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 class EquipmentsService(app: Application) : WebSocketService("equipments") {
     val equipmentRepo: EquipmentRepository by app.dependencies
     val warehouseRepo: WarehouseRepository by app.dependencies
     val equipmentStorageRepo: EquipmentStorageRepository by app.dependencies
     val loggableRepo: LoggableRepository by app.dependencies
+    val technicalLogEntryRepo: TechnicalLogEntryRepository by app.dependencies
 
     override fun ServiceMethod.create(): WebSocketResponse<EquipmentDto> {
         connection.auth.auth?.let {
@@ -45,7 +50,10 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
                     return WebSocketResponse.from(
                         HttpStatusCode.Created,
                         EquipmentDto.from(
-                            equipmentRepo.addEquipment(cmd), null
+                            equipmentRepo.addEquipment(cmd),
+                            null,
+                            warehouse.loggable?.longitude,
+                            warehouse.loggable?.latitude
                         ),
                     )
                 } catch (e: Exception) {
@@ -76,14 +84,38 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
                             cmd.isStorage
                         )
                     )
+
+                    val loggable =
+                        loggableRepo.loggableById(
+                            equipmentStorage.loggable?.id ?: throw NotFound("Loggable not found")
+                        )
+
+                    var latitude: Double? = null
+                    var longitude: Double? = null
+
+                    if (loggable == null) {
+                        val lastLogEntry = technicalLogEntryRepo.allTechnicalLogEntries()
+                            .filter { it.attachedTo?.id == equipment.id }
+                            .maxByOrNull { it.createdAt }
+                        if (lastLogEntry != null) {
+                            latitude = lastLogEntry.loggable?.latitude
+                            longitude = lastLogEntry.loggable?.longitude
+                        } else {
+                            val warehouse = warehouseRepo.warehouseById(equipment.belongsToWarehouse)
+                            latitude = warehouse?.loggable?.latitude
+                            longitude = warehouse?.loggable?.longitude
+                        }
+                    }
+
                     return WebSocketResponse.from(
                         HttpStatusCode.Created,
                         EquipmentDto.from(
                             equipment,
-                            loggableRepo.loggableById(
-                                equipmentStorage.loggable?.id ?: throw NotFound("Loggable not found")
-                            )
-                        ),
+                            loggable,
+                            latitude,
+                            longitude,
+
+                            ),
                     )
                 } catch (e: Exception) {
                     throw e
@@ -94,23 +126,47 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
     }
 
     override fun ServiceMethod.find(): WebSocketResponse<List<EquipmentDto>> {
+        val data = if (incoming.body != null) incoming.receiveBody<FindEquipmentStorageCmd>() else null
+
         connection.auth.auth?.let {
             return WebSocketResponse.from(
                 HttpStatusCode.OK,
-                equipmentRepo.allEquipment().map { equipment ->
-                    EquipmentDto.from(
-                        equipment,
-                        if (equipment.storage == null) null else {
+                equipmentRepo.allEquipment()
+                    .filter { if (data?.isEquipmentStorage == true) it.isStorage else true }
+                    .map { equipment ->
+                        val loggable = if (equipment.storage == null) null else
                             loggableRepo.loggableById(
                                 equipmentStorageRepo.equipmentStorageById(
                                     equipment.storage
                                 )?.loggable?.id
                                     ?: throw NotFound("Loggable not found")
                             ) ?: throw NotFound("Loggable not found")
+
+                        var latitude: Double? = null
+                        var longitude: Double? = null
+
+                        if (loggable == null) {
+                            val lastLogEntry = technicalLogEntryRepo.allTechnicalLogEntries()
+                                .filter { it.attachedTo?.id == equipment.id }
+                                .maxByOrNull { it.createdAt }
+
+                            if (lastLogEntry != null) {
+                                latitude = lastLogEntry.loggable?.latitude
+                                longitude = lastLogEntry.loggable?.longitude
+                            } else {
+                                val warehouse = warehouseRepo.warehouseById(equipment.belongsToWarehouse)
+                                latitude = warehouse?.loggable?.latitude
+                                longitude = warehouse?.loggable?.longitude
+                            }
                         }
 
-                    )
-                },
+                        EquipmentDto.from(
+                            equipment,
+                            loggable,
+                            latitude,
+                            longitude,
+                        )
+                    },
             )
         }
         throw Unauthorized()
@@ -119,21 +175,39 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
     override fun ServiceMethod.get(id: Int): WebSocketResponse<EquipmentDto> {
         connection.auth.auth?.let {
             val equipment = equipmentRepo.equipmentById(id) ?: throw NotFound("Equipment with id $id not found")
+            var latitude: Double? = null
+            var longitude: Double? = null
+            val loggable = if (equipment.storage == null) null else
+                loggableRepo.loggableById(
+                    equipmentStorageRepo.equipmentStorageById(
+                        equipment.storage
+                    )?.loggable?.id ?: throw NotFound("Loggable not found")
+                )
+                    ?: throw NotFound(
+                        "Loggable not found"
+                    )
+            if (loggable == null) {
+                val lastLogEntry = technicalLogEntryRepo.allTechnicalLogEntries()
+                    .filter { it.attachedTo?.id == equipment.id }
+                    .maxByOrNull { it.createdAt }
+
+                if (lastLogEntry != null) {
+                    latitude = lastLogEntry.loggable?.latitude
+                    longitude = lastLogEntry.loggable?.longitude
+                } else {
+                    val warehouse = warehouseRepo.warehouseById(equipment.belongsToWarehouse)
+                    latitude = warehouse?.loggable?.latitude
+                    longitude = warehouse?.loggable?.longitude
+                }
+            }
+
             return WebSocketResponse.from(
                 HttpStatusCode.OK,
                 EquipmentDto.from(
                     equipment,
-                    if (equipment.storage == null) null else {
-                        loggableRepo.loggableById(
-                            equipmentStorageRepo.equipmentStorageById(
-                                equipment.storage
-                            )?.loggable?.id ?: throw NotFound("Loggable not found")
-                        )
-                            ?: throw NotFound(
-                                "Loggable not found"
-                            )
-                    }
-
+                    loggable,
+                    latitude,
+                    longitude,
                 )
             )
         }
@@ -146,10 +220,10 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
             val updated = equipmentRepo.updateEquipment(id, cmd)
                 ?: throw NotFound("Equipment with id $id not found")
 
-            val lat = cmd.latitude
-            val lon = cmd.longitude
+            val latitude = cmd.latitude
+            val longitude = cmd.longitude
 
-            if (lat != null && lon != null) {
+            if (latitude != null && longitude != null) {
                 val storage = equipmentStorageRepo.equipmentStorageById(
                     updated.storage ?: throw NotFound("Equipment is not a storage")
                 )
@@ -162,22 +236,27 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
                     UpdateLoggableCmd(
                         loggableId,
                         updated.label,
-                        lon,
-                        lat,
+                        latitude,
+                        longitude,
                         LoggableType.Equipment,
                         warehouse.company?.id ?: throw NotFound("Warehouse has no company!")
                     )
                 )
             }
 
+            val loggable = if (updated.storage == null) null else
+                loggableRepo.loggableById(
+                    equipmentStorageRepo.equipmentStorageById(updated.storage!!)?.loggable?.id
+                        ?: throw NotFound("Loggable for equipment storage not found")
+                )
+
             return WebSocketResponse.from(
                 HttpStatusCode.OK,
                 EquipmentDto.from(
                     updated,
-                    loggableRepo.loggableById(
-                        equipmentStorageRepo.equipmentStorageById(updated.storage!!)?.loggable?.id
-                            ?: throw NotFound("Loggable for equipment storage not found")
-                    )
+                    loggable,
+                    longitude = loggable?.longitude ?: longitude,
+                    latitude = loggable?.latitude ?: latitude,
                 ),
             )
         }

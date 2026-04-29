@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS loggable (id SERIAL PRIMARY KEY, created_at TIMESTAMP NOT NULL, updated_at TIMESTAMP NULL, deleted_at TIMESTAMP NULL, "label" VARCHAR(255) NOT NULL, "location" GEOMETRY(POINT, 4326) NOT NULL, loggable_type VARCHAR(20) NOT NULL, company_id INT NOT NULL, CONSTRAINT fk_loggable_company_id__id FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT ON UPDATE RESTRICT);
 CREATE SEQUENCE IF NOT EXISTS loggable_id_seq START WITH 1 MINVALUE 1 MAXVALUE 9223372036854775807;
-ALTER TABLE equipment_storages ADD loggable INT NOT NULL;
-ALTER TABLE events ADD loggable INT NOT NULL;
-ALTER TABLE warehouses ADD loggable INT NOT NULL;
+ALTER TABLE equipment_storages ADD IF NOT EXISTS loggable INT NOT NULL;
+ALTER TABLE events ADD IF NOT EXISTS loggable INT NOT NULL;
+ALTER TABLE warehouses ADD IF NOT EXISTS loggable INT NOT NULL;
 ALTER TABLE equipment_storages ADD CONSTRAINT fk_equipment_storages_loggable__id FOREIGN KEY (loggable) REFERENCES loggable(id) ON DELETE RESTRICT ON UPDATE RESTRICT;
 ALTER TABLE equipment DROP CONSTRAINT fk_equipment_warehouse_id__id;
 ALTER TABLE equipment ADD CONSTRAINT fk_equipment_warehouse_id__id FOREIGN KEY (warehouse_id) REFERENCES warehouses(id) ON DELETE RESTRICT ON UPDATE RESTRICT;

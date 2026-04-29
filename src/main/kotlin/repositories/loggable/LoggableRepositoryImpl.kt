@@ -16,7 +16,7 @@ class LoggableRepositoryImpl : LoggableRepository {
     override fun addLoggable(loggable: CreateLoggableCmd): LoggableDao = transaction {
         LoggableDao.from(LoggableEntity.new {
             label = loggable.label
-            location = Point(loggable.latitude, loggable.longitude)
+            location = Point(loggable.longitude, loggable.latitude)
             loggableType = loggable.loggableType
             company = CompanyEntity.findById(loggable.companyId) ?: throw Error("Company not found")
         })!!
@@ -37,7 +37,7 @@ class LoggableRepositoryImpl : LoggableRepository {
     override fun updateLoggable(id: Int, loggable: UpdateLoggableCmd): LoggableDao? = transaction {
         LoggableDao.from(LoggableEntity.findByIdAndUpdate(id) {
             it.label = loggable.label
-            it.location = Point(loggable.latitude, loggable.longitude)
+            it.location = Point(loggable.longitude, loggable.latitude)
             it.loggableType = loggable.loggableType
             it.company = CompanyEntity.findById(loggable.companyId) ?: throw Error("Company not found")
         })
