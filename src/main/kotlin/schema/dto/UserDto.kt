@@ -13,6 +13,7 @@ data class UserDto(
     val email: String,
     val phone: String,
     val role: UserRole,
+    val company: Int? = null,
 ) {
     companion object {
         fun from(user: UserDao): UserDto = UserDto(
@@ -23,6 +24,7 @@ data class UserDto(
             email = user.email,
             phone = user.phone,
             role = user.role,
+            company = user.company?.id,
         )
     }
 }

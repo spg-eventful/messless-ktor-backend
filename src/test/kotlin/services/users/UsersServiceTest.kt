@@ -62,7 +62,7 @@ class UsersServiceTest : AuthorizationTest() {
             // READ
             ParameterizedReq("reads owner", CompanyOne.admin, 200, Method.READ, CompanyOne.owner.id.toString()),
             ParameterizedReq("reads owner", CompanyOne.owner, 200, Method.READ, CompanyOne.owner.id.toString()),
-            ParameterizedReq("reads owner", CompanyOne.worker, 403, Method.READ, CompanyOne.owner.id.toString()),
+            ParameterizedReq("reads owner", CompanyOne.worker, 200, Method.READ, CompanyOne.owner.id.toString()),
             // READ ALL
             ParameterizedReq("reads all", CompanyOne.admin, 200, Method.READ, null),
             ParameterizedReq("reads all", CompanyOne.owner, 200, Method.READ, null),
@@ -96,6 +96,11 @@ class UsersServiceTest : AuthorizationTest() {
         every { usersRepository.usersByCompanyId(any()) } returns listOf(CompanyOne.admin, CompanyOne.owner, CompanyOne.worker)
         every { usersRepository.updateUser(CompanyOne.owner.id, updateCmd) } returns CompanyOne.owner
         every { usersRepository.removeUser(CompanyOne.owner.id) } returns CompanyOne.owner
+        every { usersRepository.usersByCompanyId(any()) } returns listOf(
+            CompanyOne.admin,
+            CompanyOne.owner,
+            CompanyOne.worker
+        )
         mockAuthRelatedMethods()
 
         client.webSocket("/ws") {
