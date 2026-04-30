@@ -104,7 +104,9 @@ class WarehouseService(app: Application) : WebSocketService("warehouses") {
     override fun ServiceMethod.delete(id: Int): WebSocketResponse<Nothing> {
         connection.auth.auth?.let {
             if (it.user.role.asInt() < 3) throw Forbidden("You are not allowed to delete a warehouse!")
-            if (it.user.company?.id != warehouseRepository.warehouseById(id)?.company?.id) throw Forbidden("You are not allowed to delete this warehouse!")
+            if (it.user.company?.id != warehouseRepository.warehouseById(id)?.company?.id && it.user.role != UserRole.Admin) throw Forbidden(
+                "You are not allowed to delete this warehouse!"
+            )
             warehouseRepository.removeWarehouse(id) ?: throw NotFound("Warehouse with id $id not found")
             return WebSocketResponse(
                 HttpStatusCode.NoContent
