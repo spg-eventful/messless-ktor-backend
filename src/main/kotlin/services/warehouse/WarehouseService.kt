@@ -65,7 +65,9 @@ class WarehouseService(app: Application) : WebSocketService("warehouses") {
     override fun ServiceMethod.get(id: Int): WebSocketResponse<WarehouseDto> {
         connection.auth.auth?.let {
             val warehouse = warehouseRepository.warehouseById(id) ?: throw NotFound("Warehouse with id $id not found")
-            if (warehouse.company?.id != it.user.company?.id && it.user.role.asInt() != UserRole.Admin.asInt()) throw Forbidden("You are not allowed to access this warehouse!")
+            if (warehouse.company?.id != it.user.company?.id && it.user.role.asInt() != UserRole.Admin.asInt()) throw Forbidden(
+                "You are not allowed to access this warehouse!"
+            )
             return WebSocketResponse.from(
                 HttpStatusCode.OK,
                 WarehouseDto.from(
