@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class UpdateWarehouseCmd(
     val `$id`: Int,
     val label: String,
-    val latitude: Double,
     val longitude: Double,
+    val latitude: Double,
     val companyId: Int,
 )
