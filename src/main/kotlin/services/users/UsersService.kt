@@ -22,7 +22,8 @@ class UsersService(app: Application) : WebSocketService("users") {
     override fun ServiceMethod.create(): WebSocketResponse<UserDto> {
         connection.auth.auth?.let {
             val cmd = incoming.receiveBody<CreateUserCmd>()
-            if (it.user.role != UserRole.Admin && cmd.role.asInt() > it.user.role.asInt()) throw Forbidden("You are not allowed to create a user with this role!")
+            val role = UserRole.valueOf(cmd.role)
+            if (it.user.role != UserRole.Admin && role.asInt() > it.user.role.asInt()) throw Forbidden("You are not allowed to create a user with this role!")
             try {
                 return WebSocketResponse.from(
                     HttpStatusCode.Created,

@@ -49,7 +49,7 @@ class CompanyService(app: Application) : WebSocketService("companies") {
 
     override fun ServiceMethod.get(id: Int): WebSocketResponse<CompanyDto> {
         connection.auth.auth?.let {
-            if (it.user.company?.id != id) throw Forbidden("You are not allowed to query for companies that are not yours!")
+            if (it.user.company?.id != id && it.user.role.asInt() != 5) throw Forbidden("You are not allowed to query for companies that are not yours!")
 
             val company = companyRepo.companyById(id) ?: throw NotFound("Company with id $id not found")
             return WebSocketResponse.from(

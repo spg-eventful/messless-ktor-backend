@@ -6,6 +6,7 @@ import at.eventful.messless.schema.dao.UserDao
 import at.eventful.messless.schema.entities.CompanyEntity
 import at.eventful.messless.schema.entities.UserEntity
 import at.eventful.messless.schema.tables.UserTable
+import at.eventful.messless.schema.utils.UserRole
 import at.eventful.messless.services.auth.hashWithDefaultConfig
 import de.mkammerer.argon2.Argon2
 import org.jetbrains.exposed.v1.core.and
@@ -47,7 +48,7 @@ class UserRepositoryImpl(val argon2: Argon2) : UserRepository {
             firstName = user.firstName
             lastName = user.lastName
             phone = user.phone
-            role = user.role
+            role = UserRole.valueOf(user.role)
             company = CompanyEntity.findById(user.companyId ?: -1)
         })!!
     }
@@ -60,7 +61,7 @@ class UserRepositoryImpl(val argon2: Argon2) : UserRepository {
                 lastName = user.lastName
                 phone = user.phone
                 role = user.role
-                company = CompanyEntity.findById(user.companyId ?: -1)
+                company = CompanyEntity.findById(user.company ?: -1)
             }
         })
     }
