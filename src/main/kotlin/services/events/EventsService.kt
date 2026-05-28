@@ -24,7 +24,13 @@ class EventsService(app: Application) : WebSocketService("events") {
         connection.auth.auth?.let { auth ->
             if (auth.user.role.asInt() < 3) throw Forbidden("You are not allowed to create events!")
 
-            val cmd = incoming.receiveBody<CreateEventCmd>()
+            val dto = incoming.receiveBody<EventDto>()
+            val cmd = CreateEventCmd(
+                dto.label,
+                dto.longitude,
+                dto.latitude,
+                auth.user.company?.id ?: throw Forbidden("User has no company!")
+            )
 
             if (auth.user.role == UserRole.Admin) {
                 if (cmd.companyId == null) throw Forbidden("Admins must specify a companyId.")
@@ -39,11 +45,12 @@ class EventsService(app: Application) : WebSocketService("events") {
                 cmd.companyId = userCompanyId
             }
 
+
             try {
                 val addedEvent = eventsRepo.addEvent(cmd)
                 val loggable = loggableRepo.loggableById(
                     addedEvent.loggable?.id ?: throw NotFound("Event ${addedEvent.loggable?.id} not found!")
-                ) ?: throw NotFound("Event ${addedEvent.loggable.id} not found!")
+                ) ?: throw NotFound("Event ${addedEvent.loggable?.id} not found!")
                 return WebSocketResponse.from(
                     HttpStatusCode.Created,
                     EventDto.from(addedEvent, loggable)
@@ -75,7 +82,7 @@ class EventsService(app: Application) : WebSocketService("events") {
                     event,
                     loggableRepo.loggableById(
                         event.loggable?.id ?: throw NotFound("Event ${event.loggable?.id} not found!")
-                    ) ?: throw NotFound("Event ${event.loggable.id} not found!")
+                    ) ?: throw NotFound("Event ${event.loggable?.id} not found!")
                 ),
             )
         }
@@ -94,7 +101,7 @@ class EventsService(app: Application) : WebSocketService("events") {
                     updated,
                     loggableRepo.loggableById(
                         updated.loggable?.id ?: throw NotFound("Event ${updated.loggable?.id} not found!")
-                    ) ?: throw NotFound("Event ${updated.loggable.id} not found!")
+                    ) ?: throw NotFound("Event ${updated.loggable?.id} not found!")
                 ),
             )
         }
