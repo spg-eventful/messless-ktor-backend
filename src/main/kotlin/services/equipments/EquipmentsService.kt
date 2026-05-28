@@ -98,8 +98,8 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
                             .filter { it.attachedTo?.id == equipment.id }
                             .maxByOrNull { it.createdAt }
                         if (lastLogEntry != null) {
-                            latitude = lastLogEntry.loggable?.latitude
-                            longitude = lastLogEntry.loggable?.longitude
+                            latitude = lastLogEntry.latitude
+                            longitude = lastLogEntry.longitude
                         } else {
                             val warehouse = warehouseRepo.warehouseById(equipment.belongsToWarehouse)
                             latitude = warehouse?.loggable?.latitude
@@ -112,8 +112,8 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
                         EquipmentDto.from(
                             equipment,
                             loggable,
-                            latitude,
                             longitude,
+                            latitude,
 
                             ),
                     )
@@ -151,8 +151,8 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
                                 .maxByOrNull { it.createdAt }
 
                             if (lastLogEntry != null) {
-                                latitude = lastLogEntry.loggable?.latitude
-                                longitude = lastLogEntry.loggable?.longitude
+                                latitude = lastLogEntry.latitude
+                                longitude = lastLogEntry.longitude
                             } else {
                                 val warehouse = warehouseRepo.warehouseById(equipment.belongsToWarehouse)
                                 latitude = warehouse?.loggable?.latitude
@@ -163,8 +163,8 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
                         EquipmentDto.from(
                             equipment,
                             loggable,
-                            latitude,
                             longitude,
+                            latitude,
                         )
                     },
             )
@@ -192,8 +192,8 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
                     .maxByOrNull { it.createdAt }
 
                 if (lastLogEntry != null) {
-                    latitude = lastLogEntry.loggable?.latitude
-                    longitude = lastLogEntry.loggable?.longitude
+                    latitude = lastLogEntry.latitude
+                    longitude = lastLogEntry.longitude
                 } else {
                     val warehouse = warehouseRepo.warehouseById(equipment.belongsToWarehouse)
                     latitude = warehouse?.loggable?.latitude
@@ -206,8 +206,8 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
                 EquipmentDto.from(
                     equipment,
                     loggable,
-                    latitude,
                     longitude,
+                    latitude,
                 )
             )
         }

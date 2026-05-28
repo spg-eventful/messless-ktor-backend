@@ -27,7 +27,7 @@ class EventRepositoryImpl : EventRepository {
                         event.longitude,
                         event.latitude,
                         LoggableType.Event,
-                        event.companyId
+                        event.companyId!!
                     )
                 ).id
             ) ?: throw Error("Loggable not found")
@@ -49,9 +49,9 @@ class EventRepositoryImpl : EventRepository {
     override fun updateEvent(id: Int, event: UpdateEventCmd): EventDao? = transaction {
         EventDao.from(EventEntity.findByIdAndUpdate(id) {
             loggableRepository.updateLoggable(
-                it.loggable!!.id.value,
+                it.loggable.id.value,
                 UpdateLoggableCmd(
-                    it.loggable!!.id.value,
+                    it.loggable.id.value,
                     event.label,
                     event.longitude,
                     event.latitude,
@@ -65,7 +65,7 @@ class EventRepositoryImpl : EventRepository {
     @OptIn(ExperimentalTime::class)
     override fun removeEvent(id: Int): EventDao? = transaction {
         EventDao.from(EventEntity.findByIdAndUpdate(id) {
-            loggableRepository.removeLoggable(it.loggable!!.id.value)
+            loggableRepository.removeLoggable(it.loggable.id.value)
             it.deletedAt = Clock.System.now()
         })
     }

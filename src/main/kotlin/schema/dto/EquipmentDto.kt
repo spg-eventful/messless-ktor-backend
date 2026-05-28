@@ -2,7 +2,6 @@ package at.eventful.messless.schema.dto
 
 import at.eventful.messless.schema.dao.EquipmentDao
 import at.eventful.messless.schema.dao.LoggableDao
-import at.eventful.messless.schema.utils.LoggableType
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -13,7 +12,6 @@ data class EquipmentDto(
     val storage: Int?,
     val longitude: Double?,
     val latitude: Double?,
-    val loggableType: LoggableType?,
 ) {
     companion object {
         fun from(equipment: EquipmentDao, loggable: LoggableDao?, longitude: Double?, latitude: Double?): EquipmentDto = EquipmentDto(
@@ -22,8 +20,7 @@ data class EquipmentDto(
             belongsToWarehouse = equipment.belongsToWarehouse,
             storage = equipment.storage,
             longitude = loggable?.longitude ?: longitude,
-            latitude = loggable?.latitude ?: latitude,
-            loggableType = loggable?.loggableType,
+            latitude = loggable?.latitude ?: latitude
         )
     }
 }

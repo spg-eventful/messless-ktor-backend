@@ -8,16 +8,16 @@ import kotlinx.serialization.Serializable
 data class WarehouseDto(
     val id: Int,
     val label: String,
-    val latitude: Double,
     val longitude: Double,
+    val latitude: Double,
     val company: Int
 ){
     companion object{
         fun from(warehouse: WarehouseDao, loggable: LoggableDao): WarehouseDto = WarehouseDto(
             id = warehouse.id,
             label = loggable.label,
-            latitude = loggable.latitude,
             longitude = loggable.longitude,
+            latitude = loggable.latitude,
             company = warehouse.company!!.id
         )
     }

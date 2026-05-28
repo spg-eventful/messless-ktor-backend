@@ -36,16 +36,16 @@ class WarehouseServiceTest : AuthorizationTest() {
 
         val createCmd = CreateWarehouseCmd(
             loggable.label,
-            loggable.latitude,
             loggable.longitude,
+            loggable.latitude,
             CompanyOne.owner.company?.id ?: 1,
         )
 
         val updateCmd = UpdateWarehouseCmd(
             warehouse.id,
             loggable.label,
-            loggable.latitude,
             loggable.longitude,
+            loggable.latitude,
             CompanyOne.owner.company?.id ?: 1,
         )
 
