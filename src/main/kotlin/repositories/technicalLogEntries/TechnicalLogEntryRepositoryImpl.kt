@@ -21,6 +21,7 @@ class TechnicalLogEntryRepositoryImpl : TechnicalLogEntryRepository {
                     byUser = UserEntity.findById(userId)!!
                     loggable = LoggableEntity.findById(createTechnicalLogEntryCommand.loggable)!!
                     location = Point(createTechnicalLogEntryCommand.longitude, createTechnicalLogEntryCommand.latitude)
+                    comment = createTechnicalLogEntryCommand.comment
                 }
             )!!
         }

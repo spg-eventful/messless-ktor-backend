@@ -17,6 +17,7 @@ data class TechnicalLogEntryDao(
     val createdAt: Instant,
     val longitude: Double? = null,
     val latitude: Double? = null,
+    val comment: String? = null,
 ) {
     companion object : ConvertibleDao<TechnicalLogEntryEntity, TechnicalLogEntryDao> {
         override fun from(entity: TechnicalLogEntryEntity?): TechnicalLogEntryDao? = entity?.let {
@@ -29,6 +30,7 @@ data class TechnicalLogEntryDao(
                 createdAt = entity.createdAt,
                 longitude = entity.location.x,
                 latitude = entity.location.y,
+                comment = entity.comment,
             )
         }
 
@@ -41,6 +43,7 @@ data class TechnicalLogEntryDao(
             createdAt = Instant.DISTANT_PAST,
             longitude = 0.0,
             latitude = 0.0,
+            comment = "Fake comment",
         )
     }
 }

@@ -21,4 +21,5 @@ class TechnicalLogEntryEntity(id: EntityID<Int>) : BaseEntity(id) {
     var byUser by UserEntity referencedOn TechnicalLogEntryTable.byUser
 
     var loggable by LoggableEntity referencedOn TechnicalLogEntryTable.loggable
+    var comment by TechnicalLogEntryTable.comment
 }

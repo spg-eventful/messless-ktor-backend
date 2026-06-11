@@ -10,4 +10,5 @@ object TechnicalLogEntryTable : BaseTable("technical_log_entries") {
     val byUser = reference("user_id", UserTable)
     var loggable = reference("loggable_id", LoggableTable)
     val location = point("location", srid = 4326)
+    val comment = varchar("comment", 500).nullable()
 }

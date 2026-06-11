@@ -9,4 +9,5 @@ class CreateTechnicalLogEntryCmd(
     val loggable: Int,
     val longitude: Double,
     val latitude: Double,
+    val comment: String? = null,
 )
