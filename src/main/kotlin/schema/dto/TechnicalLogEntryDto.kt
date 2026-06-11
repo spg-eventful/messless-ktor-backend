@@ -15,6 +15,7 @@ data class TechnicalLogEntryDto(
     val userFullName: String,
     val longitude: Double?,
     val latitude: Double?,
+    val comment: String?,
     val createdAt: String = "",
 ) {
     companion object{
@@ -28,6 +29,7 @@ data class TechnicalLogEntryDto(
             userFullName = "${technicalLogEntry.byUser?.firstName} ${technicalLogEntry.byUser?.lastName}",
             longitude = technicalLogEntry.longitude,
             latitude = technicalLogEntry.latitude,
+            comment = technicalLogEntry.comment,
             createdAt = technicalLogEntry.createdAt.toString(),
             )
     }

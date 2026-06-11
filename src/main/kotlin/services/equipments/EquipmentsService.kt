@@ -22,6 +22,7 @@ import at.eventful.messless.schema.utils.UserRole
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.di.*
+import org.jetbrains.exposed.v1.core.exposedLogger
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
@@ -128,44 +129,61 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
     override fun ServiceMethod.find(): WebSocketResponse<List<EquipmentDto>> {
         val data = if (incoming.body != null) incoming.receiveBody<FindEquipmentStorageCmd>() else null
 
-        connection.auth.auth?.let {
+        connection.auth.auth?.let { auth ->
+            val userCompanyId = auth.user.company?.id
+            val userRole = auth.user.role
+            val isAdmin = userRole.asInt() >= 5
+
             return WebSocketResponse.from(
                 HttpStatusCode.OK,
                 equipmentRepo.allEquipment()
-                    .filter { if (data?.isEquipmentStorage == true) it.isStorage else true }
-                    .map { equipment ->
-                        val loggable = if (equipment.storage == null) null else
-                            loggableRepo.loggableById(
-                                equipmentStorageRepo.equipmentStorageById(
-                                    equipment.storage
-                                )?.loggable?.id
-                                    ?: throw NotFound("Loggable not found")
-                            ) ?: throw NotFound("Loggable not found")
+                    .filter { equipment ->
+                        val warehouse = warehouseRepo.warehouseById(equipment.belongsToWarehouse)
+                        val warehouseCompanyId = warehouse?.company?.id
+                        
+                        val hasAccess = isAdmin || (warehouseCompanyId != null && warehouseCompanyId == userCompanyId)
+                        val matchesFilter = if (data?.isEquipmentStorage == true) equipment.isStorage else true
+                        
+                        hasAccess && matchesFilter
+                    }
+                    .mapNotNull { equipment ->
+                        try {
+                            val loggable = if (equipment.storage == null) null else
+                                loggableRepo.loggableById(
+                                    equipmentStorageRepo.equipmentStorageById(
+                                        equipment.storage
+                                    )?.loggable?.id
+                                        ?: return@mapNotNull null
+                                ) ?: return@mapNotNull null
 
-                        var latitude: Double? = null
-                        var longitude: Double? = null
+                            var latitude: Double? = null
+                            var longitude: Double? = null
 
-                        if (loggable == null) {
-                            val lastLogEntry = technicalLogEntryRepo.allTechnicalLogEntries()
-                                .filter { it.attachedTo?.id == equipment.id }
-                                .maxByOrNull { it.createdAt }
+                            if (loggable == null) {
+                                val lastLogEntry = technicalLogEntryRepo.allTechnicalLogEntries()
+                                    .filter { it.attachedTo?.id == equipment.id }
+                                    .maxByOrNull { it.createdAt }
 
-                            if (lastLogEntry != null) {
-                                latitude = lastLogEntry.latitude
-                                longitude = lastLogEntry.longitude
-                            } else {
-                                val warehouse = warehouseRepo.warehouseById(equipment.belongsToWarehouse)
-                                latitude = warehouse?.loggable?.latitude
-                                longitude = warehouse?.loggable?.longitude
+                                if (lastLogEntry != null) {
+                                    latitude = lastLogEntry.latitude
+                                    longitude = lastLogEntry.longitude
+                                } else {
+                                    val warehouse = warehouseRepo.warehouseById(equipment.belongsToWarehouse)
+                                    latitude = warehouse?.loggable?.latitude
+                                    longitude = warehouse?.loggable?.longitude
+                                }
                             }
-                        }
 
-                        EquipmentDto.from(
-                            equipment,
-                            loggable,
-                            longitude,
-                            latitude,
-                        )
+                            EquipmentDto.from(
+                                equipment,
+                                loggable,
+                                longitude,
+                                latitude,
+                            )
+                        } catch (e: Exception) {
+                            exposedLogger.error("Error mapping equipment ${equipment.id}: ${e.message}")
+                            null
+                        }
                     },
             )
         }
@@ -173,8 +191,15 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
     }
 
     override fun ServiceMethod.get(id: Int): WebSocketResponse<EquipmentDto> {
-        connection.auth.auth?.let {
+        connection.auth.auth?.let { auth ->
             val equipment = equipmentRepo.equipmentById(id) ?: throw NotFound("Equipment with id $id not found")
+            val warehouse = warehouseRepo.warehouseById(equipment.belongsToWarehouse)
+            val isAdmin = auth.user.role.asInt() >= 5
+
+            if (!isAdmin && warehouse?.company?.id != auth.user.company?.id) {
+                throw Forbidden("You are not allowed to access this equipment!")
+            }
+
             var latitude: Double? = null
             var longitude: Double? = null
             val loggable = if (equipment.storage == null) null else
@@ -215,8 +240,16 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
     }
 
     override fun ServiceMethod.update(id: Int): WebSocketResponse<EquipmentDto> {
-        connection.auth.auth?.let {
+        connection.auth.auth?.let { auth ->
             val cmd = incoming.receiveBody<UpdateEquipmentCmd>()
+            val equipment = equipmentRepo.equipmentById(id) ?: throw NotFound("Equipment with id $id not found")
+            val warehouseBefore = warehouseRepo.warehouseById(equipment.belongsToWarehouse)
+            val isAdmin = auth.user.role.asInt() >= 5
+
+            if (!isAdmin && warehouseBefore?.company?.id != auth.user.company?.id) {
+                throw Forbidden("You are not allowed to update this equipment!")
+            }
+
             val updated = equipmentRepo.updateEquipment(id, cmd)
                 ?: throw NotFound("Equipment with id $id not found")
 
@@ -246,7 +279,7 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
 
             val loggable = if (updated.storage == null) null else
                 loggableRepo.loggableById(
-                    equipmentStorageRepo.equipmentStorageById(updated.storage!!)?.loggable?.id
+                    equipmentStorageRepo.equipmentStorageById(updated.storage)?.loggable?.id
                         ?: throw NotFound("Loggable for equipment storage not found")
                 )
 
@@ -264,8 +297,17 @@ class EquipmentsService(app: Application) : WebSocketService("equipments") {
     }
 
     override fun ServiceMethod.delete(id: Int): WebSocketResponse<EquipmentDto> {
-        connection.auth.auth?.let {
-            if (it.user.role.asInt() < 2) throw Forbidden("You are not allowed to delete equipment!")
+        connection.auth.auth?.let { auth ->
+            if (auth.user.role.asInt() < 2) throw Forbidden("You are not allowed to delete equipment!")
+
+            val equipment = equipmentRepo.equipmentById(id) ?: throw NotFound("Equipment with id $id not found")
+            val warehouse = warehouseRepo.warehouseById(equipment.belongsToWarehouse)
+            val isAdmin = auth.user.role.asInt() >= 5
+
+            if (!isAdmin && warehouse?.company?.id != auth.user.company?.id) {
+                throw Forbidden("You are not allowed to delete this equipment!")
+            }
+
             equipmentRepo.removeEquipment(id) ?: throw NotFound("Equipment with id $id not found")
             return WebSocketResponse(
                 HttpStatusCode.NoContent
